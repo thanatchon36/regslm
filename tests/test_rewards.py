@@ -286,3 +286,16 @@ def test_extract_numbers_eu_formats() -> None:
     assert 4.5 in extract_numbers("ratio of 4,5 %")
     assert 5_000_000.0 in extract_numbers("EUR 5 000 000")
     assert 1000.0 in extract_numbers("1,000 days")
+
+
+def test_thai_number_words() -> None:
+    from regslm.rewards.normalize import (
+        deadline_pairs,
+        extract_numbers,
+        thai_number_words_to_digits,
+    )
+
+    assert 30.0 in extract_numbers("ภายในสามสิบวัน")
+    assert 25.0 in extract_numbers("ไม่เกินร้อยละยี่สิบห้าของเงินกองทุน")
+    assert "สามารถ" in thai_number_words_to_digits("ธนาคารสามารถยื่นคำขอได้")
+    assert (30.0, "day") in deadline_pairs("ภายในสามสิบวัน")

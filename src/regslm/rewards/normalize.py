@@ -17,6 +17,7 @@ import math
 import re
 import unicodedata
 from collections.abc import Sequence
+from functools import lru_cache
 
 from regslm.schema.obligation import Obligation, Span, Threshold
 
@@ -86,9 +87,84 @@ def normalize_unit(unit: str) -> str:
     return _UNIT_ALIASES.get(t, t)
 
 
+_TH_NUM_WORDS = frozenset(
+    [
+        "ศูนย์",
+        "หนึ่ง",
+        "เอ็ด",
+        "สอง",
+        "ยี่",
+        "สาม",
+        "สี่",
+        "ห้า",
+        "หก",
+        "เจ็ด",
+        "แปด",
+        "เก้า",
+        "สิบ",
+        "ร้อย",
+        "พัน",
+        "หมื่น",
+        "แสน",
+        "ล้าน",
+    ]
+)  # fmt: skip
+_TH_NUM_CHARS = re.compile(r"^[ก-๛]+$")
+
+
+def _is_th_number_word(tok: str) -> bool:
+    """True if ``tok`` is fully made of Thai numeral words (greedy longest match)."""
+    i = 0
+    while i < len(tok):
+        for w in sorted(_TH_NUM_WORDS, key=len, reverse=True):
+            if tok.startswith(w, i):
+                i += len(w)
+                break
+        else:
+            return False
+    return bool(tok)
+
+
+@lru_cache(maxsize=8192)
+def thai_number_words_to_digits(s: str) -> str:
+    """Replace runs of Thai number words ("สามสิบ", "ยี่สิบห้า") by Arabic digits.
+
+    Works on whole tokens from PyThaiNLP word segmentation, so words that merely contain a
+    numeral syllable ("สามารถ", "ร้อยละ") are untouched. Returns ``s`` unchanged if PyThaiNLP is
+    not installed or the text has no Thai.
+    """
+    if not re.search(r"[ก-๛]", s):
+        return s
+    try:
+        from pythainlp.tokenize import word_tokenize
+        from pythainlp.util import thaiword_to_num
+    except ImportError:  # pragma: no cover - th extra not installed
+        return s
+    toks = word_tokenize(s, engine="newmm", keep_whitespace=True)
+    out: list[str] = []
+    run: list[str] = []
+
+    def flush() -> None:
+        if run:
+            try:
+                out.append(str(thaiword_to_num("".join(run))))
+            except (ValueError, KeyError, TypeError):
+                out.extend(run)
+            run.clear()
+
+    for t in toks:
+        if t != "ร้อยละ" and _is_th_number_word(t):
+            run.append(t)
+        else:
+            flush()
+            out.append(t)
+    flush()
+    return "".join(out)
+
+
 def digits_to_ascii(s: str) -> str:
     """NFKC, Thai digits to ASCII, thousands separators removed, EU decimal comma to point."""
-    t = unicodedata.normalize("NFKC", s).translate(_THAI_DIGITS)
+    t = thai_number_words_to_digits(unicodedata.normalize("NFKC", s).translate(_THAI_DIGITS))
     t = re.sub(r"(?<=\d)[,\u00a0 ](?=\d{3}(?!\d))", "", t)  # 1,000 / 5 000 000
     return re.sub(r"(?<=\d),(?=\d{1,2}(?!\d))", ".", t)  # EU decimal comma: 4,5 -> 4.5
 

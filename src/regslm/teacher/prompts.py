@@ -17,44 +17,72 @@ from __future__ import annotations
 
 from typing import Literal
 
-PROMPT_VERSION = "v3"  # v2: citation.quote (D-020); v3: quote from TEXT, not HEADING
+PROMPT_VERSION = "v4"  # v2: citation.quote (D-020); v3: quote from TEXT; v4: guide v2.0 (D-036)
 
 Variant = Literal["label", "rationale", "gold_a", "gold_b"]
 
 _RULES = """\
-An obligation is a statement that directs an identified party (a firm, institution, person,
-or the authority itself) to do, not do, or be permitted to do something.
-- modality: "must" (shall, must, is required to, ต้อง, ให้…), "must_not" (shall not, must not,
-  may not, no person shall, ห้าม, มิให้), "may" (may, is permitted to, อาจ, มีสิทธิ — a
-  permission, not a possibility), "should" (should, is expected to, ควร).
-- NOT obligations: definitions ("means", "includes", "for the purposes of"), scope and
-  purpose statements, commencement, amending instructions ("is replaced by"), "may" meaning
-  possibility, and guidance that merely restates a rule found elsewhere. For these return
-  an empty list.
-- Duties of the authority (e.g. "The competent authority shall publish…") ARE obligations.
-- If the unit is a list point, subject and modality come from the lead-in given as HEADING.
-- If a "shall" sentence names no duty-bearer ("the risk weight shall be 100 %"), the subject
-  is the party the instrument addresses in the heading (e.g. "institutions").
-- One obligation per (subject, modality, action); split when objects, thresholds or
-  deadlines differ; keep coordinated verbs together ("establish and maintain").
-- Copy phrases from the text; do not paraphrase. subject = shortest noun phrase; action =
-  verb phrase without modal and object; condition = when/if/where clause (join nested
-  conditions with " AND "); exceptions = each unless/except/other than clause.
-- threshold = the binding number the party must meet: value as a number (4.5 for "4.5 %"),
-  unit ("%", "USD", "EUR", "THB", "days", "times"), comparator (">=" at least/not less than/
-  minimum; ">" more than/exceed in a prohibition; "<=" not exceed/no more than in a duty;
-  "<" less than; "==" exactly). Numbers that only decide WHETHER the rule applies (e.g.
-  "where total assets exceed $250 billion") stay inside condition, not threshold.
-- deadline = time limit or frequency, copied ("within 30 days", "annually", "at all times").
+An obligation is a MAIN CLAUSE that directs a NAMED party (a firm, institution, person, or an
+authority) to do, not do, or be permitted or expected to do something.
+- modality: "must" (shall, must, is required to, ต้อง, มีหน้าที่, directive ให้ + actor + action,
+  ให้ถือปฏิบัติ); "must_not" (shall not, must not, may not, no person shall, ห้าม, มิให้); "may"
+  (may, is permitted to, มีสิทธิ, อาจ/สามารถ…ได้ only when a party is granted a right — not a
+  possibility or capability); "should" (should, is expected to, ควร).
+- The subject must be named in TEXT or in a lead-in sentence in HEADING ("A bank must:"). Never
+  invent a subject. A "shall" sentence with no addressee ("the risk weight shall be 100 %", "the
+  value shall be equal to the sum of…") is a calculation rule: return no obligation for it.
+  Section titles never supply modality.
+- Return an EMPTY list for: definitions ("means", "includes", "for the purposes of", "X = …");
+  modals inside a noun phrase or relative clause ("the amount that the bank must return");
+  scope/applicability ("shall apply to", "shall not apply to"); deeming ("shall be treated as",
+  "is deemed", ให้ถือว่า); commencement, repeal (ให้ยกเลิก), amending instructions; legislative
+  delegation ("power is delegated to the Commission to adopt…", "EBA shall develop draft
+  standards"); official interpretations/commentary or guidance restating a rule; composition or
+  term of office (ให้…ประกอบด้วย, ให้…อยู่ในตำแหน่ง); table cells, form codes, fragments with no main
+  clause; "may" or อาจ meaning possibility. Exception: "an institution shall treat X as Y" or
+  "shall apply Article X" directs a party → obligation.
+- Thai: ให้ is NOT a trigger when it means "give/grant" (ให้สินเชื่อ) or in เพื่อให้. If the
+  subject is in a preceding ในกรณีที่… clause of the same sentence, copy it from there.
+- Operative duties and powers of an authority ARE obligations ("The competent authority shall
+  publish…", "The Commission may exempt…").
+- One obligation per (subject, modality, action); split when objects, thresholds or deadlines
+  differ; keep coordinated verbs together ("establish and maintain"). "must ensure that others
+  do not…" is ONE obligation on the party that must ensure.
+- Copy phrases from TEXT; do not paraphrase. subject = shortest noun phrase (replace pronouns like
+  "it" with the noun phrase they refer to; "No person shall" → subject "person"); action = verb
+  phrase without modal and object ("be" for a limit on a quantity); object includes the base of a
+  limit; condition = when/if/where/provided-that clause, nested conditions joined with " AND ";
+  exceptions = each unless/except/other-than carve-out ("notwithstanding" is NOT an exception).
+- threshold = the BINDING number defining compliance. value = the number as written converted to
+  Arabic digits (4.5 for "4,5 %", 25 for "๒๕" or "ยี่สิบห้า", 250 for "$250 billion"); unit includes
+  any scale word ("%", "USD billion", "EUR million", "days", "THB"). Comparator: for a LIMIT ON A
+  QUANTITY ("X shall not exceed Y", "at least Y", "maintain a ratio of at least Y") use modality
+  "must" and the compliant region ("<=" not exceed/no more than, ">=" at least/not less than/
+  minimum, "==" equal to). For a PROHIBITED ACT defined by a limit ("shall not grant credit
+  exceeding Y") use "must_not" and the prohibited region (">" exceeding/more than, "<" below).
+  A number that only decides WHETHER the duty applies ("where total assets exceed $250 billion")
+  stays in condition, not threshold.
+- deadline = time limit, frequency or duration, copied verbatim ("within 30 days", "annually",
+  "at all times", "ภายในสามสิบวัน"). Time limits are never thresholds.
+- delegations ("as specified by the Bank of Thailand", ตามที่ธนาคารแห่งประเทศไทยประกาศกำหนด): keep the
+  phrase verbatim in object or condition; do not invent numbers.
 - citation: source and unit_id exactly as given; quote = the sentence or clause of TEXT that
-  contains the trigger word, copied character for character (do not shorten words, do not
-  fix typos). If TEXT is a single short item, quote all of it. Always quote from TEXT,
-  never from HEADING — for a list point, quote the point itself.
-- confidence: your probability (0–1) that the obligation is correct.
-Use only numbers that appear in TEXT. Never use values you remember from other versions of
-this rule."""
+  contains the trigger, copied character for character. Quote from TEXT, never from HEADING —
+  for a list point, quote the point itself. If TEXT is a single short item, quote all of it.
+- confidence: your probability (0-1) that the obligation is correct.
+Use only numbers that appear in TEXT (digits, Thai digits or number words). Never use values you
+remember from other versions of this rule."""
 
 _EXAMPLES = [
+    (
+        "Large exposures shall not exceed 25 % of Tier 1 capital.",
+        '{"subject":"Large exposures","modality":"must","action":"be","object":"of Tier 1 '
+        'capital","threshold":{"value":25,"unit":"%","comparator":"<="}}',
+    ),
+    (
+        "The value of the aggregated long position shall be equal to the sum of the positions.",
+        "no obligations (no named addressee: calculation rule)",
+    ),
     (
         "Institutions shall at all times satisfy a Common Equity Tier 1 capital ratio of 4.5 %.",
         '{"subject":"Institutions","modality":"must","action":"satisfy","object":"a Common '
@@ -74,7 +102,8 @@ _EXAMPLES = [
     (
         "Where a covered company's total consolidated assets exceed $250 billion, it must "
         "conduct a stress test semi-annually.",
-        '{"subject":"it","modality":"must","action":"conduct","object":"a stress test",'
+        '{"subject":"a covered company","modality":"must","action":"conduct","object":'
+        '"a stress test",'
         '"condition":"Where a covered company\'s total consolidated assets exceed $250 '
         'billion","deadline":"semi-annually"}',
     ),
@@ -99,7 +128,7 @@ def _examples(order: list[int]) -> str:
 SYSTEM_SILVER = (
     "You extract legal obligations from one paragraph of a financial regulation and return "
     "JSON that matches the given schema exactly.\n\n"
-    f"Rules:\n{_RULES}\n\nExamples:\n{_examples([0, 1, 2, 3, 4])}"
+    f"Rules:\n{_RULES}\n\nExamples:\n{_examples([2, 3, 0, 4, 5, 1, 6])}"
 )
 RATIONALE_INSTRUCTION = (
     "\n\nAlso fill `rationale` with at most three short sentences explaining: which trigger "
@@ -117,7 +146,7 @@ SYSTEM_GOLD_B = (
     "forbidden, permitted or expected to do something? What exactly? Under what condition, by "
     "when, with what numeric limit, and with what exceptions? Return an empty list if the "
     "paragraph defines terms, describes scope, amends another text, or creates no duty or "
-    f"permission.\n\nGuidance:\n{_RULES}\n\nExamples:\n{_examples([4, 2, 1, 3, 0])}"
+    f"permission.\n\nGuidance:\n{_RULES}\n\nExamples:\n{_examples([6, 4, 1, 3, 5, 0, 2])}"
 )
 
 

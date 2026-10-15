@@ -1,193 +1,221 @@
 # Annotation guide — obligations
 
-Version 1.1 (2026-10-15; 1.1: citations by quote, D-020). Applies to gold adjudication, teacher prompts and evaluation.
-Schema: `src/regslm/schema/obligation.py` (`Extraction` → `Obligation[]`). Ambiguities found
-during annotation go to `docs/INTERPRETATIONS.md` and, once resolved, into this guide with a
-version bump.
+Version 2.0 (2026-10-15). v1.1: citations by quote (D-020). v2.0: expert review (D-036) —
+polarity/comparator rule, no invented subjects, modal-in-noun-phrase, deeming/scope/enabling
+clauses, commentary, Thai "ให้"/"อาจ"/"สามารถ", numbers written in Thai, field consistency.
+Applies to gold adjudication, teacher prompts (`src/regslm/teacher/prompts.py`, kept in sync)
+and evaluation. Ambiguities found during annotation go to `docs/INTERPRETATIONS.md` and, once
+resolved, into this guide with a version bump.
 
-Examples below are **illustrative**: written in the drafting style of the corpus sources to
-show a decision rule, not quoted from any instrument (quoted gold examples live in
-`data/gold/`).
+Examples are **illustrative**: written in the drafting style of the corpus to show a decision
+rule, not quoted from any instrument (quoted gold examples live in `data/gold/`).
 
 ## 1. What counts as an obligation
 
-An obligation is a statement in the unit that **directs a regulated or identified party to do,
-refrain from, or be permitted to do something**, with deontic force expressed by the text.
+An obligation is a **main clause** that directs a **named** party to do, not do, or be permitted
+or expected to do something, with deontic force expressed by the text.
 
 | Trigger (en) | Trigger (th) | modality |
 |---|---|---|
-| shall, must, is required to, has to, is obliged to, shall ensure | ต้อง, ให้…(ปฏิบัติ), จะต้อง, มีหน้าที่ | `must` |
-| shall not, must not, may not, is prohibited from, no X shall | ห้าม, ต้องไม่, มิให้ | `must_not` |
-| may, is permitted to, is entitled to, may apply for | อาจ, มีสิทธิ, สามารถ…ได้ | `may` |
-| should, is expected to, ought to, the authority expects | ควร | `should` |
+| shall, must, is required to, has to, is obliged to | ต้อง, จะต้อง, มีหน้าที่, directive ให้ (rule T-ให้) | `must` |
+| shall not, must not, may not, is prohibited from, no X shall | ห้าม, ต้องไม่, มิให้, ห้ามมิให้ | `must_not` |
+| may, is permitted to, is entitled to | อาจ + party actor (rule T-อาจ), มีสิทธิ, สามารถ…ได้ granting a right | `may` |
+| should, is expected to, ought to, "the authority expects X to" | ควร | `should` |
 
-Rules:
-- **R1 — Directed at a party.** There must be a subject that bears the duty or permission
-  (institution, firm, covered company, bank, the board, a person). If the duty is on the
-  regulator itself ("The competent authority shall publish…"), it **is** annotated — the
-  subject is the authority. Downstream users can filter by subject.
-- **R2 — Definitions are not obligations.** "'X' means…", "For the purposes of this Part…",
-  "X includes…" → no obligation, even if the definition contains "shall" ("shall mean").
-- **R3 — Purely descriptive, scope, recital, commencement and amendment text is not an
-  obligation.** "This Regulation applies to…", "This Part sets out…", "Article 5 is
-  replaced by…", "This Act shall come into force on…" → `[]`.
-- **R4 — "may" in the sense of possibility is not a permission.** "Losses may arise from…"
-  → `[]`. "An institution may apply…" → `may`.
-- **R5 — "shall" in a conditional consequence that binds nobody** ("the exposure shall be
-  treated as…", "the risk weight shall be 100 %") **is** an obligation on the implicit
-  subject who applies the rule (the institution calculating the requirement). Subject =
-  the party named in the nearest heading/lead-in; if none, `"institution"` style term used by
-  that instrument. Record the ambiguity class `implicit-subject` in INTERPRETATIONS.md when
-  in doubt.
-- **R6 — One obligation per (subject, modality, action) triple.** Coordinated actions with one
-  subject and modality ("shall establish and maintain") are one obligation; actions with
-  different objects, thresholds or deadlines are split.
-- **R7 — Lead-ins.** A unit that is a point "(a) maintain records of…" inherits subject and
-  modality from its lead-in (`heading`). The citation still points at the unit; the span is
-  the point's own text.
+### Rules
+- **R1 — Named addressee.** The subject must be a party named in the unit text or in its lead-in
+  (`heading` breadcrumb containing a lead-in sentence such as "A bank must:"). Duties and operative
+  powers of an authority ARE annotated ("The competent authority shall publish…", "The Commission
+  may exempt any person…"). **Never supply a subject from outside the unit.** A `shall`
+  sentence with no addressee ("the risk weight shall be 100 %", "the value … shall be equal to the
+  sum of…") is a calculation/deeming rule → `[]` (class `no-addressee`), unless the lead-in names
+  the party (ex. 27).
+- **R2 — Definitions and descriptions are not obligations.** "'X' means…", "X includes…", "For the
+  purposes of…", variable definitions ("LGD = the loss given default of…"), and modals inside a
+  noun phrase or relative clause ("the amount that the bank **must** return under…") → `[]`. Test:
+  does the sentence's main clause direct a party?
+- **R3 — Scope, recital, commencement, amendment, deeming and enabling text → `[]`.** "This
+  Regulation applies to…", "Article X shall apply to Y", "Paragraph 1 shall not apply to…",
+  "shall be treated as / is deemed / ให้ถือว่า", "This Act shall come into force…", "Article 5 is
+  replaced by…", repeal ("ให้ยกเลิก"), and legislative delegation ("Power is delegated to the
+  Commission to adopt regulatory technical standards…", "EBA shall develop draft RTS…" — class
+  `enabling`). Exception: when a party is told to apply a treatment ("An institution shall treat X
+  as Y", "An institution shall apply Article X") → `must | treat/apply`.
+- **R4 — Possibility and capability are not permissions.** "Losses may arise…", "อาจเกิด
+  ความเสียหาย" → `[]`. "An institution may apply…" → `may`.
+- **R5 — Commentary and non-operative content → `[]`.** Official interpretations / commentary
+  explaining a rule (e.g. 12 CFR 1026 Supplement I), guidance restating a rule found elsewhere
+  (class `restated-rule`), table cells, form codes, fragments with no main clause, alternative
+  list items ("…; or") with no modal in TEXT or lead-in, and garbled text.
+- **R6 — One obligation per (subject, modality, action).** Coordinated verbs with one subject and
+  modality ("shall establish and maintain") are one obligation; different objects, thresholds or
+  deadlines are split. A duty to ensure that others act ("must ensure that its employees do not…")
+  is one obligation on the party that must ensure.
+- **R7 — Lead-ins.** A list point inherits subject and modality only from a lead-in **sentence**
+  in TEXT or HEADING ("A bank must:", "Institutions shall:"). Section titles ("§ 3.34 Derivative
+  contracts") never supply modality. The quote is taken from the point's own text.
+- **T-ให้ (Thai).** ให้ is a `must` trigger only as a clause-initial directive "ให้ + actor +
+  action" (ให้ธนาคารพาณิชย์จัดส่ง…, ให้สำนักงานเก็บรักษา…) or "ให้ถือปฏิบัติ / ปฏิบัติ…". It is NOT a
+  trigger when it is the main verb "give/grant" (ให้สินเชื่อ, ให้ความเห็นชอบ), in purpose clauses
+  (เพื่อให้…), or in ให้ใช้ / ให้ยกเลิก / ให้ถือว่า / ให้ประกอบด้วย / ให้…อยู่ในตำแหน่ง (commencement,
+  repeal, deeming, composition, term of office → `[]`, R3).
+- **T-อาจ (Thai).** อาจ + party/authority actor + action → `may`; อาจ with an event or state as
+  subject → `[]`. สามารถ…ได้ is `may` only when it grants a right, not when it states capability.
+  ควร → `should`.
+- **T-subject (Thai).** Thai often omits the subject in the main clause and places it in a
+  preceding "ในกรณีที่ / กรณีที่ …" clause of the same sentence. Copy the subject from there (it may
+  also appear inside `condition`).
+- **Delegations.** "ต้อง/ให้ … ตามที่ ธปท. ประกาศกำหนด", "in accordance with the requirements
+  specified by the competent authority": a full obligation; keep the delegation phrase verbatim in
+  `object` or `condition`; do not invent a threshold or deadline.
 
 ## 2. Fields
 
 | Field | Rule |
 |---|---|
-| `subject` | Shortest noun phrase naming the duty-bearer, copied from the text ("a covered company", "institutions"). Not resolved through definitions. |
-| `modality` | From the trigger table; negated permissions ("may not") = `must_not`. |
-| `action` | Verb phrase without the modal and without the object ("file", "maintain", "notify"). |
-| `object` | What the action applies to ("the report", "a Common Equity Tier 1 capital ratio"). Empty if intransitive. |
-| `condition` | The *when/if* clause that triggers the duty ("where the institution uses internal models", "if total assets exceed $50 billion"). Empty if unconditional. Nested conditions are joined with " AND " in source order. |
-| `threshold` | The binding numeric quantity: `value` as a number (4.5 for "4.5 %"), `unit` ("%", "USD", "EUR", "days", "times", "basis points", "THB"), `comparator` (≥ for "at least", "not less than"; ≤ for "not exceed", "no more than"; == for "equal to"; > / < for "more/less than"). Thresholds that are part of the *condition* (an applicability trigger) stay in `condition` text and are **not** put in `threshold` unless they are the only number in the unit and the obligation is to comply with it. |
-| `deadline` | Time limit for performing the action, copied ("within 30 days after the end of each quarter", "by 31 March each year", "without undue delay"). Frequency ("annually") counts as a deadline. |
-| `exceptions` | Each "unless", "except", "other than", "provided that … does not", "notwithstanding" carve-out as its own string. |
-| `citation` | `source`, `unit_id`, and the trigger sentence. Annotators and models write a verbatim `quote` of the sentence/clause containing the trigger; `span` = its character offsets `[start, end)` in the stored unit text, computed by `schema.generation.resolve` (D-020). A quote that does not resolve makes the obligation ungrounded. |
-| `confidence` | Teacher/model self-estimate; gold uses 1.0. Not evaluated except for calibration plots. |
+| `subject` | Shortest noun phrase naming the duty-bearer, copied from the text with its article as written ("a covered company", "institutions"). Pronouns ("it", "they", "its") are replaced by the noun phrase they refer to, copied from the same unit. "No person shall…" → subject "person". |
+| `modality` | Grammar of the main clause per the trigger table; negated permission ("may not") = `must_not`. |
+| `action` | Verb phrase without modal and object ("file", "establish and maintain"); copula "be" for limits on a quantity (§3.4). Never invent a verb. |
+| `object` | What the action applies to, including the base of a ratio/limit ("25 % of its Tier 1 capital" → object keeps "of its Tier 1 capital" context). Empty if intransitive. |
+| `condition` | when/if/where/provided-that clause that switches the duty on, or that must hold for a permission ("may … provided that the exposure is fully collateralised"). Nested conditions joined with " AND " in source order. |
+| `threshold` | The **binding** number — the one that defines the compliant state. `value` = the number as written, converted to Arabic digits (4.5 for "4.5 %" or "4,5 %"; 25 for "๒๕" or "ยี่สิบห้า"; 250 for "$250 billion"); `unit` = unit plus any scale word ("%", "USD billion", "EUR million", "days", "times", "basis points", "THB"); `comparator` per §3.4. A number whose crossing only switches the duty on is a trigger → it stays in `condition`, not `threshold`. One threshold per obligation; several binding numbers → several obligations. |
+| `deadline` | Time limit, frequency, or duration of a continuing duty, copied verbatim ("within 30 days after the end of each quarter", "annually", "at all times", "เป็นระยะเวลาหนึ่งปีนับจากวันที่…"). Time limits are never thresholds. |
+| `exceptions` | Each carve-out that removes the duty for some cases ("unless…", "except where…", "other than…", "provided that this paragraph does not apply to…"), as its own string. "Notwithstanding X" is NOT an exception (it overrides another provision). |
+| `citation` | `source`, `unit_id`, and a verbatim `quote` of the sentence/clause of TEXT containing the trigger (for a list point: the point itself); `span` is computed from the quote (D-020). |
+| `confidence` | Model self-estimate; gold uses 1.0. Calibration plots only. |
 
-Cross-references ("in accordance with Article 26", "as defined in § 217.2") are kept verbatim
-in the field where they occur; they are not resolved.
+Cross-references ("in accordance with Article 26", "as defined in § 217.2") are kept verbatim in
+the field where they occur; they are not resolved.
 
 ## 3. Worked examples
 
-Format: unit text → expected obligations (`subject | modality | action | object | condition |
-threshold | deadline | exceptions`). `—` = empty. Span omitted for brevity (it is always the
-trigger sentence).
+Format: text → `subject | modality | action | object | condition | threshold | deadline |
+exceptions`; `—` = empty; `[]` = no obligation.
 
 ### 3.1 Plain duties
-1. "Institutions shall at all times satisfy a Common Equity Tier 1 capital ratio of 4.5 %."
-   → institutions | must | satisfy | a Common Equity Tier 1 capital ratio | — |
-   4.5 % ≥ | at all times | — ("at all times" is a continuous-compliance deadline,
-   not a condition).
+1. "Institutions shall at all times satisfy a Common Equity Tier 1 capital ratio of 4.5 %." →
+   Institutions | must | satisfy | a Common Equity Tier 1 capital ratio | — | 4.5 % ≥ | at all
+   times | —. ("satisfy a ratio of X" = the ratio must be at least X.)
 2. "A covered company must file the report with the Board within 30 days after the end of each
-   calendar quarter." → a covered company | must | file | the report with the Board | — |
-   — | within 30 days after the end of each calendar quarter | —
-   (30 days is a deadline, not a threshold.)
-3. "The firm must maintain adequate records of all transactions." → the firm | must |
-   maintain | adequate records of all transactions | — | — | — | —
-4. "Each bank shall establish and maintain a written liquidity risk management policy." →
-   one obligation, action "establish and maintain" (R6).
+   calendar quarter." → A covered company | must | file | the report with the Board | — | — |
+   within 30 days after the end of each calendar quarter | —.
+3. "The firm must maintain adequate records of all transactions." → The firm | must | maintain |
+   adequate records of all transactions | — | — | — | —.
+4. "Each bank shall establish and maintain a written liquidity risk management policy." → one
+   obligation, action "establish and maintain" (R6).
 5. "A licensee shall notify the Authority of any change in its controllers and shall obtain
-   approval before appointing a director." → **two** obligations (different actions/objects).
+   approval before appointing a director." → two obligations (different actions/objects).
 
 ### 3.2 Prohibitions
-6. "A firm must not pay remuneration that is linked to sales targets." → must_not | pay |
-   remuneration that is linked to sales targets.
-7. "No person shall act as a broker unless registered with the Commission." → subject "no
-   person" → normalise subject to "person", modality must_not, action "act", object "as a
-   broker", exceptions ["unless registered with the Commission"].
-8. "An institution may not include in Tier 2 capital any instrument that…" → must_not (R:
-   negated permission).
-9. "ห้ามมิให้สถาบันการเงินให้สินเชื่อแก่ผู้ถือหุ้นรายใหญ่เกินกว่าร้อยละ 25 ของเงินกองทุน" →
-   subject สถาบันการเงิน | must_not | ให้สินเชื่อ | แก่ผู้ถือหุ้นรายใหญ่ | — | 25 % > (of
-   capital; unit "%") | — | —. Note: "เกินกว่า" = ">" ; the prohibition of exceeding is encoded
-   as must_not + comparator ">" (not must + "≤"). **Rule T1:** keep the polarity the text uses.
+6. "A firm must not pay remuneration that is linked to sales targets." → A firm | must_not | pay |
+   remuneration that is linked to sales targets | — | — | — | —.
+7. "No person shall act as a broker unless registered with the Commission." → person | must_not |
+   act | as a broker | — | — | — | [unless registered with the Commission].
+8. "An institution may not include in Tier 2 capital any instrument that…" → must_not (negated
+   permission).
+9. "ห้ามมิให้สถาบันการเงินให้สินเชื่อแก่ผู้ถือหุ้นรายใหญ่เกินกว่าร้อยละ ๒๕ ของเงินกองทุน" → สถาบันการเงิน |
+   must_not | ให้สินเชื่อ | แก่ผู้ถือหุ้นรายใหญ่เกินกว่าร้อยละ ๒๕ ของเงินกองทุน | — | 25 % > | — | —. A
+   prohibited **act** above a limit: must_not, comparator ">" marks the prohibited region (§3.4).
+   Here ให้ is the verb "grant", the trigger is ห้ามมิให้ (T-ให้).
 
-### 3.3 Permissions vs possibility
-10. "An institution may, with the prior permission of the competent authority, use internal
-    models to calculate own funds requirements." → may | use | internal models | "with the
-    prior permission of the competent authority" (condition).
+### 3.3 Permissions, expectations, possibility
+10. "An institution may, with the prior permission of the competent authority, use internal models
+    to calculate own funds requirements." → An institution | may | use | internal models to
+    calculate own funds requirements | with the prior permission of the competent authority | — |
+    — | —.
 11. "Market movements may cause the value of collateral to decline." → `[]` (R4).
-12. "The Commission may, by order, exempt any person from this section." → subject the
-    Commission | may | exempt | any person from this section (R1: authority powers are
-    annotated).
-13. "Firms should consider the guidance in Annex 2." → should | consider | the guidance in
+12. "The Commission may, by order, exempt any person from this section." → The Commission | may |
+    exempt | any person from this section (operative power, R1).
+13. "Firms should consider the guidance in Annex 2." → Firms | should | consider | the guidance in
     Annex 2.
-14. "The PRA expects firms to review their recovery plans annually." → subject firms | should |
-    review | their recovery plans | — | — | annually.
+14. "The PRA expects firms to review their recovery plans annually." → firms | should | review |
+    their recovery plans | — | — | annually | —.
+15. "ธนาคารพาณิชย์อาจยื่นคำขอผ่อนผันต่อธนาคารแห่งประเทศไทยได้" → ธนาคารพาณิชย์ | may | ยื่น | คำขอผ่อนผันต่อ
+    ธนาคารแห่งประเทศไทย. But "การดำเนินการดังกล่าวอาจก่อให้เกิดความเสียหาย" → `[]` (T-อาจ).
 
-### 3.4 Conditions, nesting and thresholds
-15. "Where a covered company's total consolidated assets exceed $250 billion, it must conduct a
-    stress test semi-annually." → condition "Where a covered company's total consolidated
-    assets exceed $250 billion"; threshold **none** (applicability trigger stays in
-    condition); deadline "semi-annually".
-16. "If the leverage ratio falls below 3 % and the institution does not restore it within three
-    months, the institution shall submit a capital plan." → condition "If the leverage ratio
-    falls below 3 % AND the institution does not restore it within three months"; threshold
-    none; deadline —.
-17. "The ratio of liquid assets to net outflows shall be not less than 100 %." → subject
-    implicit (R5: the institution named in the lead-in) | must | be | the ratio of liquid
-    assets to net outflows | — | 100 % ≥ | — | —. Do not invent a verb such as "maintain";
-    the action is the copula "be". Class `copula-requirement`.
-18. "Large exposures shall not exceed 25 % of Tier 1 capital." → must_not | exceed | — |
-    — | 25 % > (unit "% of Tier 1 capital" normalised to "%") | — | —. The text uses a
-    negated duty, so polarity stays must_not and the comparator marks the line not to be
-    crossed (rule T1, as in ex. 9).
-19. "…a minimum of 8 % of risk-weighted assets…" → threshold 8 % ≥.
-20. "…no more than 10 business days…" as a time limit for acting → deadline, not threshold.
+### 3.4 Thresholds, comparators and conditions
+**Comparator rule.** Modality follows the main clause. For a **limit on a quantity** ("X shall
+not exceed Y", "X shall be no more than Y", "X shall be at least Y", "shall maintain X of at least
+Y") encode `must`, comparator = the region the compliant value must be in (≤ for not exceed / no
+more than / not greater than; ≥ for at least / not less than / minimum; == for equal to). For a
+**prohibited act** defined by a limit ("shall not grant credit exceeding Y", "shall not incur an
+exposure … which exceeds Y") encode `must_not`, comparator = the prohibited region (> for
+exceeding / more than; < for below / less than).
+16. "Large exposures shall not exceed 25 % of Tier 1 capital." → Large exposures | must | be |
+    — | — | 25 % ≤ | — | — (limit on a quantity).
+17. "An institution shall not incur an exposure to a client the value of which exceeds 25 % of its
+    Tier 1 capital." → An institution | must_not | incur | an exposure to a client the value of
+    which exceeds 25 % of its Tier 1 capital | — | 25 % > | — | — (prohibited act).
+18. "Institutions shall maintain a liquidity coverage ratio of at least 100 %." → Institutions |
+    must | maintain | a liquidity coverage ratio | — | 100 % ≥ | — | —.
+19. "Where a covered company's total consolidated assets exceed $250 billion, it must conduct a
+    stress test semi-annually." → a covered company | must | conduct | a stress test | Where a
+    covered company's total consolidated assets exceed $250 billion | — (trigger, not binding) |
+    semi-annually | —. ("it" resolved to the noun phrase.)
+20. "If the leverage ratio falls below 3 % and the institution does not restore it within three
+    months, the institution shall submit a capital plan." → the institution | must | submit | a
+    capital plan | If the leverage ratio falls below 3 % AND the institution does not restore it
+    within three months | — | — | —.
+21. "…no more than 10 business days after the request…" as a time limit for acting → deadline.
 
-### 3.5 Exceptions
-21. "A firm must publish its annual report, except where it is a small firm as defined in
-    GEN 1.2." → exceptions ["except where it is a small firm as defined in GEN 1.2"].
-22. "Notwithstanding paragraph (a), a bank may defer the disclosure for up to 12 months." →
-    the "notwithstanding" clause is **not** an exception of this obligation (it carves out
-    *another* paragraph); annotate may | defer | the disclosure | — | — | for up to 12 months
-    (deadline) | —.
-23. "Paragraph 1 shall not apply to institutions that are exempt under Article 7." → this is
-    a scope carve-out, not a duty on anyone → `[]`; record class `scope-carveout`.
-24. "…provided that the exposure is fully collateralised." → exception? No: "provided that"
-    introducing a **requirement for the permission to hold** is a `condition`. It is an
-    exception only when it removes the duty ("provided that this does not apply to…").
+### 3.5 Exceptions and conditions
+22. "A firm must publish its annual report, except where it is a small firm as defined in GEN
+    1.2." → exceptions ["except where it is a small firm as defined in GEN 1.2"].
+23. "Notwithstanding paragraph (a), a bank may defer the disclosure for up to 12 months." → a bank
+    | may | defer | the disclosure | — | — | for up to 12 months | — (no exception).
+24. "An institution may recognise the guarantee, provided that the exposure is fully
+    collateralised." → condition "provided that the exposure is fully collateralised".
 
-### 3.6 Cross-references and lists
-25. "An institution shall report the information referred to in Article 430(1) to the
-    competent authority." → object "the information referred to in Article 430(1)" (kept
-    verbatim; not resolved).
-26. Lead-in "A bank must:" with point "(b) appoint a chief risk officer;" → unit is (b);
-    subject "a bank", modality must (inherited, R7); action "appoint"; object "a chief risk
-    officer".
-27. "The following shall be deducted from Common Equity Tier 1 items: (a) losses for the
-    current year;" → unit (a): subject implicit "institutions" (R5), must | deduct | losses
-    for the current year | — | — | — | —.
+### 3.6 Cross-references, lead-ins, delegation
+25. "An institution shall report the information referred to in Article 430(1) to the competent
+    authority." → object "the information referred to in Article 430(1) to the competent
+    authority" (reference kept verbatim).
+26. HEADING "… | A bank must:" with TEXT "(b) appoint a chief risk officer;" → A bank | must |
+    appoint | a chief risk officer; quote "(b) appoint a chief risk officer;".
+27. HEADING "… | Institutions shall deduct the following from Common Equity Tier 1 items:" with
+    TEXT "(a) losses for the current financial year;" → Institutions | must | deduct | losses for
+    the current financial year.
+28. "ให้ธนาคารพาณิชย์ดำรงเงินกองทุนตามหลักเกณฑ์ที่ธนาคารแห่งประเทศไทยประกาศกำหนด" → ธนาคารพาณิชย์ | must |
+    ดำรง | เงินกองทุนตามหลักเกณฑ์ที่ธนาคารแห่งประเทศไทยประกาศกำหนด | — | — | — | — (delegation kept
+    verbatim; no threshold invented).
+29. "ให้ธนาคารพาณิชย์จัดส่งรายงานต่อธนาคารแห่งประเทศไทยภายในสามสิบวัน" → ธนาคารพาณิชย์ | must | จัดส่ง |
+    รายงานต่อธนาคารแห่งประเทศไทย | — | — | ภายในสามสิบวัน | — (deadline copied in words).
+30. "ในกรณีที่ผู้ให้บริการทางการเงินใช้บริการจากภายนอก ให้ถือปฏิบัติตามข้อ ๖.๒" → ผู้ให้บริการทางการเงิน |
+    must | ถือปฏิบัติ | ตามข้อ ๖.๒ | ในกรณีที่ผู้ให้บริการทางการเงินใช้บริการจากภายนอก | — | — | —
+    (T-subject).
 
 ### 3.7 Non-obligations
-28. "'Credit institution' means an undertaking the business of which is to take deposits…" →
+31. "'Credit institution' means an undertaking the business of which is to take deposits…" →
     `[]` (R2).
-29. "This Regulation shall enter into force on the twentieth day following its publication." →
-    `[]` (R3, commencement).
-30. "In Article 4(1), point (7) is replaced by the following:" → `[]` (amending text).
-31. "The purpose of this section is to ensure that firms treat customers fairly." → `[]`.
-32. "[Reserved]" → never reaches annotation (filtered by parser).
+32. "The fair value of an asset that the bank holding company must return under a short position"
+    → `[]` (modal inside a noun phrase, R2).
+33. "The value of the aggregated long position shall be equal to the sum of the positions in…" →
+    `[]` (no addressee, R1).
+34. "This Regulation shall enter into force on the twentieth day following its publication." /
+    "ให้ยกเลิกประกาศธนาคารแห่งประเทศไทยที่ …" / "Article 5 shall apply to investment firms." → `[]` (R3).
+35. "Power is delegated to the Commission to supplement this Regulation by adopting regulatory
+    technical standards." → `[]` (enabling, R3).
+36. "ให้คณะกรรมการกองทุนประกอบด้วยผู้แทนจาก…" → `[]` (composition, T-ให้).
+37. "The tabular format is required for the disclosures described in comment 5(a)-2." in an
+    official interpretation → `[]` (commentary, R5).
+38. "SYSC 4.1.1R requires a firm to have robust governance arrangements." in guidance → `[]`
+    (restated-rule, R5).
 
 ### 3.8 Hard cases
-33. **Double modality.** "A firm must ensure that its employees do not disclose…" → one
-    obligation on the firm: must | ensure | that its employees do not disclose … — do **not**
-    add a second must_not on employees.
-34. **Duty on authority + duty on firm.** "The competent authority shall require institutions to
-    hold additional own funds where…" → one obligation, subject the competent authority |
-    must | require | institutions to hold additional own funds; the firm's duty is derivative
-    and not extracted here.
-35. **Guidance quoting a rule.** "SYSC 4.1.1R requires a firm to have robust governance
-    arrangements." (in a guidance paragraph) → `[]` for the guidance unit; the obligation is
-    annotated where the rule itself appears. Record class `restated-rule`.
-36. **Thai passive "ให้".** "ให้ธนาคารพาณิชย์จัดส่งรายงานต่อธนาคารแห่งประเทศไทยภายในสามสิบวัน"
-    → subject ธนาคารพาณิชย์ | must | จัดส่ง | รายงานต่อธนาคารแห่งประเทศไทย | — | — | ภายในสามสิบวัน.
-    Thai numerals in words ("สามสิบ") are copied into `deadline` as written; when used as a
-    threshold the `value` is the Arabic number (30).
+39. **Double modality.** "A firm must ensure that its employees do not disclose…" → one
+    obligation: A firm | must | ensure | that its employees do not disclose ….
+40. **Authority duty + derivative firm duty.** "The competent authority shall require institutions
+    to hold additional own funds where…" → one obligation on the competent authority.
 
 ## 4. Normalisation for scoring
 
-- Strings compared after: Unicode NFKC, lowercase (en), whitespace collapse, strip trailing
-  punctuation, strip leading articles (a/an/the) for `subject` and `object`.
-- `threshold` exact match: `value` equal to 1e-9 relative tolerance, `unit` after a small
-  alias map (% = per cent = percent = ร้อยละ), comparator equal.
-- `deadline` exact match on normalised string; a second relaxed metric extracts
-  (number, time-unit) pairs and compares those.
-- Obligation matching between prediction and gold: Hungarian assignment on span IoU ≥ 0.5 and
-  equal modality; unmatched predictions are false positives ("hallucinated obligations").
+- Strings: Unicode NFKC, lowercase (en), whitespace collapse (Thai PDF text has stray spaces),
+  strip trailing punctuation, strip leading articles (a/an/the) for `subject` and `object`.
+- Numbers: Thai digits → Arabic; Thai number words (ยี่สิบห้า, สามสิบ) → value; EU decimal comma and
+  space-grouped thousands handled (D-019).
+- `threshold` exact match: `value` equal (1e-9 relative), `unit` after an alias map (% = per cent
+  = percent = ร้อยละ; days = วัน), comparator equal.
+- `deadline`: exact on the normalised string; relaxed metric compares (number, time-unit) pairs,
+  parsing Thai digits and number words.
+- Matching: Hungarian assignment on span IoU ≥ 0.5 with equal modality; unmatched predictions are
+  false positives.
