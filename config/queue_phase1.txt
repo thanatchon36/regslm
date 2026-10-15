@@ -1,0 +1,7 @@
+# Phase 1 GPU queue (run with: tmux new -d -s queue 'scripts/run_queue.sh config/queue_phase1.txt >> results/queue.log 2>&1')
+quick quick
+label silver-eval-all-label --units data/local/jobs/eval_all.jsonl --variant label
+label gold-pass-a --units data/local/jobs/gold.jsonl --variant gold_a
+label gold-pass-b --units data/local/jobs/gold.jsonl --variant gold_b --model Qwen/Qwen3-8B-AWQ
+label silver-train-label --units data/local/jobs/train_trig_all.jsonl --variant label
+label silver-train-rationale --units data/local/jobs/train_rationale_10k.jsonl --variant rationale
