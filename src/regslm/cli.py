@@ -190,6 +190,33 @@ def gold_build(
     typer.echo(json.dumps({k: v for k, v in summary.items() if k != "agreement"}))
 
 
+@gold_app.command("export-csv")
+def gold_export_csv(out: Path = Path("data/gold")) -> None:
+    """Write adjudicate.csv (UTF-8 BOM) and adjudicate.xlsx (if openpyxl is installed)."""
+    from regslm.eval import gold
+
+    typer.echo(json.dumps(gold.export_csv(out)))
+
+
+@gold_app.command("import-csv")
+def gold_import_csv(
+    csv_path: Path,
+    out: Path = Path("data/gold"),
+    force: bool = typer.Option(False, help="Overwrite non-null decisions"),
+) -> None:
+    """Fill decision/gold in to_adjudicate.jsonl from the filled-in CSV."""
+    from regslm.eval import gold
+
+    res = gold.import_csv(csv_path, out, force)
+    typer.echo(json.dumps({k: v for k, v in res.items() if k != "undecided"}))
+    for e in res["errors"]:
+        typer.echo(f"ERROR {e}", err=True)
+    if res["n_undecided"]:
+        typer.echo(f"undecided: {', '.join(res['undecided'][:20])}", err=True)
+    if res["errors"]:
+        raise typer.Exit(1)
+
+
 @gold_app.command("finalize")
 def gold_finalize(out: Path = Path("data/gold")) -> None:
     """Merge agreed + adjudicated rows into gold.jsonl (refuses if any decision is null)."""

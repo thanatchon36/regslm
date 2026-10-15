@@ -108,3 +108,97 @@ def test_assert_no_gold(tmp_path: Path) -> None:
     gold.assert_no_gold(["t1", "t2"], sample)
     with pytest.raises(ValueError, match="gold"):
         gold.assert_no_gold(["t1", "g1"], sample)
+
+
+def _ex(**kw):
+    from regslm.schema.obligation import Extraction
+
+    o = _ob()
+    o.update(kw)
+    return Extraction.model_validate({"unit_id": "u", "obligations": [o]})
+
+
+def test_tolerant_tiers() -> None:
+    base = _ex()
+    assert gold.tolerant_tier(base, _ex(subject="the firm")) == 0
+    assert gold.tolerant_tier(base, _ex(deadline="within 72 hours")) == 0
+    assert gold.tolerant_tier(base, _ex(action="report all incidents")) == 0
+    assert gold.tolerant_tier(base, _ex(object="x")) == 2  # empty vs non-empty
+    assert gold.tolerant_tier(base, _ex(threshold={"value": 5, "unit": "%", "comparator": "<="})) == 2
+    assert gold.tolerant_tier(base, _ex(modality="may")) == 1
+    from regslm.schema.obligation import Extraction
+
+    assert gold.tolerant_tier(base, Extraction(unit_id="u")) == 1
+    assert gold.tolerant_tier(base, None) == 1
+    assert gold.tolerant_tier(Extraction(unit_id="u"), Extraction(unit_id="u")) == 0
+
+
+def test_build_sorting_and_csv_roundtrip(tmp_path: Path) -> None:
+    import csv as _csv
+
+    th = "ธนาคารต้องรายงานเหตุการณ์ภายใน 72 ชั่วโมง"
+    ids = ["en1", "th1", "th2"]
+    sample = tmp_path / "sample.jsonl"
+    _w(sample, [{"unit_id": u, "stratum": "x"} for u in ids])
+    a = [_row("en1", [_ob()]), _row("th1", [_ob()]), _row("th2", [])]
+    b = [_row("en1", [_ob(dl="")]), _row("th1", []), _row("th2", [_ob()])]
+    _w(tmp_path / "a/labels.jsonl", a)
+    _w(tmp_path / "b/labels.jsonl", b)
+    units = {
+        "en1": {"text": TEXT, "heading": "H", "language": "en"},
+        "th1": {"text": th, "heading": "ห" * 300, "language": "th"},
+        "th2": {"text": th, "heading": "H", "language": "th"},
+    }
+    out = tmp_path / "out"
+    s = gold.build(tmp_path / "a", tmp_path / "b", sample, units, out)
+    assert (s["n_tier1"], s["n_tier2"]) == (2, 1)
+    rows = [json.loads(ln) for ln in (out / "to_adjudicate.jsonl").read_text().splitlines()]
+    assert [r["unit_id"] for r in rows] == ["th1", "th2", "en1"]
+
+    info = gold.export_csv(out)
+    raw = (out / "adjudicate.csv").read_bytes()
+    assert raw.startswith(b"\xef\xbb\xbf") and info["n_rows"] == 3
+    recs = list(_csv.DictReader((out / "adjudicate.csv").open(encoding="utf-8-sig", newline="")))
+    assert recs[0]["text"] == th and len(recs[0]["heading"]) == 200
+    assert recs[1]["A"] == gold.NO_OBLIGATION and "must" in recs[1]["B"]
+
+    recs[0]["decision"] = "e"
+    recs[0]["note"] = (
+        "ธนาคาร | must | รายงานเหตุการณ์ | | cond: | thr: <= 5 % | dl: ภายใน 72 ชั่วโมง | exc: ก; ข\n"
+    )
+    recs[1]["decision"] = "B"
+    recs[2]["decision"] = "E"
+    recs[2]["note"] = "garbage"
+    p = tmp_path / "filled.csv"
+    with p.open("w", encoding="utf-8-sig", newline="") as f:
+        w = _csv.DictWriter(f, fieldnames=list(recs[0]))
+        w.writeheader()
+        w.writerows(recs)
+    res = gold.import_csv(p, out)
+    assert res["applied"] == 2 and len(res["errors"]) == 1 and res["n_undecided"] == 1
+    rows = [json.loads(ln) for ln in (out / "to_adjudicate.jsonl").read_text().splitlines()]
+    o = rows[0]["gold"]["obligations"][0]
+    assert rows[0]["decision"] == "edit" and o["subject"] == "ธนาคาร"
+    assert o["threshold"] == {"value": 5.0, "unit": "%", "comparator": "<="}
+    assert o["exceptions"] == ["ก", "ข"] and o["deadline"] == "ภายใน 72 ชั่วโมง"
+    assert rows[1]["decision"] == "B" and rows[1]["gold"] == rows[1]["candidate_b"]
+    # no overwrite without force
+    recs[1]["decision"] = "A"
+    with p.open("w", encoding="utf-8-sig", newline="") as f:
+        w = _csv.DictWriter(f, fieldnames=list(recs[0]))
+        w.writeheader()
+        w.writerows(recs[:2])
+    assert gold.import_csv(p, out)["skipped_existing"] == 2
+    # E with "none"
+    assert gold._edited_gold(rows[2], "none")["obligations"] == []
+
+
+def test_content_rematch() -> None:
+    far = {"span": {"start": 50, "end": 60}}
+    a = _ex()
+    b = _ex(citation={"source": "s", "unit_id": "u", **far}, deadline="within 72 hours")
+    assert gold.match_obligations(a.obligations, b.obligations) == []
+    assert gold.tolerant_match(a.obligations, b.obligations) == [(0, 0)]
+    assert gold.tolerant_tier(a, b) == 0
+    assert gold.tolerant_tier(a, _ex(citation={"source": "s", "unit_id": "u", **far}, object="x")) == 2
+    assert gold.tolerant_tier(a, _ex(citation={"source": "s", "unit_id": "u", **far}, action="appeal")) == 1

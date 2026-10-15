@@ -1,0 +1,45 @@
+{
+  "n_sample": 300,
+  "n_both_passes": 300,
+  "n_agreed": 32,
+  "n_to_adjudicate": 268,
+  "n_agreed_strict": 27,
+  "n_tier1": 170,
+  "n_tier2": 98,
+  "tolerant": {
+    "n_agreed": 32,
+    "n_to_adjudicate": 268,
+    "by_tier_language": {
+      "tier1/en": 138,
+      "tier1/th": 32,
+      "tier2/en": 79,
+      "tier2/th": 19
+    }
+  },
+  "agreement": {
+    "n_units": 281,
+    "span_f1": 0.5454545454545454,
+    "n_matched": 123,
+    "field_presence_kappa": {
+      "subject": 1.0,
+      "action": 1.0,
+      "object": -0.014851485148515173,
+      "condition": 0.1582549187339606,
+      "threshold": 0.36805231200373667,
+      "deadline": 0.13920346100012726,
+      "exceptions": 0.0
+    },
+    "field_exact_agreement": {
+      "subject": 0.8048780487804879,
+      "action": 0.12195121951219512,
+      "object": 0.2032520325203252,
+      "condition": 0.4796747967479675,
+      "threshold": 0.7804878048780488,
+      "deadline": 0.4065040650406504,
+      "exceptions": 0.8699186991869918
+    },
+    "modality_kappa": 1.0,
+    "has_any_agreement": 0.5800711743772242,
+    "has_any_kappa": 0.1710085504275214
+  }
+}
