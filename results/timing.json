@@ -1,0 +1,8 @@
+{
+  "quick": {
+    "wall_s": 174,
+    "train_s": 138,
+    "predict_s": 35,
+    "evaluate_s": 1
+  }
+}

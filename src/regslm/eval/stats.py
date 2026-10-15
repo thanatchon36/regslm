@@ -150,14 +150,15 @@ def sanity_flags(
     parent: Mapping[str, float] | None = None,
     ci_width: float = 0.0,
 ) -> list[str]:
-    """Anomalies per MISSION section 0. Headline metrics exactly 0, 1 or 100, any
+    """Anomalies per MISSION section 0: any metric exactly 0, 1 or 100 (rates such as
+    ``validity_rate`` = 1.0 included — they must be explained in docs/ANOMALIES.md), any
     ``field_f1.*`` above 0.98, and (when ``parent`` is the bf16 parent's metrics) a quantized
     ``of1`` or ``numeric_exact`` exceeding the parent's by more than ``ci_width``."""
     flags: list[str] = []
     for k, v in metrics.items():
-        if k in HEADLINE and v in (0.0, 1.0, 100.0):
+        if v in (0.0, 1.0, 100.0):
             flags.append(f"{k}={v:g} exactly")
-        elif k.startswith("field_f1.") and v > 0.98:
+        if k.startswith("field_f1.") and 0.98 < v < 1.0:
             flags.append(f"{k}={v:.3f} > 0.98")
     if parent is not None:
         for k in ("of1", "numeric_exact"):

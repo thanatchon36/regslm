@@ -1,5 +1,6 @@
 # Phase 1 GPU queue (run with: tmux new -d -s queue 'scripts/run_queue.sh config/queue_phase1.txt >> results/queue.log 2>&1')
 quick quick
+label teacher-pilot-v4 --units data/local/units/eurlex.jsonl --variant label --limit 200 --shuffle-seed 1
 label silver-eval-all-label --units data/local/jobs/eval_all.jsonl --variant label
 label gold-pass-a --units data/local/jobs/gold.jsonl --variant gold_a
 label gold-pass-b --units data/local/jobs/gold.jsonl --variant gold_b --model Qwen/Qwen3-8B-AWQ
