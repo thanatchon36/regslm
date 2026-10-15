@@ -180,4 +180,11 @@ docs/specs/train.md defaults (D-029), epochs per D-035 (1 epoch for N ≥ 10k, 3
   the same seed. Seeds are never replaced or dropped after their results are seen.
 
 ## Amendments
-_None (pre-tag)._
+
+**A1 — 2026-10-15 (count correction, no design change).** The set named `num440` is "test
+units whose perturbed form differs from the original". The pre-registration counted 440 from
+unit *text*; `perturb_unit_and_label` also perturbs numbers in the lead-in `heading`, so the
+materialised set has **621** units (and `test` has 4,375 after dropping 32 units with invalid
+teacher labels). The name `num440` is kept for continuity; all analyses use N = 621. Memorisation
+targets: 139 in `test-perturbed`, 287 per draw in `mr_pool` (1,400 units). Recorded before any
+model was evaluated.
