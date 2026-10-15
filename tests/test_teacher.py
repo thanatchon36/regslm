@@ -163,3 +163,43 @@ def test_cache_key_sensitivity() -> None:
     assert a != cache_key("m", None, "rationale", "s", "u", "{}")
     assert a != cache_key("m2", None, "label", "s", "u", "{}")
     assert a != cache_key("m", None, "label", "s", "u", '{"t":1}')
+
+
+class _Tok:
+    """Prompt length = 10 tokens, except unit 1 whose prompt exceeds the context."""
+
+    def apply_chat_template(self, msgs: list[Any], **kw: Any) -> list[int]:
+        return [1] * (10_000 if "unit_id: s/d/1\n" in msgs[1]["content"] else 10)
+
+
+class _Params:
+    def __init__(self) -> None:
+        self.max_tokens = 1024
+
+    def clone(self) -> _Params:
+        return _Params()
+
+
+class FakeLLMWithTokenizer(FakeLLM):
+    def __init__(self) -> None:
+        super().__init__()
+        self.params: list[Any] = []
+
+    def get_tokenizer(self) -> _Tok:
+        return _Tok()
+
+    def chat(self, msgs: list[Any], sampling: Any, **kw: Any) -> list[Any]:
+        self.params.extend(sampling if isinstance(sampling, list) else [sampling])
+        return super().chat(msgs, sampling, **kw)
+
+
+def test_too_long_units_are_recorded_not_sent(tmp_path: Path) -> None:
+    llm = FakeLLMWithTokenizer()
+    cache = TeacherCache(tmp_path / "c.sqlite")
+    units = [mk(i) for i in range(3)]
+    m = label_units(units, "label", CFG, tmp_path / "run", llm=llm, sampling=_Params(), cache=cache)
+    assert llm.calls == 2  # unit 1 never sent
+    assert m["n_done"] == 3
+    assert all(p.max_tokens == min(CFG.max_tokens, CFG.max_model_len - 10) for p in llm.params)
+    rows = {json.loads(ln)["unit_id"]: json.loads(ln) for ln in (tmp_path / "run/labels.jsonl").read_text().splitlines()}
+    assert rows["s/d/1"]["valid"] is False and rows["s/d/1"]["extraction"] is None

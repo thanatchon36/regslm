@@ -71,6 +71,10 @@ def shuffled(units: Iterable[Unit], seed: int | None) -> list[Unit]:
     return out
 
 
+TOO_LONG = "__TOO_LONG__"
+MIN_OUTPUT_TOKENS = 512
+
+
 def label_units(
     units: Iterable[Unit],
     variant: Variant,
@@ -111,10 +115,41 @@ def label_units(
         llm = build_llm(cfg)
         sampling = build_sampling(cfg)
     metrics = _metrics(n_done, n_valid, 0, 0, 0, 0.0)
+    # Length guard (D-042): a single prompt longer than the context aborts a whole vLLM batch, so
+    # measure each prompt first; prompts that leave < MIN_OUTPUT_TOKENS room are recorded as
+    # too_long (valid=0, output TOO_LONG) instead of being sent; others get max_tokens capped to
+    # the room left.
+    budgets: dict[int, int] = {}
+    tok = llm.get_tokenizer() if hasattr(llm, "get_tokenizer") else None
+    if tok is not None:
+        too_long_rows = []
+        for i in list(pending):
+            ids = tok.apply_chat_template(
+                keyed[i][1], tokenize=True, add_generation_prompt=True, **CHAT_TEMPLATE_KWARGS
+            )
+            room = cfg.max_model_len - len(ids)
+            if room < MIN_OUTPUT_TOKENS:
+                too_long_rows.append(
+                    CacheRow(keys[i], keyed[i][0].unit_id, variant, TOO_LONG, False, len(ids), 0)
+                )
+                pending.remove(i)
+            else:
+                budgets[i] = min(cfg.max_tokens, room)
+        if too_long_rows:
+            cache.put_many(too_long_rows)
+            n_done += len(too_long_rows)
+            print(f"too_long (not sent): {len(too_long_rows)} units", flush=True)
     for s in range(0, len(pending), batch_size):
         idx = pending[s : s + batch_size]
+        params: Any = sampling
+        if budgets and hasattr(sampling, "clone"):
+            params = []
+            for i in idx:
+                p = sampling.clone()
+                p.max_tokens = budgets[i]
+                params.append(p)
         outs = llm.chat(
-            [keyed[i][1] for i in idx], sampling, chat_template_kwargs=CHAT_TEMPLATE_KWARGS
+            [keyed[i][1] for i in idx], params, chat_template_kwargs=CHAT_TEMPLATE_KWARGS
         )
         rows = []
         for i, o in zip(idx, outs, strict=True):

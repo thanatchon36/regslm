@@ -15,7 +15,8 @@ DEFAULT_MODEL = "Qwen/Qwen3-14B-AWQ"
 class EngineConfig(BaseModel):
     model: str = DEFAULT_MODEL
     revision: str | None = None
-    max_model_len: int = 3072
+    # 4096: prompt v5 is ~1.9k tokens; the prefix cache holds it once, so long units fit (D-042)
+    max_model_len: int = 4096
     # 0.89 x 12,282 MiB = 10.9 GB, inside the 11 GB cap (D-014); needs the compositor < 1.3 GB.
     gpu_memory_utilization: float = 0.89
     max_num_batched_tokens: int = 1024
