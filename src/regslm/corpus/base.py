@@ -87,6 +87,17 @@ class Unit(BaseModel):
     last_amended: str | None = None  # ISO date if the source exposes it (post-cutoff slice)
 
 
+def robots_lines(text: str) -> list[str]:
+    """Normalise robots.txt for ``urllib.robotparser``.
+
+    The stdlib parser ends a group at a blank line, so rules after a blank line inside a
+    group are silently dropped (www.ecfr.gov's ``Disallow: /api/versioner/v1/full/`` was
+    missed this way). Crawlers such as Googlebot ignore blank lines; so do we, and we strip
+    indentation.
+    """
+    return [ln.strip() for ln in text.splitlines() if ln.strip()]
+
+
 def sha256_bytes(data: bytes) -> str:
     return hashlib.sha256(data).hexdigest()
 
@@ -123,7 +134,7 @@ class PoliteClient:
             rp = urllib.robotparser.RobotFileParser()
             try:
                 r = self._http.get(f"{host}/robots.txt")
-                rp.parse(r.text.splitlines() if r.status_code == 200 else [])
+                rp.parse(robots_lines(r.text) if r.status_code == 200 else [])
             except httpx.HTTPError:
                 rp.parse([])
             self._robots[host] = rp
@@ -136,14 +147,14 @@ class PoliteClient:
             time.sleep(self.min_interval_s - dt)
         self._last[host] = time.monotonic()
 
-    def get(self, url: str, suffix: str = "") -> RawDoc:
+    def get(self, url: str, suffix: str = "", headers: dict[str, str] | None = None) -> RawDoc:
         """Return the cached response for ``url``, fetching it once if needed.
 
         Raises ``PermissionError`` if robots.txt disallows the URL and
         ``httpx.HTTPStatusError`` on non-2xx responses (adapters turn persistent
         403/429 into an entry in docs/sources/NEEDED.md).
         """
-        key = self._key(url)
+        key = self._key(url + (json.dumps(headers, sort_keys=True) if headers else ""))
         body = self.cache_dir / f"{key}{suffix}"
         meta = self.cache_dir / f"{key}.meta.json"
         if body.exists() and meta.exists():
@@ -151,7 +162,7 @@ class PoliteClient:
         if not self._allowed(url):
             raise PermissionError(f"robots.txt disallows {url}")
         self._wait(url)
-        r = self._http.get(url)
+        r = self._http.get(url, headers=headers)
         r.raise_for_status()
         body.write_bytes(r.content)
         raw = RawDoc(

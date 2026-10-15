@@ -1,0 +1,230 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<DLPSTEXTCLASS><TEXT><BODY><ECFRBRWS>
+<AMDDATE>Oct. 1, 2026 
+</AMDDATE>
+<DIV1 N='12' TYPE='TITLE'><DIV3 N='I' TYPE='CHAPTER'>
+<DIV5 N="3" NODE="12:1.0.1.1.3" TYPE="PART"><HEAD>PART 3—CAPITAL ADEQUACY STANDARDS
+
+
+</HEAD>
+<AUTH>
+<HED>Authority:</HED><PSPACE>12 U.S.C. 93a, 161, 1462, 1462a, 1463, 1464, 1818, 1828(n), 1828 note, 1831n note, 1835, 3907, 3909, 5371, 5371 note, 5412(b)(2)(B), and Pub. L. 116-136, 134 Stat. 281.
+
+
+
+
+
+
+
+
+
+
+
+
+</PSPACE></AUTH>
+<SOURCE>
+<HED>Source:</HED><PSPACE>50 FR 10216, Mar. 14, 1985, unless otherwise noted.
+
+
+</PSPACE></SOURCE>
+
+<DIV6 N="A" NODE="12:1.0.1.1.3.1" TYPE="SUBPART"><HEAD>Subpart A—General Provisions</HEAD>
+
+<SOURCE>
+<HED>Source:</HED><PSPACE>78 FR 62157, 62273, Oct. 11, 2013, unless otherwise noted.
+
+
+</PSPACE></SOURCE>
+
+<DIV8 N="§ 3.1" NODE="12:1.0.1.1.3.1.13.1" TYPE="SECTION">
+<HEAD>§ 3.1   Purpose, applicability, reservations of authority, and timing.</HEAD>
+<P>(a) <I>Purpose.</I> This part establishes minimum capital requirements and overall capital adequacy standards for national banks and Federal savings associations. This part does not apply to Federal branches and agencies of foreign banks. This part includes methodologies for calculating minimum capital requirements, public disclosure requirements related to the capital requirements, and transition provisions for the application of this part.
+</P>
+<P>(b) <I>Limitation of authority.</I> Nothing in this part shall be read to limit the authority of the OCC to take action under other provisions of law, including action to address unsafe or unsound practices or conditions, deficient capital levels, or violations of law or regulation, under section 8 of the Federal Deposit Insurance Act.
+</P>
+<P>(c) <I>Applicability.</I> Subject to the requirements in paragraphs (d) and (f) of this section:
+</P>
+<P>(1) <I>Minimum capital requirements and overall capital adequacy standards.</I> Each national bank or Federal savings association must calculate its minimum capital requirements and meet the overall capital adequacy standards in subpart B of this part.
+</P>
+<P>(2) <I>Regulatory capital.</I> Each national bank or Federal savings association must calculate its regulatory capital in accordance with subpart C of this part.
+</P>
+<P>(3) <I>Risk-weighted assets.</I> (i) Each national bank or Federal savings association must use the methodologies in subpart D of this part (and subpart F of this part for a market risk national bank or Federal savings association) to calculate standardized total risk-weighted assets.
+</P>
+<P>(ii) Each advanced approaches national bank or Federal savings association must use the methodologies in subpart E (and subpart F of this part for a market risk national bank or Federal savings association) to calculate advanced approaches total risk-weighted assets.
+</P>
+<P>(4) <I>Disclosures.</I> (i) Except for an advanced approaches national bank or Federal savings association that is making public disclosures pursuant to the requirements in subpart E of this part, each national bank or Federal savings association with total consolidated assets of $50 billion or more must make the public disclosures described in subpart D of this part.
+</P>
+<P>(ii) Each market risk national bank or Federal savings association must make the public disclosures described in subpart F of this part.
+</P>
+<P>(iii) Each advanced approaches national bank or Federal savings association must make the public disclosures described in subpart E of this part.
+</P>
+<P>(d) <I>Reservation of authority</I>—(1) <I>Additional capital in the aggregate.</I> The OCC may require a national bank or Federal savings association to hold an amount of regulatory capital greater than otherwise required under this part if the OCC determines that the national bank's or Federal savings association's capital requirements under this part are not commensurate with the national bank's or Federal savings association's credit, market, operational, or other risks.
+</P>
+<P>(2) <I>Regulatory capital elements.</I> (i) If the OCC determines that a particular common equity tier 1, additional tier 1, or tier 2 capital element has characteristics or terms that diminish its ability to absorb losses, or otherwise present safety and soundness concerns, the OCC may require the national bank or Federal savings association to exclude all or a portion of such element from common equity tier 1 capital, additional tier 1 capital, or tier 2 capital, as appropriate.
+</P>
+<P>(ii) Notwithstanding the criteria for regulatory capital instruments set forth in subpart C of this part, the OCC may find that a capital element may be included in a national bank's or Federal savings association's common equity tier 1 capital, additional tier 1 capital, or tier 2 capital on a permanent or temporary basis consistent with the loss absorption capacity of the element and in accordance with § 3.20(e).
+</P>
+<P>(3) <I>Risk-weighted asset amounts.</I> If the OCC determines that the risk-weighted asset amount calculated under this part by the national bank or Federal savings association for one or more exposures is not commensurate with the risks associated with those exposures, the OCC may require the national bank or Federal savings association to assign a different risk-weighted asset amount to the exposure(s) or to deduct the amount of the exposure(s) from its regulatory capital.
+</P>
+<P>(4) <I>Total leverage.</I> If the OCC determines that the total leverage exposure, or the amount reflected in the national bank's or Federal savings association's reported average total consolidated assets, for an on- or off-balance sheet exposure calculated by a national bank or Federal savings association under § 3.10 is inappropriate for the exposure(s) or the circumstances of the national bank or Federal savings association, the OCC may require the national bank or Federal savings association to adjust this exposure amount in the numerator and the denominator for purposes of the leverage ratio calculations.
+</P>
+<P>(5) <I>Consolidation of certain exposures.</I> The OCC may determine that the risk-based capital treatment for an exposure or the treatment provided to an entity that is not consolidated on the national bank's or Federal savings association's balance sheet is not commensurate with the risk of the exposure and the relationship of the national bank or Federal savings association to the entity. Upon making this determination, the OCC may require the national bank or Federal savings association to treat the exposure or entity as if it were consolidated on the balance sheet of the national bank or Federal savings association for purposes of determining the national bank's or Federal savings association's risk-based capital requirements and calculating the national bank's or Federal savings association's risk-based capital ratios accordingly. The OCC will look to the substance of, and risk associated with, the transaction, as well as other relevant factors the OCC deems appropriate in determining whether to require such treatment.
+</P>
+<P>(6) <I>Other reservation of authority.</I> With respect to any deduction or limitation required under this part, the OCC may require a different deduction or limitation, provided that such alternative deduction or limitation is commensurate with the national bank's or Federal savings association's risk and consistent with safety and soundness.
+</P>
+<P>(e) <I>Notice and response procedures.</I> In making a determination under this section, the OCC will apply notice and response procedures in the same manner as the notice and response procedures in § 3.404.
+</P>
+<P>(f) <I>Timing.</I> (1) Subject to the transition provisions in subpart G of this part, an advanced approaches national bank or Federal savings association that is not a savings and loan holding company must:
+</P>
+<P>(i) Except as described in paragraph (f)(1)(ii) of this section, beginning on January 1, 2014, calculate advanced approaches total risk-weighted assets in accordance with subpart E and, if applicable, subpart F of this part and, beginning on January 1, 2015, calculate standardized total risk-weighted assets in accordance with subpart D and, if applicable, subpart F of this part;
+</P>
+<P>(ii) [Reserved]
+</P>
+<P>(iii) Beginning on January 1, 2014, calculate and maintain minimum capital ratios in accordance with subparts A, B, and C of this part, provided, however, that such national bank or Federal savings association must:
+</P>
+<P>(A) From January 1, 2014 to December 31, 2014, maintain a minimum common equity tier 1 capital ratio of 4 percent, a minimum tier 1 capital ratio of 5.5 percent, a minimum total capital ratio of 8 percent, and a minimum leverage ratio of 4 percent; and
+</P>
+<P>(B) From January 1, 2015 to December 31, 2017, an advanced approaches national bank or Federal savings association:
+</P>
+<P>(<I>1</I>) Is not required to maintain a supplementary leverage ratio; and
+</P>
+<P>(<I>2</I>) Must calculate a supplementary leverage ratio in accordance with § 3.10(c), and must report the calculated supplementary leverage ratio on any applicable regulatory reports.
+</P>
+<P>(2) Subject to the transition provisions in subpart G of this part, a national bank or Federal savings association that is not an advanced approaches national bank or Federal savings association or a savings and loan holding company that is an advanced approaches national bank or Federal savings association must:
+</P>
+<P>(i) Beginning on January 1, 2015, calculate standardized total risk-weighted assets in accordance with subpart D, and if applicable, subpart F of this part; and
+</P>
+<P>(ii) Beginning on January 1, 2015, calculate and maintain minimum capital ratios in accordance with subparts A, B and C of this part, provided, however, that from January 1, 2015 to December 31, 2017, a savings and loan holding company that is an advanced approaches national bank or Federal savings association:
+</P>
+<P>(A) Is not required to maintain a supplementary leverage ratio; and
+</P>
+<P>(B) Must calculate a supplementary leverage ratio in accordance with § 3.10(c), and must report the calculated supplementary leverage ratio on any applicable regulatory reports.
+</P>
+<P>(3) Beginning on January 1, 2016, and subject to the transition provisions in subpart G of this part, a national bank or Federal savings association is subject to limitations on distributions and discretionary bonus payments with respect to its capital conservation buffer and any applicable countercyclical capital buffer amount, in accordance with subpart B of this part.
+</P>
+<P>(4) No national bank or Federal savings association that is not an advanced approaches bank or advanced approaches savings association is subject to this part 3 until January 1, 2015.
+</P>
+<P>(5) A national bank or Federal savings association that changes from one category of national bank or Federal savings association to another of such categories must comply with the requirements of its category in this part, including applicable transition provisions of the requirements in this part, no later than on the first day of the second quarter following the change in the national bank's or Federal savings association's category.
+</P>
+<CITA TYPE="N">[78 FR 62157, 62273, Oct. 11, 2013, as amended at 79 FR 57740, Sept. 26, 2014; 84 FR 35248, July 22, 2019; 84 FR 56374, Oct. 22, 2019; 84 FR 59263, Nov. 1, 2019]
+
+
+</CITA>
+</DIV8>
+
+
+<DIV8 N="§ 3.2" NODE="12:1.0.1.1.3.1.13.2" TYPE="SECTION">
+<HEAD>§ 3.2   Definitions.</HEAD>
+<P>As used in this part:
+</P>
+<P><I>Additional tier 1 capital</I> is defined in § 3.20(c).
+</P>
+<P><I>Adjusted allowances for credit losses (AACL)</I> means, with respect to a national bank or Federal savings association that has adopted CECL, valuation allowances that have been established through a charge against earnings or retained earnings for expected credit losses on financial assets measured at amortized cost and a lessor's net investment in leases that have been established to reduce the amortized cost basis of the assets to amounts expected to be collected as determined in accordance with GAAP. For purposes of this part, adjusted allowances for credit losses include allowances for expected credit losses on off-balance sheet credit exposures not accounted for as insurance as determined in accordance with GAAP. Adjusted allowances for credit losses exclude “allocated transfer risk reserves” and allowances created that reflect credit losses on purchased credit deteriorated assets and available-for-sale debt securities.
+</P>
+<P><I>Advanced approaches national bank or Federal savings association</I> means a national bank or Federal savings association that is described in § 3.100(b)(1).
+</P>
+<P><I>Advanced approaches total risk-weighted assets</I> means:
+</P>
+<P>(1) The sum of:
+</P>
+<P>(i) Credit-risk-weighted assets;
+</P>
+<P>(ii) Credit valuation adjustment (CVA) risk-weighted assets;
+</P>
+<P>(iii) Risk-weighted assets for operational risk; and
+</P>
+<P>(iv) For a market risk national bank or Federal savings association only, advanced market risk-weighted assets; minus
+</P>
+<P>(2) Excess eligible credit reserves not included in the national bank's or Federal savings association's tier 2 capital.
+</P>
+<P><I>Advanced market risk-weighted assets</I> means the advanced measure for market risk calculated under § 3.204 multiplied by 12.5.
+</P>
+<P><I>Affiliate</I> with respect to a company, means any company that controls, is controlled by, or is under common control with, the company.
+</P>
+<P><I>Allocated transfer risk reserves</I> means reserves that have been established in accordance with section 905(a) of the International Lending Supervision Act, against certain assets whose value U.S. supervisory authorities have found to be significantly impaired by protracted transfer risk problems.
+</P>
+<P><I>Allowances for loan and lease losses (ALLL)</I> means valuation allowances that have been established through a charge against earnings to cover estimated credit losses on loans, lease financing receivables or other extensions of credit as determined in accordance with GAAP. ALLL excludes “allocated transfer risk reserves.” For purposes of this part, ALLL includes allowances that have been established through a charge against earnings to cover estimated credit losses associated with off-balance sheet credit exposures as determined in accordance with GAAP.
+</P>
+</DIV8>
+
+
+<DIV8 N="§ 3.3" NODE="12:1.0.1.1.3.1.13.3" TYPE="SECTION">
+<HEAD>§ 3.3   Operational requirements for counterparty credit risk.</HEAD>
+<P>For purposes of calculating risk-weighted assets under subparts D and E of this part:
+</P>
+<P>(a) <I>Cleared transaction.</I> In order to recognize certain exposures as cleared transactions pursuant to paragraphs (1)(ii), (iii) or (iv) of the definition of “cleared transaction” in § 3.2, the exposures must meet the applicable requirements set forth in this paragraph (a).
+</P>
+<P>(1) The offsetting transaction must be identified by the CCP as a transaction for the clearing member client.
+</P>
+<P>(2) The collateral supporting the transaction must be held in a manner that prevents the national bank or Federal savings association from facing any loss due to an event of default, including from a liquidation, receivership, insolvency, or similar proceeding of either the clearing member or the clearing member's other clients. Omnibus accounts established under 17 CFR parts 190 and 300 satisfy the requirements of this paragraph (a).
+</P>
+<P>(3) The national bank or Federal savings association must conduct sufficient legal review to conclude with a well-founded basis (and maintain sufficient written documentation of that legal review) that in the event of a legal challenge (including one resulting from a default or receivership, insolvency, liquidation, or similar proceeding) the relevant court and administrative authorities would find the arrangements of paragraph (a)(2) of this section to be legal, valid, binding and enforceable under the law of the relevant jurisdictions.
+</P>
+<P>(4) The offsetting transaction with a clearing member must be transferable under the transaction documents and applicable laws in the relevant jurisdiction(s) to another clearing member should the clearing member default, become insolvent, or enter receivership, insolvency, liquidation, or similar proceedings.
+</P>
+<P>(b) <I>Eligible margin loan.</I> In order to recognize an exposure as an eligible margin loan as defined in § 3.2, a national bank or Federal savings association must conduct sufficient legal review to conclude with a well-founded basis (and maintain sufficient written documentation of that legal review) that the agreement underlying the exposure:
+</P>
+<P>(1) Meets the requirements of paragraph (1)(iii) of the definition of eligible margin loan in § 3.2, and
+</P>
+<P>(2) Is legal, valid, binding, and enforceable under applicable law in the relevant jurisdictions.
+</P>
+<P>(c) <I>Qualifying cross-product master netting agreement.</I> In order to recognize an agreement as a qualifying cross-product master netting agreement as defined in § 3.101, a national bank or Federal savings association must obtain a written legal opinion verifying the validity and enforceability of the agreement under applicable law of the relevant jurisdictions if the counterparty fails to perform upon an event of default, including upon receivership, insolvency, liquidation, or similar proceeding.
+</P>
+<P>(d) <I>Qualifying master netting agreement.</I> In order to recognize an agreement as a qualifying master netting agreement as defined in § 3.2, a national bank or Federal savings association must:
+</P>
+<P>(1) Conduct sufficient legal review to conclude with a well-founded basis (and maintain sufficient written documentation of that legal review) that:
+</P>
+<P>(i) The agreement meets the requirements of paragraph (2) of the definition of qualifying master netting agreement in § 3.2; and
+</P>
+<P>(ii) In the event of a legal challenge (including one resulting from default or from receivership, insolvency, liquidation, or similar proceeding) the relevant court and administrative authorities would find the agreement to be legal, valid, binding, and enforceable under the law of the relevant jurisdictions; and
+</P>
+<P>(2) Establish and maintain written procedures to monitor possible changes in relevant law and to ensure that the agreement continues to satisfy the requirements of the definition of qualifying master netting agreement in § 3.2.
+</P>
+<P>(e) <I>Repo-style transaction.</I> In order to recognize an exposure as a repo-style transaction as defined in § 3.2, a national bank or Federal savings association must conduct sufficient legal review to conclude with a well-founded basis (and maintain sufficient written documentation of that legal review) that the agreement underlying the exposure:
+</P>
+<P>(1) Meets the requirements of paragraph (3) of the definition of repo-style transaction in § 3.2, and
+</P>
+<P>(2) Is legal, valid, binding, and enforceable under applicable law in the relevant jurisdictions.
+</P>
+<P>(f) <I>Failure of a QCCP to satisfy the rule's requirements.</I> If a national bank or Federal savings association determines that a CCP ceases to be a QCCP due to the failure of the CCP to satisfy one or more of the requirements set forth in paragraphs (2)(i) through (2)(iii) of the definition of a QCCP in § 3.2, the national bank or Federal savings association may continue to treat the CCP as a QCCP for up to three months following the determination. If the CCP fails to remedy the relevant deficiency within three months after the initial determination, or the CCP fails to satisfy the requirements set forth in paragraphs (2)(i) through (2)(iii) of the definition of a QCCP continuously for a three-month period after remedying the relevant deficiency, a national bank or Federal savings association may not treat the CCP as a QCCP for the purposes of this part until after the national bank or Federal savings association has determined that the CCP has satisfied the requirements in paragraphs (2)(i) through (2)(iii) of the definition of a QCCP for three continuous months.
+
+
+</P>
+</DIV8>
+
+
+<DIV8 N="§§ 3.4-3.9" NODE="12:1.0.1.1.3.1.13.4" TYPE="SECTION">
+<HEAD>§§ 3.4-3.9   [Reserved]</HEAD>
+</DIV8>
+
+</DIV6><DIV6 N="B" NODE="12:1.0.1.1.3.2" TYPE="SUBPART"><HEAD>Subpart B—Capital Ratio Requirements and Buffers</HEAD>
+
+<SOURCE>
+<HED>Source:</HED><PSPACE>78 FR 62157, 62273, Oct. 11, 2013, unless otherwise noted.
+
+
+</PSPACE></SOURCE>
+
+<DIV8 N="§ 3.11" NODE="12:1.0.1.1.3.2.13.2" TYPE="SECTION">
+<HEAD>§ 3.11   Capital conservation buffer and countercyclical capital buffer amount.</HEAD>
+<P>(a) <I>Capital conservation buffer</I>—(1) <I>Composition of the capital conservation buffer.</I> The capital conservation buffer is composed solely of common equity tier 1 capital.
+</P>
+<P>(2) <I>Definitions.</I> For purposes of this section, the following definitions apply:
+</P>
+<P>(i) <I>Eligible retained income.</I> The eligible retained income of a national bank or Federal savings association is the greater of:
+</P>
+<P>(A) The national bank's or Federal savings association's net income, calculated in accordance with the instructions to the Call Report, for the four calendar quarters preceding the current calendar quarter, net of any distributions and associated tax effects not already reflected in net income; and
+</P>
+<P>(B) The average of the national bank's or Federal savings association's net income, calculated in accordance with the instructions to the Call Report, for the four calendar quarters preceding the current calendar quarter.
+</P>
+<P>(ii) <I>Maximum payout ratio.</I> The maximum payout ratio is the percentage of eligible retained income that a national bank or Federal savings association can pay out in the form of distributions and discretionary bonus payments during the current calendar quarter. For a national bank or Federal savings association that is not a subsidiary of a U.S. top-tier bank holding company that has more than $700 billion in total assets as reported on the company's most recent Consolidated Financial Statement for Bank Holding Companies (Form FR Y-9C) or more than $10 trillion in assets under custody as reported on the company's most recent Banking Organization Systemic Risk Report (Form FR Y-15), the maximum payout ratio is based on the national bank's or Federal savings association's capital conservation buffer, calculated as of the last day of the previous calendar quarter, as set forth in Table 1 to § 3.11. For a national bank or Federal savings association that is a subsidiary of a U.S. top-tier bank holding company that has more than $700 billion in total assets as reported on the company's most recent Consolidated Financial Statement for Bank Holding Companies (Form FR Y-9C) or more than $10 trillion in assets under custody as reported on the company's most recent Banking Organization Systemic Risk Report (Form FR Y-15), the maximum payout ratio is determined under paragraph (c)(1) of this section.
+</P>
+<P>(iii) <I>Maximum payout amount.</I> A national bank's or Federal savings association's maximum payout amount for the current calendar quarter is equal to the national bank's or Federal savings association's eligible retained income, multiplied by the applicable maximum payout ratio.
+
+
+</P>
+</DIV8>
+
+
+</DIV6></DIV5>
+</DIV3></DIV1></ECFRBRWS></BODY></TEXT></DLPSTEXTCLASS>
