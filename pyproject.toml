@@ -27,7 +27,7 @@ dependencies = [
 [project.optional-dependencies]
 th = ["pythainlp>=5.0"]
 pdf = ["pypdf>=4.0"]
-train = ["torch", "transformers", "trl", "peft", "bitsandbytes", "datasets", "accelerate"]
+train = ["unsloth", "torch", "transformers", "trl", "peft", "bitsandbytes", "datasets", "accelerate"]
 serve = ["vllm"]
 gguf = ["llama-cpp-python"]
 api = ["anthropic"]
