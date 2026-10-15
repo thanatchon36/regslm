@@ -5,7 +5,7 @@ UV := uv run --no-sync
 RUN ?=
 JOB := scripts/tmux_job.sh
 
-.PHONY: setup setup-train doctor test lint fmt schema fetch parse snapshot teacher-smoke label quick train experiments
+.PHONY: predict evaluate train-config setup setup-train doctor test lint fmt schema fetch parse snapshot teacher-smoke label quick experiments
 
 setup:            ## core + serving env (.venv)
 	uv sync --extra serve --extra th --extra pdf
@@ -29,3 +29,12 @@ label:            ## RUN=label-<variant> ARGS="--units X.jsonl --variant label [
 	$(JOB) $(RUN) $(UV) regslm label --run-id $(RUN) $(ARGS)
 train:            ## RUN=<id> (config in results/runs/<id>/config.yaml)
 	$(JOB) $(RUN) env UV_PROJECT_ENVIRONMENT=.venv-train uv run --no-sync regslm train --run-id $(RUN)
+train-config:     ## RUN=<id> ARGS="--base Qwen/Qwen3-1.7B --n-labels 2000 --set lr=1e-4"
+	env UV_PROJECT_ENVIRONMENT=.venv-train uv run --no-sync regslm train-config --run-id $(RUN) $(ARGS)
+predict:          ## RUN=<id> SETS=test,test_perturbed  (vLLM env)
+	$(JOB) $(RUN)-predict $(UV) regslm predict --run-id $(RUN) --sets $(or $(SETS),test) $(ARGS)
+evaluate:         ## RUN=<id> [ARGS="--sets test"]
+	$(UV) regslm evaluate --run-id $(RUN) $(ARGS)
+quick:            ## 200-row fixture -> Qwen3-0.6B LoRA 50 steps -> predict 50 -> evaluate (<= 15 min)
+	rm -rf results/runs/quick
+	$(JOB) quick bash scripts/quick.sh

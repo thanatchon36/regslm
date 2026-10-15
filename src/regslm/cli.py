@@ -144,5 +144,122 @@ def perturb_test(
     typer.echo(f"{n} perturbed test units -> {out}")
 
 
+gold_app = typer.Typer(no_args_is_help=True, add_completion=False, help="Gold set (paper 3.3).")
+app.add_typer(gold_app, name="gold")
+
+
+@gold_app.command("build")
+def gold_build(
+    run_a: Path = Path("results/runs/gold-pass-a"),
+    run_b: Path = Path("results/runs/gold-pass-b"),
+    sample: Path = Path("data/gold/sample.jsonl"),
+    out: Path = Path("data/gold"),
+) -> None:
+    """Compare gold passes A and B; write agreement.json, to_adjudicate.jsonl, agreed.jsonl."""
+    import polars as pl
+
+    from regslm.eval import gold
+
+    ids = [json.loads(ln)["unit_id"] for ln in sample.read_text().splitlines() if ln.strip()]
+    frames = [pl.read_parquet("data/corpus/units.parquet")]
+    local = Path("data/local/corpus/units_local.parquet")
+    if local.exists():
+        frames.append(pl.read_parquet(local))
+    rows = pl.concat(frames, how="diagonal").filter(pl.col("unit_id").is_in(ids))
+    units = {r["unit_id"]: r for r in rows.iter_rows(named=True)}
+    summary = gold.build(run_a, run_b, sample, units, out)
+    typer.echo(json.dumps({k: v for k, v in summary.items() if k != "agreement"}))
+
+
+@gold_app.command("finalize")
+def gold_finalize(out: Path = Path("data/gold")) -> None:
+    """Merge agreed + adjudicated rows into gold.jsonl (refuses if any decision is null)."""
+    from regslm.eval import gold
+
+    try:
+        n = gold.finalize(out)
+    except ValueError as e:
+        typer.echo(str(e), err=True)
+        raise typer.Exit(1) from e
+    typer.echo(f"{n} gold units -> {out / 'gold.jsonl'}")
+
+
+@app.command("train-config")
+def train_config(
+    run_id: Annotated[str, typer.Option(help="Run directory name under results/runs/")],
+    base: str = "Qwen/Qwen3-0.6B",
+    method: str = "lora",
+    n_labels: int = 500,
+    arm: str = "label",
+    seed: int = 0,
+    set_: Annotated[
+        list[str] | None, typer.Option("--set", help="Extra KEY=VALUE (YAML value), repeatable")
+    ] = None,
+    runs_dir: Path = Path("results/runs"),
+) -> None:
+    """Write results/runs/<id>/config.yaml (pre-registered defaults + overrides)."""
+    import yaml
+
+    from regslm.train.config import TrainConfig
+
+    d: dict[str, object] = {
+        "run_id": run_id, "base": base, "method": method, "n_labels": n_labels,
+        "arm": arm, "seed": seed,
+    }  # fmt: skip
+    for kv in set_ or []:
+        k, _, v = kv.partition("=")
+        d[k] = yaml.safe_load(v)
+    typer.echo(str(TrainConfig.model_validate(d).save(runs_dir)))
+
+
+@app.command()
+def train(
+    run_id: Annotated[str, typer.Option(help="Run directory with config.yaml")],
+    runs_dir: Path = Path("results/runs"),
+) -> None:
+    """SFT / distillation run from results/runs/<id>/config.yaml (.venv-train)."""
+    from regslm.train.config import TrainConfig
+    from regslm.train.sft import run_training
+
+    m = run_training(TrainConfig.load(run_id, runs_dir), runs_dir)
+    typer.echo(f"{run_id}: {m['status']}")
+
+
+@app.command()
+def predict(
+    run_id: Annotated[str, typer.Option(help="Trained run id")],
+    sets: Annotated[str, typer.Option(help="Comma-separated test sets")] = "test",
+    limit: Annotated[int | None, typer.Option(help="At most N units per set")] = None,
+    refs: Annotated[
+        str, typer.Option(help="Glob(s) of reference labels.jsonl, comma-separated")
+    ] = "results/runs/silver-*/labels.jsonl",
+    gpu_memory_utilization: float | None = None,
+    runs_dir: Path = Path("results/runs"),
+) -> None:
+    """Greedy, unguided vLLM inference on test sets -> predictions/<set>.jsonl (.venv)."""
+    from regslm.train.predict import predict as run_predict
+
+    meta = run_predict(
+        run_id, sets.split(","), limit, refs.split(","), runs_dir, gpu_memory_utilization
+    )
+    typer.echo(json.dumps(meta["sets"]))
+
+
+@app.command()
+def evaluate(
+    run_id: Annotated[str, typer.Option(help="Run with predictions/")],
+    sets: Annotated[str | None, typer.Option(help="Comma-separated subset of sets")] = None,
+    n_boot: Annotated[int, typer.Option(help="Bootstrap resamples")] = 10_000,
+    runs_dir: Path = Path("results/runs"),
+) -> None:
+    """Score predictions with regslm.eval; write results/runs/<id>/eval.json."""
+    from regslm.train.evaluate import evaluate as run_eval
+
+    res = run_eval(run_id, sets.split(",") if sets else None, n_boot, runs_dir)
+    for name, r in res["sets"].items():
+        m = r["metrics"]
+        typer.echo(f"{name}: n={r['n_units']} OF1={m['of1']:.3f} valid={m['validity_rate']:.3f}")
+
+
 if __name__ == "__main__":
     app()
