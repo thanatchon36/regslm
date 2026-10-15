@@ -261,5 +261,45 @@ def evaluate(
         typer.echo(f"{name}: n={r['n_units']} OF1={m['of1']:.3f} valid={m['validity_rate']:.3f}")
 
 
+@app.command("grpo-config")
+def grpo_config(
+    run_id: Annotated[str, typer.Option(help="New GRPO run id")],
+    parent: Annotated[str | None, typer.Option(help="Parent SFT run id")] = None,
+    auto_base: Annotated[
+        str | None, typer.Option(help="Pick the best SFT run (silver_val OF1) for this base")
+    ] = None,
+    set_: Annotated[
+        list[str] | None, typer.Option("--set", help="Extra KEY=VALUE (YAML value), repeatable")
+    ] = None,
+    runs_dir: Path = Path("results/runs"),
+) -> None:
+    """Write config.yaml + grpo.yaml for a GRPO run (pre-registered defaults + overrides)."""
+    import yaml
+
+    from regslm.train.grpo import select_parent, write_run_config
+
+    if (parent is None) == (auto_base is None):
+        raise typer.BadParameter("give exactly one of --parent / --auto-base")
+    pid = parent or select_parent(str(auto_base), runs_dir)
+    ov: dict[str, object] = {}
+    for kv in set_ or []:
+        k, _, v = kv.partition("=")
+        ov[k] = yaml.safe_load(v)
+    write_run_config(run_id, pid, ov, runs_dir)
+    typer.echo(f"{run_id}: parent={pid}")
+
+
+@app.command()
+def grpo(
+    run_id: Annotated[str, typer.Option(help="Run directory with config.yaml + grpo.yaml")],
+    runs_dir: Path = Path("results/runs"),
+) -> None:
+    """GRPO with verifiable rewards from results/runs/<id>/grpo.yaml (.venv-train)."""
+    from regslm.train.grpo import GrpoConfig, run_grpo
+
+    m = run_grpo(GrpoConfig.load(run_id, runs_dir), runs_dir)
+    typer.echo(f"{run_id}: {m['status']}")
+
+
 if __name__ == "__main__":
     app()
