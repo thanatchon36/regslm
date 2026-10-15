@@ -173,6 +173,7 @@ def gold_build(
     run_b: Path = Path("results/runs/gold-pass-b"),
     sample: Path = Path("data/gold/sample.jsonl"),
     out: Path = Path("data/gold"),
+    force: Annotated[bool, typer.Option(help="Overwrite existing adjudication decisions")] = False,
 ) -> None:
     """Compare gold passes A and B; write agreement.json, to_adjudicate.jsonl, agreed.jsonl."""
     import polars as pl
@@ -186,7 +187,7 @@ def gold_build(
         frames.append(pl.read_parquet(local))
     rows = pl.concat(frames, how="diagonal").filter(pl.col("unit_id").is_in(ids))
     units = {r["unit_id"]: r for r in rows.iter_rows(named=True)}
-    summary = gold.build(run_a, run_b, sample, units, out)
+    summary = gold.build(run_a, run_b, sample, units, out, force=force)
     typer.echo(json.dumps({k: v for k, v in summary.items() if k != "agreement"}))
 
 

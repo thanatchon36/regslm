@@ -39,13 +39,21 @@ def test_resolve_drops_unresolved_and_counts_wrong_unit() -> None:
                     "modality": "must",
                     "action": "satisfy",
                     "threshold": {"value": 4.5, "unit": "%", "comparator": ">="},
-                    "citation": {"source": "eurlex", "unit_id": "WRONG", "quote": "a Tier 1 capital ratio of 6 %"},
+                    "citation": {
+                        "source": "eurlex",
+                        "unit_id": "WRONG",
+                        "quote": "a Tier 1 capital ratio of 6 %",
+                    },
                 },
                 {
                     "subject": "banks",
                     "modality": "must",
                     "action": "report",
-                    "citation": {"source": "eurlex", "unit_id": "u1", "quote": "Banks must report quarterly."},
+                    "citation": {
+                        "source": "eurlex",
+                        "unit_id": "u1",
+                        "quote": "Banks must report quarterly.",
+                    },
                 },
             ],
         }

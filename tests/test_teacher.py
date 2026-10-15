@@ -201,5 +201,8 @@ def test_too_long_units_are_recorded_not_sent(tmp_path: Path) -> None:
     assert llm.calls == 2  # unit 1 never sent
     assert m["n_done"] == 3
     assert all(p.max_tokens == min(CFG.max_tokens, CFG.max_model_len - 10) for p in llm.params)
-    rows = {json.loads(ln)["unit_id"]: json.loads(ln) for ln in (tmp_path / "run/labels.jsonl").read_text().splitlines()}
+    rows = {
+        json.loads(ln)["unit_id"]: json.loads(ln)
+        for ln in (tmp_path / "run/labels.jsonl").read_text().splitlines()
+    }
     assert rows["s/d/1"]["valid"] is False and rows["s/d/1"]["extraction"] is None

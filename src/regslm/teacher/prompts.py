@@ -17,7 +17,9 @@ from __future__ import annotations
 
 from typing import Literal
 
-PROMPT_VERSION = "v5"  # v2 quote (D-020); v3 quote from TEXT; v4 guide v2.0 (D-036); v5 lead-in points (D-038)
+PROMPT_VERSION = (
+    "v5"  # v2 quote (D-020); v3 quote from TEXT; v4 guide v2.0 (D-036); v5 lead-in points (D-038)
+)
 
 Variant = Literal["label", "rationale", "gold_a", "gold_b"]
 

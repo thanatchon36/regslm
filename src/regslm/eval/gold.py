@@ -215,8 +215,17 @@ def build(
     sample: Path,
     units: Mapping[str, Mapping[str, Any]],
     out_dir: Path = GOLD_DIR,
+    force: bool = False,
 ) -> dict[str, Any]:
-    """Compare passes; write agreement.json, to_adjudicate.jsonl and agreed.jsonl."""
+    """Compare passes; write agreement.json, to_adjudicate.jsonl and agreed.jsonl.
+
+    Refuses (unless ``force``) when to_adjudicate.jsonl already holds decisions, so a
+    re-run cannot wipe an adjudication."""
+    existing = out_dir / "to_adjudicate.jsonl"
+    if not force and existing.exists():
+        n = sum(r.get("decision") is not None for r in _read_jsonl(existing))
+        if n:
+            raise ValueError(f"{existing} has {n} decisions; refusing to overwrite (force=True)")
     pa, ua = read_pass(run_a / "labels.jsonl")
     pb, ub = read_pass(run_b / "labels.jsonl")
     strata = {r["unit_id"]: r.get("stratum", "") for r in _read_jsonl(sample)}

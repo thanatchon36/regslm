@@ -10,7 +10,15 @@ def _units() -> pl.DataFrame:
             text = "Firms must report." if i % 3 else "'Firm' means a person."
             if lang == "th":
                 text = "ให้ธนาคารรายงาน" if i % 3 else "นิยามคำว่า"
-            rows.append({"unit_id": f"{doc}/{i}", "doc_id": doc, "language": lang, "text": text, "heading": ""})
+            rows.append(
+                {
+                    "unit_id": f"{doc}/{i}",
+                    "doc_id": doc,
+                    "language": lang,
+                    "text": text,
+                    "heading": "",
+                }
+            )
     return pl.DataFrame(rows)
 
 

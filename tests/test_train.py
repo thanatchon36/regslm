@@ -284,7 +284,15 @@ def test_zero_shot_prompt_is_teacher_prompt_plus_schema() -> None:
     from regslm.teacher.prompts import system_prompt
     from regslm.train.prompts import zero_shot_messages
 
-    u = Unit(unit_id="s/d/1", source="s", doc_id="d", path=["1"], text="Firms shall act.", language="en", version="v")
+    u = Unit(
+        unit_id="s/d/1",
+        source="s",
+        doc_id="d",
+        path=["1"],
+        text="Firms shall act.",
+        language="en",
+        version="v",
+    )
     msgs = zero_shot_messages(u)
     assert msgs[0]["content"].startswith(system_prompt("label"))
     assert '"quote"' in msgs[0]["content"] and "unit_id: s/d/1" in msgs[1]["content"]

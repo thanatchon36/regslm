@@ -124,7 +124,9 @@ def test_tolerant_tiers() -> None:
     assert gold.tolerant_tier(base, _ex(deadline="within 72 hours")) == 0
     assert gold.tolerant_tier(base, _ex(action="report all incidents")) == 0
     assert gold.tolerant_tier(base, _ex(object="x")) == 2  # empty vs non-empty
-    assert gold.tolerant_tier(base, _ex(threshold={"value": 5, "unit": "%", "comparator": "<="})) == 2
+    assert (
+        gold.tolerant_tier(base, _ex(threshold={"value": 5, "unit": "%", "comparator": "<="})) == 2
+    )
     assert gold.tolerant_tier(base, _ex(modality="may")) == 1
     from regslm.schema.obligation import Extraction
 
@@ -200,5 +202,23 @@ def test_content_rematch() -> None:
     assert gold.match_obligations(a.obligations, b.obligations) == []
     assert gold.tolerant_match(a.obligations, b.obligations) == [(0, 0)]
     assert gold.tolerant_tier(a, b) == 0
-    assert gold.tolerant_tier(a, _ex(citation={"source": "s", "unit_id": "u", **far}, object="x")) == 2
-    assert gold.tolerant_tier(a, _ex(citation={"source": "s", "unit_id": "u", **far}, action="appeal")) == 1
+    assert (
+        gold.tolerant_tier(a, _ex(citation={"source": "s", "unit_id": "u", **far}, object="x")) == 2
+    )
+    assert (
+        gold.tolerant_tier(a, _ex(citation={"source": "s", "unit_id": "u", **far}, action="appeal"))
+        == 1
+    )
+
+
+def test_build_refuses_to_overwrite_decisions(tmp_path: Path) -> None:
+    a, b, sample, units, out = _setup(tmp_path)
+    gold.build(a, b, sample, units, out)
+    gold.build(a, b, sample, units, out)  # no decisions yet: re-run allowed
+    p = out / "to_adjudicate.jsonl"
+    rows = [json.loads(ln) for ln in p.read_text().splitlines()]
+    rows[0]["decision"] = "A"
+    p.write_text("".join(json.dumps(r) + "\n" for r in rows))
+    with pytest.raises(ValueError, match="1 decisions"):
+        gold.build(a, b, sample, units, out)
+    gold.build(a, b, sample, units, out, force=True)

@@ -2,7 +2,7 @@
 
 ## Waiting on owner
 - **Gold (optional spot-check).** Gold adjudication was delegated to Claude and is done (D-048, `data/gold/gold.jsonl`). Optional: review ~30 random rows of `data/gold/adjudicate_claude.csv` (reasons in `adjudication_rationale.csv`) and mark disagreements; the agreement rate goes into the paper.
-- **WSL restart pending.** `.wslconfig` now has `memory=24GB` and `swap=16GB` (backup `.wslconfig.bak`). Run `wsl --shutdown` in PowerShell only after the GPU queue has finished (`tmux ls` shows no `queue`), then `free -g` and `make doctor`. Needed before full-FT 1.7B.
+- **WSL restart pending.** `.wslconfig` now has `memory=24GB` and `swap=16GB` (backup `.wslconfig.bak`). Best moment: right after the teacher queue ends (`results/runs/silver-train-rationale/DONE` exists, est. ~22:30 on 2026-10-15), before much of block 1 has run. `wsl --shutdown` in PowerShell kills all tmux jobs; afterwards run `free -g`, `make doctor`, then relaunch `tmux new -d -s autopilot scripts/autopilot_phase1to2.sh` (all steps resume: DONE runs are skipped, eval-sets is deterministic, `gold build` now refuses to overwrite decisions). Needed before full-FT 1.7B (block 3).
 - **Windows sleep.** Set Windows power plan to never sleep while long jobs run (cannot be controlled from WSL).
 - **FCA Handbook access route.** Text is OGL v3.0 (permissive) but FCA terms cl. 35.3 forbid scraping without consent. Either request FCA consent / API access, or download the SYSC, COBS and SUP sourcebook PDFs manually into `data/local/manual/fca/` (see docs/sources/NEEDED.md). FCA SYSC is the planned held-out rulebook (D-012).
 - **pandoc** not installed (`sudo apt install pandoc texlive-xetex`) — only needed for the paper PDF (Phase 5).

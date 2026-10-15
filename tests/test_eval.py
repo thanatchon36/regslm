@@ -255,7 +255,9 @@ def test_memorisation():
 def test_sanity_flags_any_metric_exact_zero_or_one() -> None:
     from regslm.eval.stats import sanity_flags
 
-    flags = sanity_flags({"of1": 0.71, "field_f1.threshold": 0.0, "validity_rate": 1.0, "field_f1.subject": 0.99})
+    flags = sanity_flags(
+        {"of1": 0.71, "field_f1.threshold": 0.0, "validity_rate": 1.0, "field_f1.subject": 0.99}
+    )
     assert any("field_f1.threshold" in f for f in flags)
     assert any("validity_rate" in f for f in flags)
     assert any("field_f1.subject" in f and "> 0.98" in f for f in flags)

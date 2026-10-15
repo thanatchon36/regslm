@@ -85,9 +85,7 @@ def build_sampling(cfg: EngineConfig) -> Any:
     try:
         from vllm.sampling_params import StructuredOutputsParams
 
-        extra: dict[str, Any] = {
-            "structured_outputs": StructuredOutputsParams(json=schema)
-        }
+        extra: dict[str, Any] = {"structured_outputs": StructuredOutputsParams(json=schema)}
     except ImportError:  # older vLLM
         from vllm.sampling_params import GuidedDecodingParams  # type: ignore[attr-defined]
 
