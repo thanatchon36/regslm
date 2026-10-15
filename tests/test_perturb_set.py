@@ -114,3 +114,13 @@ def test_heading_and_writer(tmp_path: Path) -> None:
     assert build_perturbed_test([_unit(text)], labels, out) == 1
     row = json.loads(out.read_text())
     assert row["memorisation_targets"][0][:2] == [0, "threshold.value"]
+
+
+def test_deadline_targets() -> None:
+    text = "Firms must report within 30 days or 2 business days of 8 % loss."
+    ex = _ex(text, text, 8, deadline="within 30 days")
+    _, ex2, ch = perturb_unit_and_label(_unit(text), ex, 1)
+    assert ex2 is not None
+    t = [t for t in ch.targets if t.field == "deadline.value"]
+    assert len(t) == 1 and t[0].unit == "day" and t[0].original == 30 != t[0].perturbed
+    assert t[0].as_row()[-1] == "day" and len(ch.targets[0].as_row()) == 4  # threshold first

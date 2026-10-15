@@ -13,8 +13,10 @@ of the tag. Annotation rules: docs/ANNOTATION_GUIDE.md v2.0; teacher prompt v4.
 - `test-perturbed` — `test` after `perturb_numbers` (seed 0), labels remapped (D-034). Only the
   440 units with numbers differ from `test`.
 - `num440` — those 440 units, scored in original and perturbed form (paired).
-- `mr_pool` — all 1,129 numeric units of test ∪ dev ∪ silver_val ∪ heldout, perturbed with seeds 0
-  and 1 (two independent draws); used only for memorisation metrics.
+- `mr_pool` — all 1,129 numeric units of test ∪ dev ∪ silver_val ∪ heldout, perturbed with seed 0
+  for every model; a second independent draw (seed 1) is added for the cells where memorisation
+  claims are made — zero-shot, the N = 10k SFT ladder and GRPO (D-041). Used only for
+  memorisation metrics.
 - `heldout` — EUR-Lex AMLD4, 641 units, never in train/dev (D-023); FCA SYSC added if obtained.
 - `postcutoff` — units with `last_amended` ≥ 2025-05-01 (D-025); N reported.
 - `gold` — 300 units, two-pass + owner adjudication. Until adjudicated, every gold-based verdict
@@ -33,7 +35,7 @@ of the tag. Annotation rules: docs/ANNOTATION_GUIDE.md v2.0; teacher prompt v4.
 - **Secondary:** field F1 (subject, action, object, condition, threshold, deadline, exceptions)
   plus unconditional recall of condition/exceptions; exact-obligation rate; Numeric-exact;
   validity; hallucination rate; latency, throughput, peak VRAM.
-- **Memorisation decomposition** (on `mr_pool`, both perturbation seeds pooled): over reference
+- **Memorisation decomposition** (on `mr_pool`, perturbation draws pooled where two exist): over reference
   obligations whose threshold **or** deadline value was perturbed, the fraction where the model's
   emitted value equals the **original** value (MR), equals the perturbed value (faithful), is a
   different value (other-wrong), or is not emitted (missing) — the four sum to 100 %. Reported for

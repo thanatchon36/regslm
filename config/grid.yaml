@@ -7,7 +7,9 @@ budget_gpu_hours: 100
 teacher_gpu_hours: 12          # tracked separately (labelling), not part of the 100
 seeds: [0, 1, 2]
 n_labels: [500, 2000, 10000, 20000]
-eval_sets: [test, test_perturbed, mr_pool, heldout, silver_val, gold]   # D-034; Thai test = test ∩ language=th
+eval_sets: [test, test_perturbed, num440, num440_perturbed, mr_pool_s0, heldout,
+            silver_val_1k, postcutoff, thai_test]   # D-034/D-037/D-041; num440*, postcutoff, thai_test reuse predictions
+# Blocks may add `extra_eval_sets`; mr_pool_s1 (second perturbation draw) only where MR is claimed (D-041).
 train_langs: [en, th]          # default; the H5c transfer cell overrides with [en]
 
 bases:
@@ -29,10 +31,12 @@ tokens_per_example: 520        # measured mean prompt+target on silver labels (u
 
 blocks:
   - name: zero_shot
+    extra_eval_sets: [mr_pool_s1]
     priority: 1
     cells: [{base: [qwen3-0.6b, qwen3-1.7b, qwen3-4b, qwen3-8b], method: zero_shot},
-            {base: qwen3-14b-awq, method: zero_shot, eval_sets: [test_perturbed, heldout, gold]}]
+            {base: qwen3-14b-awq, method: zero_shot, eval_sets: [test, test_perturbed, mr_pool_s0, heldout, gold]}]
   - name: sft_ladder_10k
+    extra_eval_sets: [mr_pool_s1]
     priority: 2
     cells: [{base: [qwen3-0.6b, qwen3-1.7b], method: lora, n: 10000, arm: label, seeds: all},
             {base: qwen3-4b, method: lora, n: 10000, arm: label, seeds: [0, 1]},
@@ -57,6 +61,7 @@ blocks:
             {base: qwen3-4b, method: lora, n: 10000, arm: rationale, seeds: [0, 1]},
             {base: qwen3-4b, method: lora, n: 10000, arm: label_token_matched, seeds: [0, 1]}]
   - name: grpo
+    extra_eval_sets: [mr_pool_s1]
     priority: 5
     cells: [{base: [qwen3-0.6b, qwen3-1.7b, qwen3-4b], method: grpo, from: best_sft, seeds: [0, 1], max_wall_h: 1.5}]
   - name: quantization

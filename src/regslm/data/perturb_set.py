@@ -11,7 +11,7 @@ from pathlib import Path
 from typing import Any
 
 from regslm.corpus.base import Unit
-from regslm.rewards.normalize import extract_numbers
+from regslm.rewards.normalize import deadline_pairs, extract_numbers
 from regslm.schema.obligation import Citation, Extraction, Obligation, Span, Threshold
 from regslm.schema.perturb import Change, perturb_numbers
 
@@ -24,6 +24,12 @@ class MemTarget:
     field: str
     original: float
     perturbed: float
+    unit: str = ""  # canonical time unit, for ``deadline.value`` targets
+
+    def as_row(self) -> list[Any]:
+        """Serialised form: ``[obligation, field, original, perturbed]`` (+ unit for deadlines)."""
+        row: list[Any] = [self.obligation, self.field, self.original, self.perturbed]
+        return [*row, self.unit] if self.unit else row
 
 
 @dataclass(frozen=True)
@@ -87,6 +93,13 @@ def remap_extraction(ex: Extraction, changes: Changes) -> tuple[Extraction, list
                     )
                     targets.append(MemTarget(i, "threshold.value", v, w))
                     break
+        if o.deadline:
+            old_p, new_p = deadline_pairs(o.deadline), deadline_pairs(upd["deadline"])
+            for unit in sorted({u for _, u in old_p}):
+                olds = [n for n, u in old_p if u == unit]
+                news = [n for n, u in new_p if u == unit]
+                if len(olds) == 1 and len(news) == 1 and olds[0] != news[0]:
+                    targets.append(MemTarget(i, "deadline.value", olds[0], news[0], unit))
         obls.append(o.model_copy(update=upd))
     return ex.model_copy(update={"obligations": obls}), targets
 
@@ -138,9 +151,7 @@ def build_perturbed_test(
                     "text": [vars(c) for c in ch.text],
                     "heading": [vars(c) for c in ch.heading],
                 },
-                "memorisation_targets": [
-                    [t.obligation, t.field, t.original, t.perturbed] for t in ch.targets
-                ],
+                "memorisation_targets": [t.as_row() for t in ch.targets],
             }
             f.write(json.dumps(row, ensure_ascii=False) + "\n")
             n += 1

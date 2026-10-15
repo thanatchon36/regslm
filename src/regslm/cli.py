@@ -144,6 +144,22 @@ def perturb_test(
     typer.echo(f"{n} perturbed test units -> {out}")
 
 
+@app.command("eval-sets")
+def eval_sets(
+    labels: Annotated[Path, typer.Option(help="Teacher labels.jsonl (references)")],
+    out: Path = Path("data/local/eval_sets"),
+    splits: Path = Path("data/splits/assignments.parquet"),
+    gold: Path = Path("data/gold/gold.jsonl"),
+) -> None:
+    """Materialise test/perturbed/mr_pool/... reference sets + MANIFEST.json (RQ doc section 0)."""
+    from regslm.data.eval_sets import build_from_files
+
+    m = build_from_files(labels, out, splits, gold)
+    for name, v in m["sets"].items():
+        typer.echo(f"{name}: n={v['n']} targets={v['n_targets']}")
+    typer.echo(f"-> {out} (labels sha256 {m['labels_sha256'][:12]})")
+
+
 gold_app = typer.Typer(no_args_is_help=True, add_completion=False, help="Gold set (paper 3.3).")
 app.add_typer(gold_app, name="gold")
 

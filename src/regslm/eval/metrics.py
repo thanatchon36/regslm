@@ -208,7 +208,8 @@ def memorisation_rate(rows: Iterable[MemRow]) -> dict[str, float]:
     for r in rows:
         pred = r.prediction.obligations if r.prediction is not None else []
         by_gold = {j: i for i, j in match_obligations(pred, r.reference.obligations)}
-        for idx, fld, orig, pert in r.targets:
+        for tg in r.targets:
+            idx, fld, orig, pert = tg[:4]
             if fld != "threshold.value":
                 continue
             n += 1
@@ -223,3 +224,66 @@ def memorisation_rate(rows: Iterable[MemRow]) -> dict[str, float]:
         "perturbed_correct_rate": _div(ok, n),
         "n_targets": float(n),
     }
+
+
+MEM_CATEGORIES = ("original", "perturbed", "other", "missing")
+
+
+def _close(a: float, b: float) -> bool:
+    return math.isclose(a, float(b), rel_tol=1e-9, abs_tol=1e-12)
+
+
+def memorisation_outcomes(row: MemRow) -> list[str]:
+    """One category per ``threshold.value`` / ``deadline.value`` target of a unit.
+
+    ``original``: the matched predicted obligation carries the original value; ``perturbed``:
+    the perturbed (faithful) value; ``other``: a different value; ``missing``: no matched
+    obligation, or it emits no such value. Deadlines compare relaxed (number, time-unit) pairs
+    of the target's unit; if both values occur, ``original`` wins (conservative for a
+    no-memorisation claim).
+    """
+    pred = row.prediction.obligations if row.prediction is not None else []
+    by_gold = {j: i for i, j in match_obligations(pred, row.reference.obligations)}
+    out: list[str] = []
+    for tg in row.targets:
+        idx, fld, orig, pert = tg[:4]
+        if fld not in ("threshold.value", "deadline.value"):
+            continue
+        pi = by_gold.get(int(idx))
+        if pi is None:
+            out.append("missing")
+        elif fld == "threshold.value":
+            th = pred[pi].threshold
+            if th is None:
+                out.append("missing")
+            elif _close(th.value, orig):
+                out.append("original")
+            elif _close(th.value, pert):
+                out.append("perturbed")
+            else:
+                out.append("other")
+        else:
+            unit = str(tg[4]) if len(tg) > 4 else ""
+            vals = [n for n, u in deadline_pairs(pred[pi].deadline) if u == unit]
+            if not vals:
+                out.append("other" if deadline_pairs(pred[pi].deadline) else "missing")
+            elif any(_close(v, orig) for v in vals):
+                out.append("original")
+            elif any(_close(v, pert) for v in vals):
+                out.append("perturbed")
+            else:
+                out.append("other")
+    return out
+
+
+def memorisation_decomposition(rows: Iterable[MemRow]) -> dict[str, float]:
+    """4-way decomposition (original / perturbed / other / missing) over all targets; the
+    four fractions sum to 1 (0 each if there are no targets)."""
+    counts = dict.fromkeys(MEM_CATEGORIES, 0)
+    for r in rows:
+        for c in memorisation_outcomes(r):
+            counts[c] += 1
+    n = sum(counts.values())
+    out = {c: _div(counts[c], n) for c in MEM_CATEGORIES}
+    out["n_targets"] = float(n)
+    return out

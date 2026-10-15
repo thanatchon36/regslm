@@ -8,11 +8,13 @@ from __future__ import annotations
 import glob
 import json
 import time
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
 from regslm.corpus.base import Unit
+from regslm.data.eval_sets import EVAL_SETS_DIR
 from regslm.train.config import RUNS_DIR, TrainConfig
 from regslm.train.data import fixture_split, hash_order, read_label_rows
 from regslm.train.prompts import student_messages
@@ -20,14 +22,35 @@ from regslm.train.prompts import student_messages
 SET_NAMES = (
     "test",
     "test_perturbed",
+    "num440",
+    "num440_perturbed",
+    "mr_pool_s0",
+    "mr_pool_s1",
     "heldout",
     "postcutoff",
     "silver_val",
+    "silver_val_1k",
     "gold",
     "thai_test",
     "quick",
 )
 SPLIT_SETS = {"test", "heldout", "silver_val", "postcutoff", "thai_test"}
+# Materialised by `regslm eval-sets` (data/local/eval_sets/<name>.jsonl); preferred over the
+# legacy split path when present so that every set shares one reference-label source.
+FILE_SETS = {
+    "test_perturbed", "num440", "num440_perturbed", "mr_pool_s0", "mr_pool_s1", "silver_val_1k",
+}  # fmt: skip
+# Sets whose predictions are reused from another set wherever the prompt text is identical
+# (D-034): unchanged units of test_perturbed, the pure subsets of test / test_perturbed, and the
+# test units of mr_pool_s0 (same seed and text as test_perturbed).
+REUSE_FROM = {
+    "test_perturbed": "test",
+    "num440": "test",
+    "num440_perturbed": "test_perturbed",
+    "mr_pool_s0": "test_perturbed",  # seed 0 = same perturbation as test_perturbed
+    "postcutoff": "test",
+    "thai_test": "test",
+}
 REF_GLOB = "results/runs/silver-*/labels.jsonl"
 MAX_NEW_TOKENS = 1024
 
@@ -75,13 +98,13 @@ def load_set(name: str, cfg: TrainConfig, refs: list[str], limit: int | None = N
             for r in held
             if r.unit is not None
         ]
-    elif name == "test_perturbed":
-        p = Path("data/local/test_perturbed.jsonl")
+    elif name in FILE_SETS or (name in SPLIT_SETS and (EVAL_SETS_DIR / f"{name}.jsonl").exists()):
+        p = EVAL_SETS_DIR / f"{name}.jsonl"
         if not p.exists():
-            raise FileNotFoundError(f"{p} missing (run `regslm perturb-test`)")
+            raise FileNotFoundError(f"{p} missing (run `regslm eval-sets --labels ...`)")
         rows = [json.loads(ln) for ln in p.read_text(encoding="utf-8").splitlines() if ln.strip()]
         items = [
-            Item(Unit.model_validate(r["unit"]), r["label"], r["memorisation_targets"])
+            Item(Unit.model_validate(r["unit"]), r["reference"], r.get("memorisation_targets", []))
             for r in rows
         ]
     elif name == "gold":
@@ -136,6 +159,70 @@ def decode_row(completion: str, unit: Unit) -> dict[str, Any]:
     }
 
 
+def order_sets(names: list[str]) -> list[str]:
+    """De-duplicated, with each set after the set its predictions are reused from."""
+    out: list[str] = []
+
+    def add(n: str) -> None:
+        if n in out:
+            return
+        src = REUSE_FROM.get(n)
+        if src in names:
+            add(src)
+        out.append(n)
+
+    for n in names:
+        add(n)
+    return out
+
+
+def _same_prompt(a: Unit, b: Unit) -> bool:
+    return a.text == b.text and a.heading == b.heading
+
+
+def assemble_set(
+    name: str,
+    items: list[Item],
+    base_items: dict[str, Item],
+    base_rows: dict[str, dict[str, Any]],
+    generate: Callable[[list[Item]], list[dict[str, Any]]],
+) -> tuple[list[dict[str, Any]], int]:
+    """Prediction rows for ``items`` (same order) and the number of units actually generated.
+
+    A unit is not re-run when ``base_rows`` (predictions of ``REUSE_FROM[name]``) hold a row
+    for it and the base item has the identical prompt text; the row is copied with this set's
+    reference and targets. ``generate`` maps items to partial rows (completion, decode fields,
+    n_gen_tokens, latency_s).
+    """
+    reuse: dict[str, dict[str, Any]] = {}
+    for it in items:
+        b = base_items.get(it.unit.unit_id)
+        r = base_rows.get(it.unit.unit_id)
+        if b is not None and r is not None and _same_prompt(b.unit, it.unit):
+            reuse[it.unit.unit_id] = r
+    run = [it for it in items if it.unit.unit_id not in reuse]
+    fresh = iter(generate(run) if run else [])
+    rows: list[dict[str, Any]] = []
+    for it in items:
+        r = reuse.get(it.unit.unit_id)
+        part = dict(r) if r is not None else next(fresh)
+        part.update(
+            set=name,
+            unit_id=it.unit.unit_id,
+            reference=it.reference,
+            memorisation_targets=it.memorisation_targets,
+        )
+        rows.append(part)
+    return rows, len(run)
+
+
+def _read_rows(path: Path) -> dict[str, dict[str, Any]]:
+    if not path.exists():
+        return {}
+    rows = [json.loads(ln) for ln in path.read_text(encoding="utf-8").splitlines() if ln.strip()]
+    return {r["unit_id"]: r for r in rows}
+
+
 def predict(
     run_id: str,
     sets: list[str],
@@ -144,37 +231,38 @@ def predict(
     runs: Path = RUNS_DIR,
     gpu_memory_utilization: float | None = None,
 ) -> dict[str, Any]:
-    from regslm.teacher.engine import CHAT_TEMPLATE_KWARGS, EngineConfig, build_llm
-
     cfg = TrainConfig.load(run_id, runs)
-    todo = {n: load_set(n, cfg, refs or [REF_GLOB], limit) for n in sets}
     run_dir = cfg.run_dir(runs)
     out_dir = run_dir / "predictions"
     out_dir.mkdir(exist_ok=True)
-    zs = run_dir / "zero_shot.yaml"  # zero-shot cell: base model, student prompt, no checkpoint
-    if zs.exists():
-        import yaml
+    names = order_sets(sets)
+    todo = {n: load_set(n, cfg, refs or [REF_GLOB], limit) for n in names}
+    llm_box: list[Any] = []
 
-        z = yaml.safe_load(zs.read_text())
-        model, revision = str(z["model"]), z.get("revision")
-    else:
-        model, revision = str(model_dir(cfg, runs)), None
-    ecfg = EngineConfig(
-        model=model, revision=revision, max_model_len=cfg.max_seq_len + MAX_NEW_TOKENS
-    )
-    if gpu_memory_utilization:
-        ecfg.gpu_memory_utilization = gpu_memory_utilization
-    from vllm import SamplingParams
+    def generate(items: list[Item]) -> list[dict[str, Any]]:
+        from vllm import SamplingParams
 
-    llm = build_llm(ecfg)
-    sampling = SamplingParams(
-        temperature=0.0, max_tokens=MAX_NEW_TOKENS, seed=cfg.seed
-    )  # no guided decoding
-    meta: dict[str, Any] = {"model": ecfg.model, "sets": {}}
-    for name, items in todo.items():
-        if not items:
-            meta["sets"][name] = {"n": 0}
-            continue
+        from regslm.teacher.engine import CHAT_TEMPLATE_KWARGS, EngineConfig, build_llm
+
+        if not llm_box:
+            zs = run_dir / "zero_shot.yaml"  # zero-shot cell: base model, student prompt
+            if zs.exists():
+                import yaml
+
+                z = yaml.safe_load(zs.read_text())
+                model, revision = str(z["model"]), z.get("revision")
+            else:
+                model, revision = str(model_dir(cfg, runs)), None
+            ecfg = EngineConfig(
+                model=model, revision=revision, max_model_len=cfg.max_seq_len + MAX_NEW_TOKENS
+            )
+            if gpu_memory_utilization:
+                ecfg.gpu_memory_utilization = gpu_memory_utilization
+            llm_box.append((build_llm(ecfg), ecfg.model))
+        llm = llm_box[0][0]
+        sampling = SamplingParams(
+            temperature=0.0, max_tokens=MAX_NEW_TOKENS, seed=cfg.seed
+        )  # no guided decoding
         t0 = time.time()
         outs = llm.chat(
             [student_messages(it.unit) for it in items],
@@ -182,23 +270,48 @@ def predict(
             chat_template_kwargs=CHAT_TEMPLATE_KWARGS,
         )
         wall = time.time() - t0
-        with (out_dir / f"{name}.jsonl").open("w", encoding="utf-8") as f:
-            for it, o in zip(items, outs, strict=True):
-                c = o.outputs[0]
-                m = getattr(o, "metrics", None)
-                fin, arr = getattr(m, "finished_time", None), getattr(m, "arrival_time", None)
-                lat = fin - arr if fin and arr else wall / len(items)
-                row = {
-                    "set": name,
-                    "unit_id": it.unit.unit_id,
+        rows = []
+        for it, o in zip(items, outs, strict=True):
+            c = o.outputs[0]
+            m = getattr(o, "metrics", None)
+            fin, arr = getattr(m, "finished_time", None), getattr(m, "arrival_time", None)
+            rows.append(
+                {
                     "completion": c.text,
                     **decode_row(c.text, it.unit),
                     "n_gen_tokens": len(c.token_ids),
-                    "latency_s": lat,
-                    "reference": it.reference,
-                    "memorisation_targets": it.memorisation_targets,
+                    "latency_s": fin - arr if fin and arr else wall / len(items),
                 }
-                f.write(json.dumps(row, ensure_ascii=False) + "\n")
-        meta["sets"][name] = {"n": len(items), "wall_s": wall}
+            )
+        return rows
+
+    meta: dict[str, Any] = {"sets": {}}
+    done_rows: dict[str, dict[str, dict[str, Any]]] = {}
+    for name in names:
+        items = todo[name]
+        if not items:
+            meta["sets"][name] = {"n": 0, "n_units": 0, "n_reused": 0}
+            continue
+        src = REUSE_FROM.get(name)
+        base_items: dict[str, Item] = {}
+        base_rows: dict[str, dict[str, Any]] = {}
+        if src is not None:
+            base_rows = done_rows.get(src) or _read_rows(out_dir / f"{src}.jsonl")
+            if base_rows:
+                base = load_set(src, cfg, refs or [REF_GLOB], limit)
+                base_items = {it.unit.unit_id: it for it in base}
+        t0 = time.time()
+        rows, n_run = assemble_set(name, items, base_items, base_rows, generate)
+        wall = time.time() - t0
+        with (out_dir / f"{name}.jsonl").open("w", encoding="utf-8") as f:
+            for r in rows:
+                f.write(json.dumps(r, ensure_ascii=False) + "\n")
+        done_rows[name] = {r["unit_id"]: r for r in rows}
+        # "n" = units actually generated (experiments/throughput.py divides n by wall_s)
+        meta["sets"][name] = {
+            "n": n_run, "n_units": len(items), "n_reused": len(items) - n_run, "wall_s": wall,
+        }  # fmt: skip
+    if llm_box:
+        meta["model"] = llm_box[0][1]
     (run_dir / "predict_meta.json").write_text(json.dumps(meta, indent=2))
     return meta

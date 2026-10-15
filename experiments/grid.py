@@ -19,11 +19,15 @@ GRID_PATH = Path("config/grid.yaml")
 THROUGHPUT_PATH = Path("results/throughput.json")
 REVISIONS_PATH = Path("results/base_revisions.json")
 
-# Per-run inference units (D-034): test_perturbed reuses test predictions for units without numbers,
-# mr_pool = numeric units of non-train splits; silver_val = 1k selection subset.
+# Per-run inference units (D-034). Dedupe in predict: test_perturbed runs only the 440 units whose
+# perturbed text differs from test (needs `test` in the same run); num440, num440_perturbed,
+# postcutoff and thai_test are subsets of test / test_perturbed and cost no inference.
+# mr_pool_s0 reuses the 440 test units' test_perturbed predictions (same seed): 689; mr_pool_s1
+# = 1,129 numeric units; silver_val_1k = fixed 1k sample.
 EVAL_UNITS = {
-    "test": 4407, "test_perturbed": 440, "mr_pool": 689, "heldout": 641, "silver_val": 1000,
-    "gold": 300,
+    "test": 4407, "test_perturbed": 440, "num440": 0, "num440_perturbed": 0,
+    "mr_pool_s0": 689, "mr_pool_s1": 1129, "heldout": 641, "silver_val": 2000,
+    "silver_val_1k": 1000, "postcutoff": 0, "thai_test": 0, "gold": 300,
 }  # fmt: skip
 QUANT_EVAL_UNITS = 2129  # 1,000 test subset + 1,129 numeric pool
 GRPO_DEFAULT_H = 2.0
@@ -148,7 +152,7 @@ def expand(
 
     for b in sorted(g["blocks"], key=lambda b: b["priority"]):  # sorted() is stable
         for c in b["cells"]:
-            sets = c.get("eval_sets", g["eval_sets"])
+            sets = list(c.get("eval_sets", g["eval_sets"])) + list(b.get("extra_eval_sets", []))
             langs = c.get("train_langs", g["train_langs"])
             seeds = g["seeds"] if c.get("seeds") == "all" else c.get("seeds", g["seeds"])
             methods = as_list(c.get("method", "quant" if b["name"] == "quantization" else "lora"))

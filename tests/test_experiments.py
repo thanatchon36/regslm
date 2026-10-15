@@ -44,7 +44,7 @@ def legacy_projection(g: dict[str, Any]) -> dict[str, tuple[int, float]]:
     for b in sorted(g["blocks"], key=lambda b: b["priority"]):
         bh, runs = 0.0, 0
         for c in b["cells"]:
-            sets = c.get("eval_sets", sets_all)
+            sets = list(c.get("eval_sets", sets_all)) + list(b.get("extra_eval_sets", []))
             for base, method in itertools.product(
                 G.as_list(c["base"]), G.as_list(c.get("method", "lora"))
             ):
@@ -99,15 +99,15 @@ def test_run_ids_unique_and_readable(grid: dict[str, Any]) -> None:
     assert "q-qwen3-0.6b-gguf-q4km-llamacpp-cpu" in by
     assert "sft_ladder_10k-qwen3-8b-qlora-n10000-label-en_th-s1" in by
     assert "thai-qwen3-1.7b-lora-n10000-label-en-s0" in by
-    assert by["zs-qwen3-14b-awq"].eval_sets == ["test_perturbed", "heldout", "gold"]
+    assert by["zs-qwen3-14b-awq"].eval_sets == [
+        "test", "test_perturbed", "mr_pool_s0", "heldout", "gold", "mr_pool_s1"
+    ]
     assert all(c.hf and c.revision for c in cells if c.base != "sealion3-8b")
 
 
 def test_missing_revision_refused(grid: dict[str, Any]) -> None:
     revs = {
-        k: v
-        for k, v in G.load_revisions().items()
-        if "Qwen3-0.6B" not in k and "SEA-LION" not in k
+        k: v for k, v in G.load_revisions().items() if "Qwen3-0.6B" not in k and "SEA-LION" not in k
     }
     with pytest.raises(KeyError, match=r"Qwen/Qwen3-0\.6B"):
         G.expand(grid, revisions=revs, strict=True)
@@ -218,14 +218,16 @@ def test_budget_never_reads_metrics(
 
 def test_budget_decision_accounts_for_logged_and_done(grid: dict[str, Any]) -> None:
     none_done = lambda c: False  # noqa: E731
-    assert budget.decide(grid, 6, 0.0, none_done).ok  # 96.1
-    assert not budget.decide(grid, 6, 5.0, none_done).ok  # 101.1
+    # D-041 eval sets: mr_pool_s1 only in zero_shot / sft_ladder_10k / grpo
+    assert budget.decide(grid, 6, 0.0, none_done).ok  # 97.6
+    assert not budget.decide(grid, 6, 3.0, none_done).ok  # 100.6
+    assert not budget.decide(grid, 7, 0.0, none_done).ok  # 102.9 -> pre-registered cuts apply
     all_done = lambda c: True  # noqa: E731
     assert budget.decide(grid, 8, 99.0, all_done).ok
     assert not budget.decide(grid, 8, 100.5, all_done).ok  # the cap is not soft
     d = budget.decide(grid, 7, 0.0, none_done)
-    assert d.projected_h == pytest.approx(101.5, abs=0.1)
-    assert d.cuts == ["drop_block8", "thai_1seed"] and d.sufficient
+    assert d.projected_h == pytest.approx(102.9, abs=0.1)
+    assert d.cuts[:2] == ["drop_block8", "thai_1seed"] and d.sufficient
 
 
 # ------------------------------------------------------------------------------------ runner
@@ -251,10 +253,10 @@ def test_emit_zero_shot_and_skip_done(tmp_path: Path) -> None:
     body = [ln for ln in lines if not ln.startswith("#")]
     assert len(body) == 8  # 4 remaining cells x (predict, evaluate)
     assert not any("zs-qwen3-0.6b " in ln for ln in body)
-    assert "predict zs-qwen3-14b-awq --sets test_perturbed,heldout,gold" in body
+    assert "predict zs-qwen3-14b-awq --sets test,test_perturbed,mr_pool_s0,heldout,gold,mr_pool_s1" in body
     zs = yaml.safe_load((tmp_path / "runs/zs-qwen3-14b-awq/zero_shot.yaml").read_text())
     assert zs["model"] == "Qwen/Qwen3-14B-AWQ" and zs["prompt"] == "student"
-    assert "mr_pool" not in "".join(body)  # not supported by predict yet
+    assert "mr_pool_s0" in "".join(body)  # supported by predict
     run.main(_args(tmp_path, None, "--block", "zero_shot"))  # idempotent
     assert (tmp_path / "q" / "zero_shot.txt").read_text().splitlines() == lines
 

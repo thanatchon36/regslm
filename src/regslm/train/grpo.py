@@ -107,7 +107,8 @@ def select_parent(base: str, runs: Path = RUNS_DIR) -> str:
             continue
         try:
             cfg = TrainConfig.load(d.name, runs)
-            of1 = float(json.loads(ev.read_text())["sets"]["silver_val"]["metrics"]["of1"])
+            sets = json.loads(ev.read_text())["sets"]  # grid runs eval the fixed 1k sample
+            of1 = float(sets.get("silver_val_1k", sets.get("silver_val"))["metrics"]["of1"])
         except Exception:
             continue
         if cfg.base != base:
