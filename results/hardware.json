@@ -1,0 +1,59 @@
+{
+  "platform": "Linux-6.18.54.1-microsoft-standard-WSL2-x86_64-with-glibc2.39",
+  "wsl": true,
+  "python": "3.12.3",
+  "cpu": {
+    "model": "13th Gen Intel(R) Core(TM) i5-13500",
+    "logical_cpus": 20
+  },
+  "gpu": {
+    "name": "NVIDIA GeForce RTX 4070 Ti",
+    "vram_total_mib": 12282,
+    "vram_used_idle_mib": 1330,
+    "vram_free_mib": 10952,
+    "driver": "617.42",
+    "compute_capability": "8.9",
+    "fp8_hardware": true,
+    "vram_cap_mib": 11264,
+    "note": "idle usage is the Windows desktop compositor; effective budget is min(cap, free)"
+  },
+  "memory": {
+    "mem_total_gb": 15.4,
+    "swap_total_gb": 4.0,
+    "meets_target": false,
+    "target": "memory=24GB swap=16GB in .wslconfig"
+  },
+  "disk": {
+    "path": "/home/thanatchon36/github/regslm",
+    "free_gb": 995.2,
+    "on_windows_fs": false
+  },
+  "hf_cache": {
+    "path": "/home/thanatchon36/.cache/huggingface",
+    "free_gb": 995.2,
+    "on_windows_fs": false
+  },
+  "packages": {
+    "torch": "2.13.0",
+    "vllm": "0.31.0",
+    "transformers": "5.17.0",
+    "trl": null,
+    "peft": null,
+    "unsloth": null,
+    "bitsandbytes": null,
+    "llama_cpp_python": null,
+    "pythainlp": "5.4.0"
+  },
+  "vllm_fp8": {
+    "vllm_supports_fp8_on_this_gpu": true,
+    "capability": 89
+  },
+  "tools": {
+    "tmux": "/usr/bin/tmux",
+    "docker": "/usr/bin/docker",
+    "gh": "/usr/bin/gh",
+    "pandoc": null,
+    "nvcc": null,
+    "uv": "/home/thanatchon36/.local/bin/uv"
+  }
+}

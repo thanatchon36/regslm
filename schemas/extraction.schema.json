@@ -1,0 +1,204 @@
+{
+  "$defs": {
+    "Citation": {
+      "additionalProperties": false,
+      "properties": {
+        "source": {
+          "minLength": 1,
+          "title": "Source",
+          "type": "string"
+        },
+        "unit_id": {
+          "minLength": 1,
+          "title": "Unit Id",
+          "type": "string"
+        },
+        "span": {
+          "$ref": "#/$defs/Span"
+        }
+      },
+      "required": [
+        "source",
+        "unit_id",
+        "span"
+      ],
+      "title": "Citation",
+      "type": "object"
+    },
+    "Comparator": {
+      "enum": [
+        ">=",
+        ">",
+        "<=",
+        "<",
+        "=="
+      ],
+      "title": "Comparator",
+      "type": "string"
+    },
+    "Modality": {
+      "description": "Deontic force. ``should`` covers guidance language (\"should\", \"is expected to\").",
+      "enum": [
+        "must",
+        "must_not",
+        "may",
+        "should"
+      ],
+      "title": "Modality",
+      "type": "string"
+    },
+    "Obligation": {
+      "additionalProperties": false,
+      "properties": {
+        "subject": {
+          "maxLength": 300,
+          "minLength": 1,
+          "title": "Subject",
+          "type": "string"
+        },
+        "modality": {
+          "$ref": "#/$defs/Modality"
+        },
+        "action": {
+          "maxLength": 300,
+          "minLength": 1,
+          "title": "Action",
+          "type": "string"
+        },
+        "object": {
+          "default": "",
+          "maxLength": 500,
+          "title": "Object",
+          "type": "string"
+        },
+        "condition": {
+          "default": "",
+          "maxLength": 800,
+          "title": "Condition",
+          "type": "string"
+        },
+        "threshold": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Threshold"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "deadline": {
+          "default": "",
+          "maxLength": 200,
+          "title": "Deadline",
+          "type": "string"
+        },
+        "exceptions": {
+          "items": {
+            "maxLength": 500,
+            "type": "string"
+          },
+          "title": "Exceptions",
+          "type": "array"
+        },
+        "citation": {
+          "$ref": "#/$defs/Citation"
+        },
+        "confidence": {
+          "default": 1.0,
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Confidence",
+          "type": "number"
+        }
+      },
+      "required": [
+        "subject",
+        "modality",
+        "action",
+        "citation"
+      ],
+      "title": "Obligation",
+      "type": "object"
+    },
+    "Span": {
+      "additionalProperties": false,
+      "description": "Half-open character offsets ``[start, end)`` into the unit text.",
+      "properties": {
+        "start": {
+          "minimum": 0,
+          "title": "Start",
+          "type": "integer"
+        },
+        "end": {
+          "minimum": 0,
+          "title": "End",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "start",
+        "end"
+      ],
+      "title": "Span",
+      "type": "object"
+    },
+    "Threshold": {
+      "additionalProperties": false,
+      "properties": {
+        "value": {
+          "title": "Value",
+          "type": "number"
+        },
+        "unit": {
+          "default": "",
+          "maxLength": 32,
+          "title": "Unit",
+          "type": "string"
+        },
+        "comparator": {
+          "$ref": "#/$defs/Comparator",
+          "default": ">="
+        }
+      },
+      "required": [
+        "value"
+      ],
+      "title": "Threshold",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "All obligations from one unit; the unit of model output.",
+  "properties": {
+    "unit_id": {
+      "title": "Unit Id",
+      "type": "string"
+    },
+    "obligations": {
+      "items": {
+        "$ref": "#/$defs/Obligation"
+      },
+      "title": "Obligations",
+      "type": "array"
+    },
+    "rationale": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Rationale"
+    }
+  },
+  "required": [
+    "unit_id"
+  ],
+  "title": "Extraction",
+  "type": "object"
+}
