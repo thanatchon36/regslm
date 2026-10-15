@@ -6514,6 +6514,9 @@ source = { editable = "." }
 dependencies = [
     { name = "httpx" },
     { name = "lxml" },
+    { name = "numpy", version = "2.3.5", source = { registry = "https://pypi.org/simple" }, marker = "(python_full_version < '3.13' and extra == 'extra-6-regslm-serve') or (extra == 'extra-6-regslm-quant' and extra == 'extra-6-regslm-serve') or (extra == 'extra-6-regslm-quant' and extra == 'extra-6-regslm-train') or (extra == 'extra-6-regslm-serve' and extra == 'extra-6-regslm-train')" },
+    { name = "numpy", version = "2.4.6", source = { registry = "https://pypi.org/simple" }, marker = "(python_full_version < '3.12' and extra == 'extra-6-regslm-quant') or (python_full_version < '3.12' and extra != 'extra-6-regslm-serve') or (python_full_version == '3.12.*' and extra == 'extra-6-regslm-quant') or (python_full_version >= '3.13' and extra == 'extra-6-regslm-quant') or (python_full_version >= '3.13' and extra == 'extra-6-regslm-serve') or (python_full_version >= '3.13' and extra != 'extra-6-regslm-train') or (python_full_version < '3.12' and extra == 'extra-6-regslm-serve' and extra == 'extra-6-regslm-train') or (python_full_version == '3.12.*' and extra == 'extra-6-regslm-serve' and extra == 'extra-6-regslm-train') or (python_full_version == '3.12.*' and extra != 'extra-6-regslm-serve' and extra != 'extra-6-regslm-train')" },
+    { name = "numpy", version = "2.5.4", source = { registry = "https://pypi.org/simple" }, marker = "(python_full_version >= '3.12' and extra == 'extra-6-regslm-train') or (extra == 'extra-6-regslm-serve' and extra == 'extra-6-regslm-train') or (extra == 'extra-6-regslm-quant' and extra == 'extra-6-regslm-serve') or (extra == 'extra-6-regslm-quant' and extra == 'extra-6-regslm-train')" },
     { name = "polars" },
     { name = "pyarrow" },
     { name = "pydantic" },
@@ -6581,6 +6584,7 @@ requires-dist = [
     { name = "llmcompressor", marker = "extra == 'quant'" },
     { name = "lxml", specifier = ">=5.0" },
     { name = "mkdocs-material", marker = "extra == 'docs'" },
+    { name = "numpy", specifier = ">=1.26" },
     { name = "peft", marker = "extra == 'train'" },
     { name = "polars", specifier = ">=1.0" },
     { name = "protobuf", marker = "extra == 'quant'" },

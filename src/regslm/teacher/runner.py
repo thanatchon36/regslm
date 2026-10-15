@@ -77,7 +77,7 @@ def label_units(
     cfg: EngineConfig,
     run_dir: Path,
     limit: int | None = None,
-    batch_size: int = 64,
+    batch_size: int = 512,  # large: continuous batching keeps all seqs busy past slow units (D-040)
     *,
     llm: Any = None,
     sampling: Any = None,

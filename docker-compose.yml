@@ -1,0 +1,25 @@
+# `make reproduce-docker` == `docker compose run --rm regslm make reproduce`
+services:
+  regslm:
+    build: .
+    image: regslm:0.0.1
+    working_dir: /app
+    environment:
+      HF_HOME: /hf
+      HF_TOKEN: ${HF_TOKEN:-}
+    volumes:
+      - hf-cache:/hf          # model weights; survives container removal
+      - ./data:/app/data
+      - ./results:/app/results
+    shm_size: "8gb"
+    ipc: host
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    command: ["make", "reproduce"]
+volumes:
+  hf-cache:

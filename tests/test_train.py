@@ -262,7 +262,8 @@ def test_build_from_config_fixture_mode() -> None:
 
 
 def test_student_prompt_is_short() -> None:
-    from transformers import AutoTokenizer
+    transformers = pytest.importorskip("transformers")
+    AutoTokenizer = transformers.AutoTokenizer
 
     try:
         tok = AutoTokenizer.from_pretrained("Qwen/Qwen3-14B-AWQ", local_files_only=True)

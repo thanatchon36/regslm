@@ -1,0 +1,12 @@
+.venv
+.venv-train
+.venv-quant
+.git
+__pycache__
+.mypy_cache
+.ruff_cache
+.pytest_cache
+unsloth_compiled_cache
+data/raw
+data/local
+results/runs

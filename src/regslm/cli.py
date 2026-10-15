@@ -310,7 +310,8 @@ def quantize(
     runs_dir: Path = Path("results/runs"),
 ) -> None:
     """Quantised exports of the merged checkpoint -> quant/<fmt>/, quant.json (.venv-quant)."""
-    from regslm.quant.export import parse_formats, quantize as run_quantize
+    from regslm.quant.export import parse_formats
+    from regslm.quant.export import quantize as run_quantize
 
     rec = run_quantize(run_id, parse_formats(formats), runs_dir)
     for f, r in rec["formats"].items():

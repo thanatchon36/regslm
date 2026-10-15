@@ -1,0 +1,14 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+title: "How Small Can a Regulatory-Obligation Extractor Be? Scaling, Distillation, Verifiable-Reward RL and Quantization for On-Premises SupTech"
+type: software
+authors:
+  - family-names: Chongmankhong
+    given-names: Thanatchon
+repository-code: "https://github.com/thanatchon36/regslm"
+url: "https://github.com/thanatchon36/regslm"
+license: Apache-2.0
+version: 0.0.1
+date-released: "2026-10-15"
+keywords: [suptech, regtech, small-language-models, fine-tuning, grpo, quantization, thai-nlp]
+abstract: "Independent open-source project (public documents only; no institution's view; not legal, regulatory or compliance advice) that extracts structured obligations from public financial rulebooks with small on-premises language models."
