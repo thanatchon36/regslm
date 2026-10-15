@@ -17,7 +17,7 @@ from regslm.corpus.base import Unit
 from regslm.data.eval_sets import EVAL_SETS_DIR
 from regslm.train.config import RUNS_DIR, TrainConfig
 from regslm.train.data import fixture_split, hash_order, read_label_rows
-from regslm.train.prompts import student_messages
+from regslm.train.prompts import student_messages, zero_shot_messages
 
 SET_NAMES = (
     "test",
@@ -245,17 +245,17 @@ def predict(
         from regslm.teacher.engine import CHAT_TEMPLATE_KWARGS, EngineConfig, build_llm
 
         if not llm_box:
-            zs = run_dir / "zero_shot.yaml"  # zero-shot cell: base model, student prompt
+            zs = run_dir / "zero_shot.yaml"  # zero-shot cell: base model, teacher prompt (D-043)
+            max_len = cfg.max_seq_len + MAX_NEW_TOKENS
             if zs.exists():
                 import yaml
 
                 z = yaml.safe_load(zs.read_text())
                 model, revision = str(z["model"]), z.get("revision")
+                max_len = 4096 + MAX_NEW_TOKENS  # long teacher prompt + schema
             else:
                 model, revision = str(model_dir(cfg, runs)), None
-            ecfg = EngineConfig(
-                model=model, revision=revision, max_model_len=cfg.max_seq_len + MAX_NEW_TOKENS
-            )
+            ecfg = EngineConfig(model=model, revision=revision, max_model_len=max_len)
             if gpu_memory_utilization:
                 ecfg.gpu_memory_utilization = gpu_memory_utilization
             llm_box.append((build_llm(ecfg), ecfg.model))
@@ -264,8 +264,9 @@ def predict(
             temperature=0.0, max_tokens=MAX_NEW_TOKENS, seed=cfg.seed
         )  # no guided decoding
         t0 = time.time()
+        build = zero_shot_messages if (run_dir / "zero_shot.yaml").exists() else student_messages
         outs = llm.chat(
-            [student_messages(it.unit) for it in items],
+            [build(it.unit) for it in items],
             sampling,
             chat_template_kwargs=CHAT_TEMPLATE_KWARGS,
         )

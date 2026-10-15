@@ -23,3 +23,26 @@ def student_messages(unit: Unit) -> list[dict[str, str]]:
             "content": user_prompt(unit.source, unit.unit_id, unit.heading, unit.text),
         },
     ]
+
+
+def zero_shot_messages(unit: Unit) -> list[dict[str, str]]:
+    """Zero-shot baseline prompt (D-043): the full teacher prompt (rules + examples, label variant)
+    plus the generation JSON Schema written into the prompt. Un-tuned models get the same
+    instructions the teacher had; only guided decoding is withheld, so validity is measured the
+    same way as for fine-tuned students.
+    """
+    import json
+
+    from regslm.schema.generation import GenExtraction
+    from regslm.teacher.prompts import system_prompt
+
+    schema = json.dumps(GenExtraction.model_json_schema(), separators=(",", ":"))
+    system = (
+        system_prompt("label")
+        + "\n\nReturn ONLY a JSON object (no prose, no code fence) valid against this JSON Schema:\n"
+        + schema
+    )
+    return [
+        {"role": "system", "content": system},
+        {"role": "user", "content": user_prompt(unit.source, unit.unit_id, unit.heading, unit.text)},
+    ]

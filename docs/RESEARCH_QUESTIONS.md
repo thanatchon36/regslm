@@ -59,6 +59,12 @@ of the tag. Annotation rules: docs/ANNOTATION_GUIDE.md v2.0; teacher prompt v4.
   sizes (H2a); RQ3 = 3 sizes × 3 criteria; RQ4 = per size, the 5 non-bf16 formats; RQ5 = H5a over
   sizes. Everything else (incl. all secondary metrics) is exploratory and labelled as such.
 
+### Baselines
+Zero-shot baselines (Qwen3 0.6B–8B and the 14B teacher) receive the full teacher prompt v5 (rules
+and examples) plus the generation JSON Schema in the prompt, without guided decoding — the
+strongest instruction a user could give an un-tuned model, so crossover claims are not against a
+strawman (D-043). Fine-tuned students receive the short student prompt.
+
 ### Headline rule (contamination)
 Every OF1 is reported on `test` and `test-perturbed`. Claims about numeric extraction use
 `num440` only: the paired difference original − perturbed (SESOI 5) plus the memorisation

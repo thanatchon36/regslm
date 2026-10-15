@@ -277,3 +277,14 @@ def test_student_prompt_is_short() -> None:
 
     assert cp(student_messages(u)) > 0
     assert "<think>" in D.render_prompt(tok, student_messages(u))  # empty think block (no thinking)
+
+
+def test_zero_shot_prompt_is_teacher_prompt_plus_schema() -> None:
+    from regslm.corpus.base import Unit
+    from regslm.teacher.prompts import system_prompt
+    from regslm.train.prompts import zero_shot_messages
+
+    u = Unit(unit_id="s/d/1", source="s", doc_id="d", path=["1"], text="Firms shall act.", language="en", version="v")
+    msgs = zero_shot_messages(u)
+    assert msgs[0]["content"].startswith(system_prompt("label"))
+    assert '"quote"' in msgs[0]["content"] and "unit_id: s/d/1" in msgs[1]["content"]

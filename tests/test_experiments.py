@@ -255,7 +255,7 @@ def test_emit_zero_shot_and_skip_done(tmp_path: Path) -> None:
     assert not any("zs-qwen3-0.6b " in ln for ln in body)
     assert "predict zs-qwen3-14b-awq --sets test,test_perturbed,mr_pool_s0,heldout,gold,mr_pool_s1" in body
     zs = yaml.safe_load((tmp_path / "runs/zs-qwen3-14b-awq/zero_shot.yaml").read_text())
-    assert zs["model"] == "Qwen/Qwen3-14B-AWQ" and zs["prompt"] == "student"
+    assert zs["model"] == "Qwen/Qwen3-14B-AWQ" and zs["prompt"] == "teacher_v5_with_schema"
     assert "mr_pool_s0" in "".join(body)  # supported by predict
     run.main(_args(tmp_path, None, "--block", "zero_shot"))  # idempotent
     assert (tmp_path / "q" / "zero_shot.txt").read_text().splitlines() == lines
