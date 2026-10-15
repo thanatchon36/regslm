@@ -37,6 +37,9 @@ def label(
     model: Annotated[str, typer.Option(help="HF model id")] = "Qwen/Qwen3-14B-AWQ",
     limit: Annotated[int | None, typer.Option(help="Label at most N units (after shuffle)")] = None,
     shuffle_seed: Annotated[int | None, typer.Option(help="Shuffle units with this seed")] = None,
+    compact_json: Annotated[
+        bool, typer.Option(help="Forbid free whitespace in the JSON grammar (D-046)")
+    ] = False,
     runs_dir: Path = Path("results/runs"),
 ) -> None:
     """Label corpus units with the local vLLM teacher (cached, resumable)."""
@@ -53,7 +56,7 @@ def label(
         for line in units.read_text(encoding="utf-8").splitlines()
         if line.strip()
     ]
-    cfg = EngineConfig(model=model)
+    cfg = EngineConfig(model=model, json_whitespace=not compact_json)
     run_dir = runs_dir / run_id
     run_dir.mkdir(parents=True, exist_ok=True)
     resolved = {

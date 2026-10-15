@@ -27,6 +27,9 @@ class EngineConfig(BaseModel):
     # Few graph sizes: each captured size costs VRAM we do not have (D-015).
     cudagraph_capture_sizes: list[int] = [1, 2, 4, 8]
     enable_prefix_caching: bool = True
+    # False → compact JSON grammar (no free whitespace). Qwen3-8B looped on whitespace until
+    # max_tokens on 44 % of gold units with the default grammar (D-046).
+    json_whitespace: bool = True
     temperature: float = 0.0
     max_tokens: int = 1024
     seed: int = 0
@@ -37,7 +40,9 @@ class EngineConfig(BaseModel):
 
     def sampling_json(self) -> str:
         """Canonical JSON of everything that affects the sampled output."""
-        d = {k: getattr(self, k) for k in ("temperature", "max_tokens", "seed")}
+        d: dict[str, Any] = {k: getattr(self, k) for k in ("temperature", "max_tokens", "seed")}
+        if not self.json_whitespace:  # only in the key when changed: existing caches stay valid
+            d["json_whitespace"] = False
         return json.dumps(d, sort_keys=True)
 
 
@@ -59,6 +64,12 @@ def build_llm(cfg: EngineConfig) -> Any:
         "max_num_seqs": cfg.max_num_seqs,
         "seed": cfg.seed,
     }
+    if not cfg.json_whitespace:
+        # Engine-level in vLLM 0.31: the per-request flag is ignored by the xgrammar backend.
+        kwargs["structured_outputs_config"] = {
+            "backend": "xgrammar",
+            "disable_any_whitespace": True,
+        }
     if not cfg.enforce_eager:
         kwargs["compilation_config"] = {"cudagraph_capture_sizes": cfg.cudagraph_capture_sizes}
     if cfg.revision:
@@ -74,7 +85,9 @@ def build_sampling(cfg: EngineConfig) -> Any:
     try:
         from vllm.sampling_params import StructuredOutputsParams
 
-        extra: dict[str, Any] = {"structured_outputs": StructuredOutputsParams(json=schema)}
+        extra: dict[str, Any] = {
+            "structured_outputs": StructuredOutputsParams(json=schema)
+        }
     except ImportError:  # older vLLM
         from vllm.sampling_params import GuidedDecodingParams  # type: ignore[attr-defined]
 
