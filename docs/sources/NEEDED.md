@@ -27,3 +27,19 @@ Automated retrieval is barred without consent (FCA website terms cl. 35.3). Eith
   Bulk snapshots lag ecfr.gov (title 17 AMDDATE 2026-08-17, title 12 2026-10-01 at fetch time).
 - Note for PoliteClient: ecfr.gov/robots.txt has indented `Disallow:` lines after a blank line, which
   `urllib.robotparser` ignores, so `PoliteClient._allowed` wrongly returned True for the disallowed path.
+
+## thai: Anti-Money Laundering Act B.E. 2542 (AMLA2542) not obtained (owner action)
+- Not in any `pythainlp/thailaw`, `pythainlp/thailaw-v1.0` or `wannaphong/thailaw-v1-more` row (checked by text head; v1.0 also lacks the
+  FIBA B.E. 2551 and the BOT Act B.E. 2485, which the adapter takes from the Council of State PDFs hosted by bot.or.th instead).
+- AMLO (`https://www.amlo.go.th/`) serves its law attachments from `/amlo-intranet/`, which its robots.txt disallows; the home page is a
+  JavaScript shell. krisdika.go.th did not answer (HTTP 000 / robots.txt unreachable). Royal Gazette (ratchakitcha.soc.go.th) and
+  sec.or.th are WAF-blocked (see spec) and were not tried.
+- Needed from a human: a copy of the Thai text of the consolidated Anti-Money Laundering Act B.E. 2542 (Council of State / Royal Gazette
+  version, e.g. https://www.krisdika.go.th/ law database or https://ratchakitcha.soc.go.th/) saved to `data/local/manual/thai/AMLA2542.txt`
+  (one paragraph per line); a `AMLA2542` entry can then be routed through `blocks_from_text`.
+
+## thai: BoT notification PDFs dropped (no usable text layer)
+- `https://www.bot.or.th/content/dam/bot/fipcs/documents/FPG/2551/ThaiPDF/25510555.pdf` (minimum capital for operational risk): 21 text
+  pages are glyph-name junk ("/afiiotraOf/fpSbf...") and the rest are scans. Needs OCR or a re-published PDF.
+- `https://www.bot.or.th/content/dam/bot/fipcs/documents/FPG/2553/ThaiPDF/25530017.pdf` (liquidity risk management policy): scanned images,
+  one text page of 34.

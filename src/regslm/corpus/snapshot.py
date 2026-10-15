@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import hashlib
+import logging
 from collections.abc import Callable, Iterable
 from dataclasses import dataclass, field
 from datetime import date
@@ -35,6 +36,9 @@ class Paths:
     @property
     def local_corpus(self) -> Path:
         return self.local / "corpus"
+
+
+log = logging.getLogger(__name__)
 
 
 def tier_of(licence: Licence, name: str, excluded: Iterable[str] = ()) -> str:
@@ -86,7 +90,11 @@ def _parse_adapter(adapter: SourceAdapter) -> tuple[list[Document], list[Unit]]:
         adapter, "parse_all", None
     )
     for raw in adapter.fetch():  # cached -> offline
-        pairs = parse_all(raw) if parse_all is not None else [adapter.parse(raw)]
+        try:
+            pairs = parse_all(raw) if parse_all is not None else [adapter.parse(raw)]
+        except Exception as e:
+            log.warning("skipped %s (%s): %s", raw.url, type(e).__name__, e)
+            continue
         for d, us in pairs:
             docs.append(d)
             units.extend(us)
