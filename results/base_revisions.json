@@ -1,0 +1,11 @@
+{
+  "Qwen/Qwen3-0.6B": "c1899de289a04d12100db370d81485cdf75e47ca",
+  "Qwen/Qwen3-1.7B": "70d244cc86ccca08cf5af4e1e306ecf908b1ad5e",
+  "Qwen/Qwen3-4B": "1cfa9a7208912126459214e8b04321603b3df60c",
+  "Qwen/Qwen3-8B-AWQ": "4da05a8edb55c6046cce958586c33b61da07bb79",
+  "Qwen/Qwen3-14B-AWQ": "31c69efc29464b6bb0aee1398b5a7b50a99340c3",
+  "unsloth/Qwen3-8B-unsloth-bnb-4bit": "62efd7f9d748e394734a7adae2adf96e13a2abc8",
+  "scb10x/llama3.2-typhoon2-1b-instruct": "7513a054da229b9dde7c8cd1a7da57baa36ac59b",
+  "scb10x/llama3.2-typhoon2-3b-instruct": "f19347e6b877710c92550ad0a81689a5c9f337b4",
+  "aisingapore/Llama-SEA-LION-v3-8B-IT": "8c47429ff91723eb72dc2845e6d6f47ef6d49e18"
+}

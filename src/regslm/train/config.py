@@ -51,6 +51,7 @@ class TrainConfig(BaseModel):
     gold_sample: str = "data/gold/sample.jsonl"
     match_rationale_tokens: bool = False  # RQ2 equal-token-budget label arm
     rule_empty: bool = True
+    langs: list[str] | None = None  # restrict train units to these languages (None: all, en+th)
 
     @property
     def effective_lr(self) -> float:

@@ -12,7 +12,11 @@ def _ob(**kw: object) -> Obligation:
         "subject": "institutions",
         "modality": "must",
         "action": "satisfy",
-        "citation": {"source": "eurlex", "unit_id": "eurlex/CRR/92/1/a", "span": {"start": 0, "end": 10}},
+        "citation": {
+            "source": "eurlex",
+            "unit_id": "eurlex/CRR/92/1/a",
+            "span": {"start": 0, "end": 10},
+        },
     }
     base.update(kw)
     return Obligation.model_validate(base)

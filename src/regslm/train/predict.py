@@ -151,8 +151,16 @@ def predict(
     run_dir = cfg.run_dir(runs)
     out_dir = run_dir / "predictions"
     out_dir.mkdir(exist_ok=True)
+    zs = run_dir / "zero_shot.yaml"  # zero-shot cell: base model, student prompt, no checkpoint
+    if zs.exists():
+        import yaml
+
+        z = yaml.safe_load(zs.read_text())
+        model, revision = str(z["model"]), z.get("revision")
+    else:
+        model, revision = str(model_dir(cfg, runs)), None
     ecfg = EngineConfig(
-        model=str(model_dir(cfg, runs)), max_model_len=cfg.max_seq_len + MAX_NEW_TOKENS
+        model=model, revision=revision, max_model_len=cfg.max_seq_len + MAX_NEW_TOKENS
     )
     if gpu_memory_utilization:
         ecfg.gpu_memory_utilization = gpu_memory_utilization

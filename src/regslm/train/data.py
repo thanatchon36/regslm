@@ -351,6 +351,9 @@ def build_from_config(cfg: Any, tokenizer: Any) -> tuple[Built, list[LabelRow]]:
         train_units = load_train_units(cfg.splits)
     else:  # fixture mode: units are embedded in the label rows
         train_units, labels, held = fixture_split(labels, cfg.gold_sample, cfg.eval_n)
+    langs = getattr(cfg, "langs", None)
+    if langs:  # e.g. the H5c English-only transfer cell; label subsets stay nested per language
+        train_units = {u: x for u, x in train_units.items() if x.language in langs}
     built = build_examples(
         n_labels=cfg.n_labels, arm=cfg.arm, seed=cfg.seed, labels=labels, rationale_labels=rat,
         train_units=train_units, count_prompt=cp, count_text=ct, max_seq_len=cfg.max_seq_len,
