@@ -1,0 +1,73 @@
+# Experiment grid (MISSION §4; pre-registered with prereg-v1). Cells run in `priority` order.
+# Throughput assumptions are replaced by measured values in results/throughput.json once the
+# first runs of each size finish; experiments/budget.py re-projects and applies the budget rule
+# (docs/RESEARCH_QUESTIONS.md §7) BEFORE launching a priority block.
+
+budget_gpu_hours: 100
+teacher_gpu_hours: 12          # tracked separately (labelling), not part of the 100
+seeds: [0, 1, 2]
+n_labels: [500, 2000, 10000, 20000]
+eval_sets: [test, test_perturbed, mr_pool, heldout, silver_val, gold]   # D-034; Thai test = test ∩ language=th
+train_langs: [en, th]          # default; the H5c transfer cell overrides with [en]
+
+bases:
+  qwen3-0.6b: {hf: Qwen/Qwen3-0.6B, methods: [lora, full]}
+  qwen3-1.7b: {hf: Qwen/Qwen3-1.7B, methods: [lora, full]}      # full = 8-bit AdamW
+  qwen3-4b:   {hf: Qwen/Qwen3-4B, methods: [lora, qlora]}
+  qwen3-8b:   {hf: unsloth/Qwen3-8B-unsloth-bnb-4bit, methods: [qlora]}
+  typhoon2-1b: {hf: scb10x/llama3.2-typhoon2-1b-instruct, methods: [lora]}
+  typhoon2-3b: {hf: scb10x/llama3.2-typhoon2-3b-instruct, methods: [lora]}
+  sealion3-8b: {hf: aisingapore/Llama-SEA-LION-v3-8B-IT, methods: [qlora]}
+  # gemma3-1b / gemma3-4b: added only if the owner accepts the Gemma licence (D-033)
+
+# Assumed training throughput (tokens/s, LoRA bf16 unless noted) — placeholders until measured.
+assumed_train_tok_s: {qwen3-0.6b: 14000, qwen3-1.7b: 7000, qwen3-4b: 3000, qwen3-8b: 1500,
+                      typhoon2-1b: 11000, typhoon2-3b: 4000, sealion3-8b: 1500}
+assumed_infer_units_h: {qwen3-0.6b: 20000, qwen3-1.7b: 14000, qwen3-4b: 9000, qwen3-8b: 6000,
+                        qwen3-14b-awq: 4800, typhoon2-1b: 18000, typhoon2-3b: 10000, sealion3-8b: 6000}
+tokens_per_example: 520        # measured mean prompt+target on silver labels (update)
+
+blocks:
+  - name: zero_shot
+    priority: 1
+    cells: [{base: [qwen3-0.6b, qwen3-1.7b, qwen3-4b, qwen3-8b], method: zero_shot},
+            {base: qwen3-14b-awq, method: zero_shot, eval_sets: [test_perturbed, heldout, gold]}]
+  - name: sft_ladder_10k
+    priority: 2
+    cells: [{base: [qwen3-0.6b, qwen3-1.7b], method: lora, n: 10000, arm: label, seeds: all},
+            {base: qwen3-4b, method: lora, n: 10000, arm: label, seeds: [0, 1]},
+            {base: qwen3-8b, method: qlora, n: 10000, arm: label, seeds: [0, 1]}]
+  - name: placebo
+    priority: 2
+    cells: [{base: [qwen3-0.6b, qwen3-1.7b], method: lora, n: 10000, arm: placebo, seeds: [0]}]
+  - name: label_efficiency
+    priority: 3
+    cells: [{base: [qwen3-0.6b, qwen3-1.7b], method: lora, n: [500, 2000, 20000], arm: label, seeds: all},
+            {base: qwen3-4b, method: lora, n: [500, 2000, 20000], arm: label, seeds: [0, 1]},
+            {base: qwen3-8b, method: qlora, n: 2000, arm: label, seeds: [0, 1]},
+            {base: qwen3-8b, method: qlora, n: 20000, arm: label, seeds: [0]}]   # budget rule: largest size shrinks first
+  - name: method_variants
+    priority: 3
+    cells: [{base: [qwen3-0.6b, qwen3-1.7b], method: full, n: 10000, arm: label, seeds: all},
+            {base: qwen3-4b, method: qlora, n: 10000, arm: label, seeds: [0, 1]}]
+  - name: distillation
+    priority: 4
+    cells: [{base: [qwen3-0.6b, qwen3-1.7b], method: lora, n: 10000, arm: rationale, seeds: all},
+            {base: [qwen3-0.6b, qwen3-1.7b], method: lora, n: 10000, arm: label_token_matched, seeds: all},
+            {base: qwen3-4b, method: lora, n: 10000, arm: rationale, seeds: [0, 1]},
+            {base: qwen3-4b, method: lora, n: 10000, arm: label_token_matched, seeds: [0, 1]}]
+  - name: grpo
+    priority: 5
+    cells: [{base: [qwen3-0.6b, qwen3-1.7b, qwen3-4b], method: grpo, from: best_sft, seeds: [0, 1], max_wall_h: 1.5}]
+  - name: quantization
+    priority: 6
+    cells: [{base: [qwen3-0.6b, qwen3-1.7b, qwen3-4b, qwen3-8b], from: best_overall,
+             formats: [bf16, fp8, awq, gptq, gguf-q8, gguf-q4km], backends: [vllm, llamacpp-cuda],
+             cpu_bases: [qwen3-0.6b, qwen3-1.7b], eval_units: 2129}]
+  - name: thai
+    priority: 7
+    cells: [{base: [typhoon2-1b, typhoon2-3b], method: lora, n: 10000, arm: label, seeds: [0, 1], train_langs: [en, th]},
+            {base: qwen3-1.7b, method: lora, n: 10000, arm: label, seeds: [0, 1], train_langs: [en]}]
+  - name: thai_optional
+    priority: 8   # only if measured budget allows after block 7 (D-035)
+    cells: [{base: sealion3-8b, method: qlora, n: 10000, arm: label, seeds: [0], train_langs: [en, th]}]

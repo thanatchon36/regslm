@@ -15,3 +15,6 @@
 
 ## Phase 2 — Pre-registration (`prereg-v1` tag) — later
 ## Phase 3–6 — see MISSION.md
+
+## Budget
+`uv run --no-sync python experiments/budget.py` projects GPU-hours from config/grid.yaml; re-run before each priority block (D-035).
