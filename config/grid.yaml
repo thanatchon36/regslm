@@ -18,7 +18,7 @@ bases:
   typhoon2-1b: {hf: scb10x/llama3.2-typhoon2-1b-instruct, methods: [lora]}
   typhoon2-3b: {hf: scb10x/llama3.2-typhoon2-3b-instruct, methods: [lora]}
   sealion3-8b: {hf: aisingapore/Llama-SEA-LION-v3-8B-IT, methods: [qlora]}
-  # gemma3-1b / gemma3-4b: added only if the owner accepts the Gemma licence (D-033)
+  # Gemma 3: skipped by owner decision (D-039)
 
 # Assumed training throughput (tokens/s, LoRA bf16 unless noted) — placeholders until measured.
 assumed_train_tok_s: {qwen3-0.6b: 14000, qwen3-1.7b: 7000, qwen3-4b: 3000, qwen3-8b: 1500,

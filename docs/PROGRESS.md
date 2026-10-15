@@ -1,7 +1,6 @@
 # Progress
 
 ## Waiting on owner
-- **Gemma 3 licence (optional).** To include the Gemma 3 1B/4B family (MISSION second family), accept the Gemma terms while logged in as `thanatchon36` at https://huggingface.co/google/gemma-3-1b-it and https://huggingface.co/google/gemma-3-4b-it. Derived weights would be released under Gemma terms. If not accepted, the second family is dropped (clean curves on Qwen3 take priority) — reply "skip Gemma" to decide explicitly.
 - **WSL restart pending.** `.wslconfig` now has `memory=24GB` and `swap=16GB` (backup `.wslconfig.bak`). Run `wsl --shutdown` in PowerShell only after the GPU queue has finished (`tmux ls` shows no `queue`), then `free -g` and `make doctor`. Needed before full-FT 1.7B.
 - **Windows sleep.** Set Windows power plan to never sleep while long jobs run (cannot be controlled from WSL).
 - **FCA Handbook access route.** Text is OGL v3.0 (permissive) but FCA terms cl. 35.3 forbid scraping without consent. Either request FCA consent / API access, or download the SYSC, COBS and SUP sourcebook PDFs manually into `data/local/manual/fca/` (see docs/sources/NEEDED.md). FCA SYSC is the planned held-out rulebook (D-012).
