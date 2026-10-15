@@ -1,6 +1,6 @@
 # Annotation guide — obligations
 
-Version 2.0 (2026-10-15). v1.1: citations by quote (D-020). v2.0: expert review (D-036) —
+Version 2.1 (2026-10-15). v2.1: list points under a lead-in (D-038). v1.1: citations by quote (D-020). v2.0: expert review (D-036) —
 polarity/comparator rule, no invented subjects, modal-in-noun-phrase, deeming/scope/enabling
 clauses, commentary, Thai "ให้"/"อาจ"/"สามารถ", numbers written in Thai, field consistency.
 Applies to gold adjudication, teacher prompts (`src/regslm/teacher/prompts.py`, kept in sync)
@@ -51,9 +51,14 @@ or expected to do something, with deontic force expressed by the text.
   modality ("shall establish and maintain") are one obligation; different objects, thresholds or
   deadlines are split. A duty to ensure that others act ("must ensure that its employees do not…")
   is one obligation on the party that must ensure.
-- **R7 — Lead-ins.** A list point inherits subject and modality only from a lead-in **sentence**
-  in TEXT or HEADING ("A bank must:", "Institutions shall:"). Section titles ("§ 3.34 Derivative
-  contracts") never supply modality. The quote is taken from the point's own text.
+- **R7 — Lead-ins.** A list point inherits subject and modality from a lead-in **sentence** in
+  TEXT or HEADING that contains a trigger and a named party ("A bank must:", "Competent
+  authorities shall determine … in the following cases:", "an institution may exclude the
+  following exposures:"). The point IS an obligation even without a verb of its own: action from
+  the lead-in; the point's content goes in `object` (a thing) or `condition` (a case). The quote
+  is the point's own text. Section titles ("§ 3.34 Derivative contracts") never supply modality.
+  If the lead-in is itself a calculation, deeming or delegation rule with no named party, its
+  points are `[]`. R5's "fragment" rule applies only when no such lead-in exists.
 - **T-ให้ (Thai).** ให้ is a `must` trigger only as a clause-initial directive "ให้ + actor +
   action" (ให้ธนาคารพาณิชย์จัดส่ง…, ให้สำนักงานเก็บรักษา…) or "ให้ถือปฏิบัติ / ปฏิบัติ…". It is NOT a
   trigger when it is the main verb "give/grant" (ให้สินเชื่อ, ให้ความเห็นชอบ), in purpose clauses
@@ -175,6 +180,11 @@ exceeding / more than; < for below / less than).
 27. HEADING "… | Institutions shall deduct the following from Common Equity Tier 1 items:" with
     TEXT "(a) losses for the current financial year;" → Institutions | must | deduct | losses for
     the current financial year.
+27a. HEADING "… | Competent authorities shall determine whether and how consolidation is to be
+    carried out in the following cases:" with TEXT "(a) where an institution exercises a
+    significant influence over one or more institutions …" → Competent authorities | must |
+    determine | whether and how consolidation is to be carried out | where an institution
+    exercises a significant influence … | — | — | —.
 28. "ให้ธนาคารพาณิชย์ดำรงเงินกองทุนตามหลักเกณฑ์ที่ธนาคารแห่งประเทศไทยประกาศกำหนด" → ธนาคารพาณิชย์ | must |
     ดำรง | เงินกองทุนตามหลักเกณฑ์ที่ธนาคารแห่งประเทศไทยประกาศกำหนด | — | — | — | — (delegation kept
     verbatim; no threshold invented).

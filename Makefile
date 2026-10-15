@@ -5,7 +5,7 @@ UV := uv run --no-sync
 RUN ?=
 JOB := scripts/tmux_job.sh
 
-.PHONY: grpo grpo-config predict evaluate train-config setup setup-train doctor test lint fmt schema fetch parse snapshot teacher-smoke label quick experiments
+.PHONY: quantize bench grpo grpo-config predict evaluate train-config setup setup-train doctor test lint fmt schema fetch parse snapshot teacher-smoke label quick experiments
 
 setup:            ## core + serving env (.venv)
 	uv sync --extra serve --extra th --extra pdf
@@ -42,3 +42,7 @@ evaluate:         ## RUN=<id> [ARGS="--sets test"]
 quick:            ## 200-row fixture -> Qwen3-0.6B LoRA 50 steps -> predict 50 -> evaluate (<= 15 min)
 	rm -rf results/runs/quick
 	$(JOB) quick bash scripts/quick.sh
+quantize:         ## RUN=<id> [FORMATS=fp8,awq,gptq,gguf-q8,gguf-q4km]  (.venv-quant; needs GPU for AWQ/GPTQ)
+	$(JOB) $(RUN)-quantize env UV_PROJECT_ENVIRONMENT=.venv-quant uv run --no-sync regslm quantize --run-id $(RUN) --formats $(or $(FORMATS),fp8,awq,gptq,gguf-q8,gguf-q4km)
+bench:            ## RUN=<id> BACKEND=vllm|llamacpp-cuda|llamacpp-cpu FORMAT=bf16|fp8|awq|gptq|gguf-q8|gguf-q4km [ARGS=--needle]
+	$(JOB) $(RUN)-bench-$(BACKEND)-$(FORMAT) $(UV) regslm bench --run-id $(RUN) --backend $(BACKEND) --format $(FORMAT) $(ARGS)

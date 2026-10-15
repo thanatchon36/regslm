@@ -301,5 +301,50 @@ def grpo(
     typer.echo(f"{run_id}: {m['status']}")
 
 
+@app.command()
+def quantize(
+    run_id: Annotated[str, typer.Option(help="Trained run with checkpoints/merged")],
+    formats: Annotated[str, typer.Option(help="fp8,awq,gptq,gguf-q8,gguf-q4km")] = (
+        "fp8,awq,gptq,gguf-q8,gguf-q4km"
+    ),
+    runs_dir: Path = Path("results/runs"),
+) -> None:
+    """Quantised exports of the merged checkpoint -> quant/<fmt>/, quant.json (.venv-quant)."""
+    from regslm.quant.export import parse_formats, quantize as run_quantize
+
+    rec = run_quantize(run_id, parse_formats(formats), runs_dir)
+    for f, r in rec["formats"].items():
+        typer.echo(f"{f}: {r.get('status')} {r.get('size_bytes', '-')} B {r.get('error', '')}")
+
+
+@app.command()
+def bench(
+    run_id: Annotated[str, typer.Option(help="Trained run (bf16 merged + quant/ exports)")],
+    backend: Annotated[str, typer.Option(help="vllm | llamacpp-cuda | llamacpp-cpu")],
+    format_: Annotated[
+        str, typer.Option("--format", help="bf16|fp8-online|fp8|awq|gptq|gguf-q8|gguf-q4km")
+    ],
+    sets: str = "test",
+    limit: Annotated[int | None, typer.Option(help="At most N units")] = None,
+    threads: Annotated[int, typer.Option(help="llama.cpp CPU threads (6 P-cores / 14 all)")] = 6,
+    concurrency: Annotated[int | None, typer.Option(help="Throughput-pass concurrency")] = None,
+    spec_draft: Annotated[str | None, typer.Option(help="vLLM draft-model run id")] = None,
+    spec_k: int = 3,
+    needle: Annotated[bool, typer.Option(help="Also run needle-in-rulebook")] = False,
+    needle_ctx: int = 17408,
+    n_boot: int = 1000,
+    runs_dir: Path = Path("results/runs"),
+) -> None:
+    """Throughput/latency/memory benchmark + eval -> results/bench/<run>/<backend>-<format>.json."""
+    from regslm.bench.runner import bench as run_bench
+
+    r = run_bench(
+        run_id, backend, format_, sets=sets, limit=limit, threads=threads,
+        concurrency=concurrency, spec_draft_run=spec_draft, spec_k=spec_k, runs=runs_dir,
+        n_boot=n_boot, needle=needle, needle_ctx=needle_ctx,
+    )  # fmt: skip
+    typer.echo(json.dumps({k: r.get(k) for k in ("throughput", "single_stream", "memory")}))
+
+
 if __name__ == "__main__":
     app()

@@ -17,7 +17,7 @@ from __future__ import annotations
 
 from typing import Literal
 
-PROMPT_VERSION = "v4"  # v2: citation.quote (D-020); v3: quote from TEXT; v4: guide v2.0 (D-036)
+PROMPT_VERSION = "v5"  # v2 quote (D-020); v3 quote from TEXT; v4 guide v2.0 (D-036); v5 lead-in points (D-038)
 
 Variant = Literal["label", "rationale", "gold_a", "gold_b"]
 
@@ -29,7 +29,16 @@ authority) to do, not do, or be permitted or expected to do something.
   (may, is permitted to, มีสิทธิ, อาจ/สามารถ…ได้ only when a party is granted a right — not a
   possibility or capability); "should" (should, is expected to, ควร).
 - The subject must be named in TEXT or in a lead-in sentence in HEADING ("A bank must:"). Never
-  invent a subject. A "shall" sentence with no addressee ("the risk weight shall be 100 %", "the
+  invent a subject.
+- LIST POINTS: when HEADING ends with a lead-in sentence that contains a trigger and a named
+  party (e.g. "… | Competent authorities shall determine whether consolidation is to be carried
+  out in the following cases:", "… | an institution may exclude the following exposures:",
+  "… | institutions shall report the following information:"), the point in TEXT IS an
+  obligation even though it has no verb of its own: subject and modality come from the lead-in,
+  action from the lead-in, and the point's content goes in object (a thing: "assets representing
+  claims on the central bank") or condition (a case: "where … an institution exercises a
+  significant influence …"). Quote the point from TEXT. If the lead-in itself is a calculation,
+  deeming or delegation rule (no named party), the point is not an obligation. A "shall" sentence with no addressee ("the risk weight shall be 100 %", "the
   value shall be equal to the sum of…") is a calculation rule: return no obligation for it.
   Section titles never supply modality.
 - Return an EMPTY list for: definitions ("means", "includes", "for the purposes of", "X = …");
@@ -39,7 +48,7 @@ authority) to do, not do, or be permitted or expected to do something.
   delegation ("power is delegated to the Commission to adopt…", "EBA shall develop draft
   standards"); official interpretations/commentary or guidance restating a rule; composition or
   term of office (ให้…ประกอบด้วย, ให้…อยู่ในตำแหน่ง); table cells, form codes, fragments with no main
-  clause; "may" or อาจ meaning possibility. Exception: "an institution shall treat X as Y" or
+  clause (unless a lead-in in HEADING applies, see LIST POINTS); "may" or อาจ meaning possibility. Exception: "an institution shall treat X as Y" or
   "shall apply Article X" directs a party → obligation.
 - Thai: ให้ is NOT a trigger when it means "give/grant" (ให้สินเชื่อ) or in เพื่อให้. If the
   subject is in a preceding ในกรณีที่… clause of the same sentence, copy it from there.

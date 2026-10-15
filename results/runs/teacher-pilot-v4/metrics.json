@@ -1,0 +1,16 @@
+{
+  "n_done": 200,
+  "n_valid": 200,
+  "valid_rate": 1.0,
+  "gen_tokens": 28487,
+  "prompt_tokens": 348208,
+  "tok_per_s": 130.6170482222077,
+  "units_per_hour": 3301.3049713900914,
+  "projected_hours_for_30000": 9.0873155494531,
+  "projected_hours_for_50000": 15.145525915755167,
+  "elapsed_s": 218.0955731868744,
+  "obligations_total": 125,
+  "unresolved_rate": 0.008,
+  "wrong_unit_rate": 0.0,
+  "empty_rate": 0.49
+}

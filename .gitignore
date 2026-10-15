@@ -13,3 +13,5 @@ results/runs/*/*.safetensors
 dist/
 results/install-*.log
 results/download-*.log
+third_party/
+.venv-*/
