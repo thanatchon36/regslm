@@ -69,5 +69,45 @@ def label(
     typer.echo(str(run_dir / "labels.jsonl"))
 
 
+_SOURCES = Annotated[list[str] | None, typer.Argument(help="Source names (default: all tier-P)")]
+
+
+@app.command()
+def fetch(sources: _SOURCES = None) -> None:
+    """Fetch raw documents for each source (cached, polite; re-runs are offline)."""
+    from regslm.corpus import snapshot as sn
+    from regslm.corpus.registry import ADAPTERS
+
+    paths = sn.Paths()
+    names = sn.resolve_sources(ADAPTERS, sources, sn.load_excluded(paths.config))
+    for n, c in sn.fetch_sources(ADAPTERS, names, paths).items():
+        typer.echo(f"{n}: {c} raw responses")
+
+
+@app.command()
+def parse(sources: _SOURCES = None) -> None:
+    """Parse cached raw docs into data/local/{units,documents}/<source>.jsonl."""
+    from regslm.corpus import snapshot as sn
+    from regslm.corpus.registry import ADAPTERS
+
+    paths = sn.Paths()
+    names = sn.resolve_sources(ADAPTERS, sources, sn.load_excluded(paths.config))
+    for n, (nd, nu) in sn.parse_sources(ADAPTERS, names, paths).items():
+        typer.echo(f"{n}: {nd} documents, {nu} units")
+
+
+@app.command()
+def snapshot() -> None:
+    """Build data/corpus/{manifest,documents,units}.parquet, VERSION and STATS.md."""
+    from regslm.corpus import snapshot as sn
+    from regslm.corpus.registry import ADAPTERS
+
+    res = sn.build_snapshot(ADAPTERS, sn.Paths())
+    typer.echo(
+        f"{res.version}: {res.n_documents} docs, {res.n_units_public} public units, "
+        f"{res.n_units_local} local units"
+    )
+
+
 if __name__ == "__main__":
     app()

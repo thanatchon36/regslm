@@ -52,8 +52,20 @@ DATE = re.compile(
     r"\b(?P<d>[0-3]?\d)\s(?P<m>January|February|March|April|May|June|July|August|September|"
     r"October|November|December)\s(?P<y>(?:19|20)\d\d)\b"
 )
-_MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August",
-           "September", "October", "November", "December"]
+_MONTHS = [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
+]
 
 
 @dataclass(frozen=True)
@@ -120,7 +132,7 @@ def perturb_numbers(text: str, seed: int = 0) -> tuple[str, list[Change]]:
     edits.sort(key=lambda c: c.start)
     out, pos = [], 0
     for c in edits:
-        out.append(text[pos:c.start])
+        out.append(text[pos : c.start])
         out.append(c.perturbed)
         pos = c.end
     out.append(text[pos:])

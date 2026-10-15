@@ -12,3 +12,4 @@ results/runs/*/*.safetensors
 *.gguf
 dist/
 results/install-*.log
+results/download-*.log

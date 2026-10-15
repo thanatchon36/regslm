@@ -1,0 +1,12 @@
+{
+  "n_done": 200,
+  "n_valid": 194,
+  "valid_rate": 0.97,
+  "gen_tokens": 34625,
+  "prompt_tokens": 209727,
+  "tok_per_s": 190.79432965808272,
+  "units_per_hour": 3848.397395904837,
+  "projected_hours_for_30000": 7.795452733629757,
+  "projected_hours_for_50000": 12.992421222716262,
+  "elapsed_s": 181.47813963890076
+}

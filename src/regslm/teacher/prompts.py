@@ -17,7 +17,7 @@ from __future__ import annotations
 
 from typing import Literal
 
-PROMPT_VERSION = "v1"
+PROMPT_VERSION = "v2"  # v2: citation.quote instead of character offsets (D-020)
 
 Variant = Literal["label", "rationale", "gold_a", "gold_b"]
 
@@ -46,8 +46,9 @@ or the authority itself) to do, not do, or be permitted to do something.
   "<" less than; "==" exactly). Numbers that only decide WHETHER the rule applies (e.g.
   "where total assets exceed $250 billion") stay inside condition, not threshold.
 - deadline = time limit or frequency, copied ("within 30 days", "annually", "at all times").
-- citation: source and unit_id exactly as given; span = [start, end) character offsets of
-  the sentence containing the trigger word, counted in TEXT exactly as given (0-based).
+- citation: source and unit_id exactly as given; quote = the sentence or clause of TEXT that
+  contains the trigger word, copied character for character (do not shorten words, do not
+  fix typos). If TEXT is a single short item, quote all of it.
 - confidence: your probability (0–1) that the obligation is correct.
 Use only numbers that appear in TEXT. Never use values you remember from other versions of
 this rule."""
