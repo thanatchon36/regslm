@@ -1,9 +1,11 @@
 # Pre-registered research questions
 
-Status: **DRAFT v2** (revised after an independent methodology review, D-037) — becomes binding
-when tagged `prereg-v1` (before any training run beyond `make quick`). Changes after the tag go to
-"Amendments" with date and reason; the original text is never edited. Grid: `config/grid.yaml` as
-of the tag. Annotation rules: docs/ANNOTATION_GUIDE.md v2.0; teacher prompt v4.
+Status: **FROZEN — tagged `prereg-v1` on 2026-10-15**, before any training run beyond
+`make quick` and before any model was evaluated on any test set. Changes after the tag go to
+"Amendments" at the end with date and reason; text above the Amendments section is never edited.
+Frozen alongside: `config/grid.yaml`, `config/rewards.yaml`, `config/splits.yaml`,
+`docs/specs/train.md` defaults, docs/ANNOTATION_GUIDE.md v2.1, teacher prompt v5
+(`src/regslm/teacher/prompts.py`), corpus `2026.10.15-4ce7830f`, splits in `data/splits/`.
 
 ## 0. Common definitions
 
