@@ -188,3 +188,11 @@ materialised set has **621** units (and `test` has 4,375 after dropping 32 units
 teacher labels). The name `num440` is kept for continuity; all analyses use N = 621. Memorisation
 targets: 139 in `test-perturbed`, 287 per draw in `mr_pool` (1,400 units). Recorded before any
 model was evaluated.
+
+**A2 — 2026-10-15 (adjudicator change, owner-authorised).** `gold` was pre-registered as
+"two-pass + owner adjudication". The owner delegated adjudication to Claude (D-048). All 268
+disagreements were adjudicated under ANNOTATION_GUIDE v2.1 before any model was evaluated on
+`gold`. Gold-based verdicts are therefore reported as against an LLM-adjudicated reference
+(adjudicator from a different model family than teacher and pass B), not a human one; this is
+stated in every gold table caption and under Threats to Validity. No hypothesis, threshold or
+analysis changes.

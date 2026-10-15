@@ -1,0 +1,269 @@
+row,unit_id,tier,decision,why
+1,thai/BOTA2485/s28_7/p1/i1,1,E,"Authority duty (มีอำนาจหน้าที่ list, R7); A has object in action, B wrongly may and duplicated."
+2,thai/BOTN25550332/c5.3.1/p19/i3/d3_1,1,A,"Fragment noun phrase, no main clause (R5)."
+3,thai/BOTN25560150/c3.2/p36,1,A,List item fragment without modal or lead-in (R5); B invented duty.
+4,thai/BOTN25560150/c3.2/p42~2,1,A,"Garbled table/report description; BOT subject invented (R1,R5)."
+5,thai/BOTN25560150/c3.2/p7,1,A,Fragment list item; B invented threshold (R5).
+6,thai/BOTN25580129/a2_c11/p1,1,A,Garbled text with missing words (R5); only valid candidate is A. Borderline: ให้ ธพ. พิจารณา directive.
+7,thai/BOTN25580129/a2_c2.1.1/p1,1,E,"Clause ""โดยให้ธนาคารพาณิชย์พิจารณา..."" is a T-ให้ directive; B took the descriptive clause as action and invented deadline."
+8,thai/BOTN25610037/c3/p1,1,A,"Scope clause ""ประกาศฉบับนี้ให้ใช้บังคับ"" (R3)."
+9,thai/BOTN25620136/a3_c2/p2~2,1,E,"Directive ""ให้ธนาคารพาณิชย์อ้างอิง..."" (T-ให้, apply treatment); A missed it, B invalid."
+10,thai/BOTN25620139/a2_c2/p1,1,E,"Embedded directive ""กำหนดให้กลุ่มธุรกิจ...นำหลักเกณฑ์...มาใช้บังคับโดยอนุโลม"" = party told to apply (R3 exception); B fields wrong."
+11,thai/BOTN25620139/a2_c3.2.6/p1,1,E,"T-subject: ""ให้จัดชั้นและกันเงินสำรอง"" directive with actor from relative clause; A missed, B garbled fields."
+12,thai/BOTN25620139/a2_c3.4/p1,1,E,Two clauses: สามารถ...ปรับลด grants option (may); โดยให้นำหลักเกณฑ์ is a separate apply directive; B put it in cond.
+13,thai/BOTN25620143/c5.3/p2/i3,1,E,"""กำหนดให้บริษัทเงินทุนต้องมีการเปิดเผย"" is explicit ต้อง on named party; B invented deadline and put purpose in cond."
+14,thai/BOTN25620145/a5_c2.3/p1~3,1,A,"Table footnotes, no obligation (R5); B invented subject."
+15,thai/BOTN25630082/a2_c1.2/p1,1,E,"Directive ""ให้ธนาคารพาณิชย์นำยอด...มาคูณด้วยอัตราการไหลเข้า"" is one obligation; B duplicated it with bogus thresholds."
+16,thai/BOTN25630223/a12_c2.2.1/p2,1,A,"Modal inside relative clause ""ที่ผู้ให้บริการต้องเปิดเผย"" (R2)."
+17,thai/BOTN25630223/a12_c23/p2,1,E,ไม่ควร (should not) in guidance; no should_not modality so encoded must_not; B misused example as condition.
+18,thai/BOTN25630223/a12_c27/p1,1,A,"FAQ question text, no obligation (R5)."
+19,thai/BOTN25640144/a2_c5.2/p1,1,E,"Heading lead-in ""สง.ต้องจัดให้มีการทดสอบภาวะวิกฤต"" names party with ต้อง; point inherits (R7); B English and bogus threshold."
+20,thai/BOTN25660192/c2/p1,1,A,"Cover letter summarising announcements (commentary/restated rule, R5)."
+21,thai/BOTN25660202/a6_c1.3.3/p1,1,A,"Subject is a policy, not a party (R1); ควรรวมถึง describes content."
+22,thai/BOTN25660202/a6_c1.5.2/p1,1,E,Only ควร sentence with named party is the PR duty: modality should (T-ควร); A/B wrongly must; program clause has no party.
+23,thai/BOTN25680195/c5.3.1/p2/d1_2,1,A,Heading fragment and noun-phrase text; B invented duty (R5).
+24,thai/BOTN25680199/c4.3.1/p3,1,E,"Directive ""ให้ธนาคารพาณิชย์นำเงินลงทุน...ไปรวมกับ"" (apply treatment); B has bogus threshold and truncated object."
+25,thai/BOTN25680226/a3_c3.2/p1,1,E,"Three duties (R6): channel for managing consent, channel for checking expiry, notification; delegation kept in object; A/B misplace fields, B misses notification."
+26,thai/FIBA2551/s163/p1,1,A,"Transitional vesting provision ""ให้...เป็นของกระทรวงการคลัง"" (R3 deeming/commencement); B invented duty."
+27,thai/PSA2560/s24/p1/i11,1,E,"Lead-in empowers ธปท. to issue rules = rulemaking delegation/enabling (R3), not a duty; B duplicated and misused exc."
+28,thai/PSA2560/s24/p1/i8,1,E,"Lead-in empowers ธปท. to issue rules = rulemaking delegation/enabling (R3); A invented cond and deadline, B treats as may."
+29,thai/SEA2535/s218_12/p1/i2,1,A,"Vacation-of-office event list item ""ลาออก"" (R3), not a duty."
+30,thai/SEA2535/s218_2/p1/i4,1,A,"Establishment/purpose of fund, no addressee duty (R3)."
+31,thai/SEA2535/s219/p2,1,A,"Definition ""หมายความว่า"" (R2)."
+32,thai/SEA2535/s258/p1/i6,1,A,Aggregation/deeming rule (นับรวม) with no duty on a named party (R3); B invented duty.
+33,ecfr/12CFR1005/AppendixA/(i)/(6),1,A,"""There may be other exceptions"" is possibility in model clause text (R4,R5)."
+34,ecfr/12CFR1005/AppendixA/p41,1,E,"Reg E Appendix A model clause text in consumer voice; pronoun ""we"" has no antecedent in unit; form language is non-operative (R1,R5)."
+35,ecfr/12CFR1005/SupplementItoPart1005/p146,1,E,Official interpretation commentary (R5); A and B both extract obligations.
+36,ecfr/12CFR1005/SupplementItoPart1005/p174,1,E,Official interpretation commentary (R5); A and B both extract obligations.
+37,ecfr/12CFR1005/SupplementItoPart1005/p19,1,A,"Official interpretation commentary and definition (R5,R2)."
+38,ecfr/12CFR1005/SupplementItoPart1005/p4,1,A,Official interpretation commentary on exemption (R5).
+39,ecfr/12CFR1005/SupplementItoPart1005/p489,1,A,"Supplement I official interpretation: commentary/example, not operative (R5)."
+40,ecfr/12CFR1005/SupplementItoPart1005/p508,1,A,"Supplement I official interpretation: commentary/example, not operative (R5)."
+41,ecfr/12CFR1005/SupplementItoPart1005/p529,1,A,"Supplement I official interpretation: commentary/example, not operative (R5)."
+42,ecfr/12CFR1005/SupplementItoPart1005/p538,1,A,"Supplement I official interpretation: commentary/example, not operative (R5)."
+43,ecfr/12CFR1005/SupplementItoPart1005/p54,1,A,"Supplement I official interpretation: commentary/example, not operative (R5)."
+44,ecfr/12CFR1005/SupplementItoPart1005/p614,1,A,"Supplement I official interpretation: commentary/example, not operative (R5)."
+45,ecfr/12CFR1005/SupplementItoPart1005/p672,1,A,"Supplement I official interpretation: commentary/example, not operative (R5)."
+46,ecfr/12CFR1005/SupplementItoPart1005/p880,1,A,"Supplement I official interpretation: commentary/example, not operative (R5)."
+47,ecfr/12CFR1005/§1005.31/(b)/(1)/(iii),1,A,"R7 lead-in ""A remittance transfer provider must disclose to a sender""; point is object; A matches."
+48,ecfr/12CFR1026/AppendixG/p106,1,A,"Appendix G model form text addressed to consumer, non-operative (R5); B invented duty."
+49,ecfr/12CFR1026/AppendixG/p161,1,A,"Appendix G model form text addressed to consumer, non-operative (R5); B invented duty."
+50,ecfr/12CFR1026/AppendixG/p166,1,A,"Appendix G model form text addressed to consumer, non-operative (R5); B invented duty."
+51,ecfr/12CFR1026/SupplementItoPart1026/p1071,1,A,Supplement I official interpretation commentary (R5); B invented obligations.
+52,ecfr/12CFR1026/SupplementItoPart1026/p1326,1,A,Supplement I official interpretation commentary (R5); B invented obligations.
+53,ecfr/12CFR1026/SupplementItoPart1026/p1327,1,A,Supplement I official interpretation commentary (R5); B invented obligations.
+54,ecfr/12CFR1026/SupplementItoPart1026/p1397,1,A,Supplement I official interpretation commentary (R5); B invented obligations.
+55,ecfr/12CFR1026/SupplementItoPart1026/p1556,1,A,Supplement I official interpretation commentary/example (R5); B invented obligations.
+56,ecfr/12CFR1026/SupplementItoPart1026/p1827,1,A,Supplement I official interpretation commentary/example (R5); B invented obligations.
+57,ecfr/12CFR1026/SupplementItoPart1026/p1880,1,E,"Supplement I official interpretation restating rule (R5, restated-rule); A extracts four obligations from commentary."
+58,ecfr/12CFR1026/SupplementItoPart1026/p2910,1,A,Supplement I official interpretation commentary/example (R5); B invented obligations.
+59,ecfr/12CFR1026/SupplementItoPart1026/p3164,1,A,Supplement I official interpretation commentary/example (R5); B invented obligations.
+60,ecfr/12CFR1026/SupplementItoPart1026/p3418,1,A,Supplement I official interpretation commentary/example (R5); B invented obligations.
+61,ecfr/12CFR1026/SupplementItoPart1026/p3455,1,E,Supplement I official interpretation commentary restating a rule (R5); A and B both extract duplicates.
+62,ecfr/12CFR1026/SupplementItoPart1026/p3657,1,A,Supplement I official interpretation commentary/heading (R5); B invented obligations.
+63,ecfr/12CFR1026/SupplementItoPart1026/p3664,1,A,Supplement I official interpretation commentary/heading (R5); B invented obligations.
+64,ecfr/12CFR1026/SupplementItoPart1026/p3892,1,A,Supplement I official interpretation commentary/heading (R5); B invented obligations.
+65,ecfr/12CFR1026/SupplementItoPart1026/p3955,1,A,Supplement I official interpretation commentary/heading (R5); B invented obligations.
+66,ecfr/12CFR1026/SupplementItoPart1026/p3975,1,A,Supplement I official interpretation commentary/heading (R5); B invented obligations.
+67,ecfr/12CFR1026/SupplementItoPart1026/p4196,1,A,Supplement I official interpretation commentary/heading (R5); B invented obligations.
+68,ecfr/12CFR1026/SupplementItoPart1026/p4453,1,A,Official interpretation commentary; R5.
+69,ecfr/12CFR1026/SupplementItoPart1026/p4786,1,A,Official interpretation commentary; R5.
+70,ecfr/12CFR1026/SupplementItoPart1026/p5062,1,A,Official interpretation commentary; R5.
+71,ecfr/12CFR1026/SupplementItoPart1026/p5484,1,E,"Supplement I commentary, R5; both candidates extract from commentary."
+72,ecfr/12CFR1026/§1026.20/(c)/(2)/(v)/(B),1,A,Lead-in 'disclosures shall include' names no party (R1); list point is not an obligation.
+73,ecfr/12CFR1026/§1026.40/(d)/(5)/(i),1,A,Nearest lead-in 'payment terms include' has no trigger or party; point is a description.
+74,ecfr/12CFR1026/§1026.41/(d)/(8)/(v),1,E,"Lead-in subject is the periodic statement, not a party (R1); A invents obligation."
+75,ecfr/12CFR1026/§1026.5/(b)/(2)/(ii)/(B)/(2)/(i),1,E,"R7: single obligation from lead-in; A action swallows object, B has duplicates."
+76,ecfr/12CFR217/§217.11/(a)/(4)/(iv),1,E,Operative power may; notwithstanding is not an exception (3.5 ex.23); A misreads modality.
+77,ecfr/12CFR217/§217.122/(b)/(2)/(i),1,E,"Must-have plus may-elect; last sentence's subject is the system, not a party (R1)."
+78,ecfr/12CFR217/§217.122/(c)/(6),1,E,Only the last sentence has a party subject; 'estimates must be based' lacks addressee (R1).
+79,ecfr/12CFR217/§217.135/(a)/(2)/(i),1,A,"Sub-item of criteria list under 'The guarantee or credit derivative is:'; no trigger in nearest lead-in, a condition not obligation."
+80,ecfr/12CFR217/§217.136/(d),1,E,Two obligations (R6); time is not a threshold (2 threshold rule).
+81,ecfr/12CFR217/§217.141/(a)/(4)/(i),1,E,"Lead-in 'The conditions are:' has no trigger; point is a condition, not a duty."
+82,ecfr/12CFR217/§217.142/(l)/(2)/(i),1,E,R7 lead-in: action 'calculate'; 'parameter A must be set' has no addressee; spurious thresholds.
+83,ecfr/12CFR217/§217.144/(b)/(2)/(i),1,E,Sub-point of a ratio definition (parameter W criteria); no lead-in obligation; B hallucinated.
+84,ecfr/12CFR217/§217.152/(c)/(2)/(i),1,E,Point's own main clause only; quarterly deadline belongs to measuring E; A/B add spurious fields.
+85,ecfr/12CFR217/§217.153/(b)/(1)/(i),1,E,"R7 lead-in 'must have one or more models that:'; action only 'have', point content in object."
+86,ecfr/12CFR217/§217.2/p102,1,A,"Definition, R2."
+87,ecfr/12CFR217/§217.2/p133/(2),1,A,"Definition criteria, R2."
+88,ecfr/12CFR217/§217.203/(b)/(1)/(i),1,E,Lead-in sentence 'these policies and procedures must require' has no named party (R1); A garbled.
+89,ecfr/12CFR217/§217.41/(c)/(1),1,E,Except-for clause is an exception; 'analysis must be commensurate' has no party subject (R1).
+90,ecfr/12CFR217/§217.63/(b)/(2),1,E,"R7 lead-in; frequency 'each quarter' belongs in deadline, missing in A."
+91,ecfr/12CFR249/§249.101/(a),1,E,"R7 lead-in 'shall assume' (apply treatment, R3 exception); A misses it, B duplicates."
+92,ecfr/12CFR249/§249.107/(b)/(3),1,A,Lead-in is a calculation with no party (R1/R7).
+93,ecfr/12CFR249/§249.131/(c)/(2)/(xiv),1,E,R7: lead-in 'must disclose'; point content in object; B object concatenated with spurious cond.
+94,ecfr/12CFR249/§249.131/(c)/(2)/(xx),1,E,R7 lead-in; B's condition duplicates object text.
+95,ecfr/12CFR249/§249.20/(b)/(2)/(iii)/(A),1,A,"Definition of liquid asset criteria; no duty, R2."
+96,ecfr/12CFR249/§249.21/(b)/(2),1,A,"Calculation rule without addressee, R1."
+97,ecfr/12CFR249/§249.3/p64/(2)/(ii),1,A,Definition of netting agreement; R2.
+98,ecfr/12CFR252/§252.144/(b)/(1)/(ii)/(B)/(2),1,B,"Framework (not a party) is subject of lead-in; R1, so no obligation."
+99,ecfr/12CFR252/§252.144/(b)/(1)/(v)/(B)/(1),1,E,R7 lead-in 'committee must: Have at least one member who:'; A action swallows the text.
+100,ecfr/12CFR252/§252.157/(a)/(4),1,E,Only the last sentence has a party; 'stress test must include' is not a party (R1); A dl duplicates.
+101,ecfr/12CFR252/§252.157/(a)/(8),1,E,A invalid; B misses the party permission and garbles condition. 'Will' read as must for authority duties.
+102,ecfr/12CFR252/§252.171/(kk)/(1)/(i),1,A,Definition of how assets are determined; R2.
+103,ecfr/12CFR252/§252.74/(e)/(2),1,E,R7: lead-in 'may reduce ... provided that:'; point is the condition. B has junk deadline and prefix.
+104,ecfr/12CFR3/§3.133/(d)/(5)/p3,1,A,Variable definition under calculation lead-in; R2.
+105,ecfr/12CFR3/§3.134/(e)/p4,1,A,"'where:' is a variable-definition fragment, R5."
+106,ecfr/12CFR3/§3.135/(a)/(1)/(i),1,A,Nested criterion under lead-in without trigger; condition not obligation.
+107,ecfr/12CFR3/§3.142/(d),1,A,"Cap on a quantity with no numeric threshold and no named party; calculation rule, R1."
+108,ecfr/12CFR3/§3.144/(b)/(4),1,A,Definition of parameter D; R2.
+109,ecfr/12CFR3/§3.152/(b)/(2),1,A,"Assignment of risk weight, no addressee; R1."
+110,ecfr/12CFR3/§3.162/(b)/(2)/(ii),1,A,Calculation formula component; no party; R1.
+111,ecfr/12CFR3/§3.20/(d)/(1)/(iv),1,B,"Instrument criteria within a definition of Tier 2 elements; R2, no obligation."
+112,ecfr/12CFR3/§3.37/(b)/(2)/(i),1,E,"Two clauses: permission and limit on a quantity (comparator rule, 'not less than' = >=); threshold wrongly on the permission in A and B."
+113,ecfr/12CFR324/§324.12/(a)/(3)/(i),1,E,Only the may clause is operative; B invents a must on the opt-in election.
+114,ecfr/12CFR324/§324.122/(b)/(1)/(ii),1,E,Second sentence only; 'rationale must be documented' lacks party (R1); B drops 'inappropriately'.
+115,ecfr/12CFR324/§324.122/(c)/(2)/(iii),1,E,"R7 lead-in 'In addition, ... must:'; B's incorporate obligation belongs to heading, not this point."
+116,ecfr/12CFR324/§324.133/(d)/(5)/p4,1,A,Variable definition under calculation lead-in; R2.
+117,ecfr/12CFR324/§324.135/(a)/(5),1,E,"R7: lead-in 'may recognize ... if criteria satisfied'; point is a condition, not a prohibition."
+118,ecfr/12CFR324/§324.142/(i)/(1),1,A,"Relief/scope text ('is not required to'), R3; no duty."
+119,ecfr/12CFR324/§324.143/(f)/(4),1,E,Three permissions (R6); trigger numbers stay in condition; A mislocates conditions and deadline.
+120,ecfr/12CFR324/§324.153/(c)/(2)/(i),1,A,"Calculation rule, no party; R1/R2."
+121,ecfr/12CFR324/§324.2/p11/(1),1,A,"Definition, R2."
+122,ecfr/12CFR324/§324.2/p127,1,A,"Definition, R2."
+123,ecfr/12CFR324/§324.37/(c)/(3)/(iv)/p3,1,E,Variable definition (TS equals) under formula lead-in; no party; R2.
+124,ecfr/17CFR240/§240.15c3-1/(a)/(1)/(iii),1,E,"Prohibited act with limit: must_not, prohibited-region comparator; A has wrong comparator/action, B wrong modality."
+125,ecfr/17CFR240/§240.15c3-1/(c)/(2)/(vi)/(D)/(3),1,A,"Deeming/calculation of net capital deduction; no party, R3."
+126,ecfr/17CFR240/§240.15c3-1/(c)/(2)/(vi)/(F)/(1)/(viii),1,A,Table of percentages in a calculation; R5/R1.
+127,ecfr/17CFR240/§240.15c3-1/(c)/(2)/(vi)/(P)/(1)/(iii),1,E,Two party-subject musts (R6); deduction fragments have no party; B has spurious thr == 0.
+128,ecfr/17CFR240/§240.17a-4/(b)/(17),1,E,R7 lead-in; A duplicates duration into condition.
+129,ecfr/17CFR275/§275.203-3/p1,1,A,"Scope statement of section, R3."
+130,ecfr/17CFR275/§275.203A-3/(c),1,A,"Definition, R2."
+131,ecfr/17CFR275/§275.204-2/(c)/(1),1,E,Own main clause 'shall make and keep'; A invents object and 'at all times' from outside the unit.
+132,ecfr/17CFR275/§275.204-2/(h)/(2),1,A,"'need not be maintained in duplicate' is relief, not a duty; R3."
+133,ecfr/17CFR275/§275.206(4)-2/(a)/(6),1,E,Lead-in is a conditional fragment with no trigger; B invents duty.
+134,eurlex/CRD/Art104/1/b,1,A,"Lead-in 'competent authorities shall ... power to' with point; operative authority power, R1/R7 (modality ambiguous)."
+135,eurlex/CRD/Art104/p1,1,A,R3 deeming ('shall be deemed'); no obligation.
+136,eurlex/CRD/Art116a/p2/b/iv,1,A,R7: lead-in 'Member States shall ensure' inherited; point content in object.
+137,eurlex/CRD/Art144/2/c/ii,1,E,R7 lead-in ok; A's deadline 'the following information' is spurious.
+138,eurlex/CRD/Art158/2/c,1,A,"R1: 'That request' is not a named party; no addressee, so none."
+139,eurlex/CRD/Art18/d,1,E,"'may only withdraw where' is a permission; point is the case, so may with condition, not must_not."
+140,eurlex/CRR/AnnexII/2/a,1,A,R7/R5: annex derivative-type list item; lead-in has no modal or party; B invents obligation.
+141,eurlex/CRR/Art104b/2/b,1,E,R7: lead-in 'at all times' applies; A omits deadline and puts object inside action.
+142,eurlex/CRR/Art117/2/c,1,E,R1/R7: lead-in is a deeming-style risk-weight assignment with no named party; none.
+143,eurlex/CRR/Art119/5/p2,1,A,R3 deeming ('shall be considered'); no obligation.
+144,eurlex/CRR/Art126/p6/b,1,E,"R7: full lead-in 'institutions may apply the treatment...'; limit is condition, not threshold; neither candidate right."
+145,eurlex/CRR/Art13/3,1,A,R3 scope ('shall not apply'); B invents must_not.
+146,eurlex/CRR/Art142/1/1d,1,A,R2 definition.
+147,eurlex/CRR/Art164/2,1,B,Institutions may recognise: party actor with 'may'; A wrongly empty.
+148,eurlex/CRR/Art263/3/T1R5,1,A,R5 table cell.
+149,eurlex/CRR/Art264/3/T1R18,1,A,R5 table cell.
+150,eurlex/CRR/Art272/p6/21/p2,1,E,"Institutions shall take the average: real duty; A missed it, B invalid."
+151,eurlex/CRR/Art275/3/p2/T5R1,1,A,R2 variable definition.
+152,eurlex/CRR/Art279a/3/a,1,E,R3 enabling: EBA develops RTS; 'institutions shall use' is inside a noun phrase (R2).
+153,eurlex/CRR/Art28/5/c,1,A,R3 enabling (EBA develops draft RTS).
+154,eurlex/CRR/Art280b/1/p2/T1R1,1,A,R2 variable definition.
+155,eurlex/CRR/Art280c/1/a,1,E,R7: single institutions obligation; second clause has non-party subject (R1); put point in object.
+156,eurlex/CRR/Art280d/3/p2/T1R1,1,A,R2 variable definition.
+157,eurlex/CRR/Art31/1/e,1,B,R7 with full lead-in: competent authorities may permit; point goes in condition.
+158,eurlex/CRR/Art314/6,1,A,"R1/R3 calculation rule, no party."
+159,eurlex/CRR/Art325a/2/e,1,E,"R7: lead-in 'Institutions shall calculate'; A puts object in action, B has duplicates."
+160,eurlex/CRR/Art325ac/3/b/p2,1,A,R2 variable definition.
+161,eurlex/CRR/Art325az/3,1,E,"One obligation on Institutions with relative clause as condition; A subject too long, B has wrong-article duplicate."
+162,eurlex/CRR/Art325r/3/b/p2/T2R1,1,A,R2 variable definition.
+163,eurlex/CRR/Art400/2/e,1,A,"R7: lead-in 'Competent authorities may exempt'; point in object, proviso in condition. B duplicates."
+164,eurlex/CRR/Art47c/3/h,1,A,R1: lead-in 'factors shall apply' names no party; none.
+165,eurlex/CRR/Art486/5/h,1,A,R1: no named party ('percentages shall fall within'); none.
+166,eurlex/MiFID2/AnnexII/p2/1/i,1,A,R3 deeming ('regarded as'); none.
+167,eurlex/MiFID2/Art29/5,1,E,"R6/ex.40: one obligation on Member States; A puts object in action, B duplicates firm duty."
+168,eurlex/MiFID2/Art33/7,1,E,B has misplaced deadline and non-party/passive issuer items (R1); keep Member States and ESMA duties.
+169,eurlex/MiFID2/Art35/p10,1,A,R3 enabling/delegation ('Power is conferred').
+170,eurlex/MiFID2/Art4/1/19,1,A,R2 definition.
+171,thai/BOTA2485/s28_2/p2,2,E,"R1: truncated fragment; subject is 'the regulation' (instrument), not a named party; candidates invent subjects."
+172,thai/BOTA2485/s28_8/p2,2,E,"T-อาจ authority may; proviso 'โดยต้องดำเนินการตามที่กำหนดในวรรคหนึ่ง' belongs in condition, not deadline."
+173,thai/BOTN25610041/c4.4.3/p2/d1_2,2,E,R1/R5: garbled fragment with no actor after ให้; both candidates invent content.
+174,thai/BOTN25620136/a3_c1.2/p6,2,E,"Two sentences-clauses with different actions: refer to method, and apply 250 % weight; neither candidate has both."
+175,thai/BOTN25620138/a1_c5.1/p1,2,E,"A's deadline 'ณ วันสิ้นงวด' is a rate date, B's threshold spurious; method belongs in object."
+176,thai/BOTN25620138/a1_c6.1/p2/i3,2,E,R1: fragment with no named actor in text; A invents subject and a 30-day deadline.
+177,thai/BOTN25620145/a5_c2.2/p1/i1,2,E,R7: lead-in names บริษัทเครดิตฟองซิเอร์; point into object/condition; invented deadlines removed.
+178,thai/BOTN25620145/a5_c2.3/p1,2,B,"Clean action/object split, no spurious deadline; A puts object inside action and has dl 'null'."
+179,thai/BOTN25630304/a5_c7.1/p5,2,E,"Both requirements (permission and 66/1 case) are duties, not an exception; one obligation."
+180,thai/BOTN25640144/a2_c45/p1,2,B,ควร -> should; B has cleaner fields; A invents deadline ทันเวลา and puts examples in condition.
+181,thai/BOTN25660202/a6_c10.2/p1,2,E,should obligation; A's condition is a truncated later clause and B misplaces the reported content.
+182,thai/BOTN25680181/c5.3.1/p3,2,E,R5: fragment ending at 'ต้องไม่เกิน' with no subject or number; candidates invent content.
+183,thai/BOTN25680195/c5.3.1/p1/i1/d1_1,2,A,must_not trigger ห้ามมิให้ with subject; coordinated verbs one obligation (R6); B duplicates object.
+184,thai/BOTN25680226/a3_c2.3/p4,2,E,R6: two different actions (ดำเนินการ vs แจ้ง) with different objects; split; no spurious deadline.
+185,thai/BOTN25680226/a3_c3.3/p6,2,E,"Main clause is ให้ถือปฏิบัติตามมาตรฐาน; the IT-risk clause is a relative clause (R2), not a duty; A duplicates object in action."
+186,thai/FIBA2551/s22/p1,2,E,R6: ตรวจสอบ and แจ้ง are different actions/objects; split; A/B each miss one.
+187,thai/FIBA2551/s24/p1/i6,2,B,R7 lead-in must_not; point as condition; เว้นแต่ clause as exception; A misplaces it.
+188,thai/SEA2535/s103/p1/i6,2,B,"R7 lead-in must_not; point (a case) in condition, consistent with row 187."
+189,thai/SEA2535/s214/p1/i3,2,E,"'ย่อมเลิกกัน' is a statement of dissolution events, no directive trigger or duty; none."
+190,ecfr/12CFR1005/SupplementItoPart1005/p133,2,E,R5: Supplement I official interpretation (commentary); none.
+191,ecfr/12CFR1005/§1005.31/(b)/(2)/(vii),2,E,R7: object is the point's content; 'as applicable' is not a deadline.
+192,ecfr/12CFR1026/SupplementItoPart1026/p111,2,E,R5: Supplement I official interpretation (commentary); none.
+193,ecfr/12CFR1026/SupplementItoPart1026/p163,2,E,R5: Supplement I official interpretation (commentary); none.
+194,ecfr/12CFR1026/SupplementItoPart1026/p1701,2,E,R5: Supplement I official interpretation (commentary); none.
+195,ecfr/12CFR1026/SupplementItoPart1026/p4238,2,E,R5: Supplement I official interpretation (commentary); none.
+196,ecfr/12CFR1026/SupplementItoPart1026/p4428,2,E,R5: Supplement I official interpretation (commentary); none.
+197,ecfr/12CFR1026/SupplementItoPart1026/p4542,2,E,R5: Supplement I official interpretation (commentary); none.
+198,ecfr/12CFR1026/SupplementItoPart1026/p4750,2,E,R5: Supplement I official interpretation (commentary); none.
+199,ecfr/12CFR1026/§1026.19/(a)/(4),2,E,R1: 'Disclosures shall contain the statement' names no party (content rule); none.
+200,ecfr/12CFR217/§217.1/(c)/(5)/(iii),2,E,"Same obligation, but A puts object inside action and B splits object/condition."
+201,ecfr/12CFR217/§217.1/(f)/(1)/(iii)/(B)/(1),2,E,"'Is not required to' is not a prohibition; exemption, not an obligation; none."
+202,ecfr/12CFR217/§217.121/(b)/(1)/(iv),2,E,R7/R1: lead-in subject is 'the plan'; both candidates have junk deadline/truncated action; at a minimum is not a deadline.
+203,ecfr/12CFR217/§217.134/(c)/(1)/(ii),2,B,Clean action/object; A puts the heading title 'Partial coverage.' in deadline.
+204,ecfr/12CFR217/§217.22/(b)/(2)/(iii),2,B,Same fields as A without spurious deadline.
+205,ecfr/12CFR217/§217.406/(b)/(3),2,B,B clean; A has literal 'null' deadline and truncated action.
+206,ecfr/12CFR249/§249.100/(a),2,E,"Comparator >= 1.0 correct; B threshold garbled, A action/object contain the threshold text."
+207,ecfr/12CFR249/§249.2/(a),2,B,B correct; second sentence 'will apply' is not an obligation trigger.
+208,ecfr/12CFR249/§249.22/(a)/(2)/(i),2,E,"R7: the point completes 'this management function must evidence its control over the HQLA by either'; subject is that function, not institution."
+209,ecfr/12CFR249/§249.91/(b)/(1)/(i)/(A),2,B,"R7: action from lead-in, point as condition; B clean, A puts point in deadline."
+210,ecfr/12CFR249/§249.91/(b)/(2)/(i),2,E,B has spurious threshold and splits the definition into cond; A action swallows object.
+211,ecfr/12CFR252/§252.132/(a)/(1),2,E,R7: full heading gives annual deadline and action 'certify'; point content belongs in object; candidates mis-split.
+212,ecfr/12CFR252/§252.14/(b)/(1),2,E,"A deadline and B exception belong to the second sentence ('Board will provide'), not this must clause."
+213,ecfr/12CFR252/§252.156/(g)/(1)/(iv),2,E,R7: 'Tracks' is point text; both invent a deadline; 'for example' is not a condition.
+214,ecfr/12CFR252/§252.158/(c)/(1),2,E,Deadline and unless-clause are in condition/duplicated; per guide: deadline vs exception (carve-out).
+215,ecfr/12CFR252/§252.16/(b)/(1),2,E,"R7: subject 'the report'; condition from lead-in; A lacks it, B has junk characters in condition."
+216,ecfr/12CFR252/§252.174/(f)/(3),2,E,B has spurious threshold; A omits the 'To qualify' condition.
+217,ecfr/12CFR252/§252.74/(b)/(1),2,E,"B spurious threshold, A literal null deadline and action swallows object."
+218,ecfr/12CFR252/§252.88/(d)/(3),2,B,R7: lead-in 'after considering:' point as condition; B correct.
+219,ecfr/12CFR3/§3.1/(f)/(1)/(iii)/(A),2,E,R6: four ratios with different binding thresholds must be split into four obligations; period is a deadline.
+220,ecfr/12CFR3/§3.11/(a)/(4)/(iii)/(C),2,E,B right but omits the 'during the current calendar quarter' period (deadline); A misses the exception and misplaces period.
+221,ecfr/12CFR3/§3.12/(c)/(1),2,E,B action 'have' is not a duty and omits object; A omits the 'Except as provided' carve-out.
+222,ecfr/12CFR3/§3.122/(b)/(2)/(ii),2,E,"Both carry junk (deadline 'must have' in A, spurious threshold in B); A truncates object."
+223,ecfr/12CFR3/§3.122/(c)/(4),2,E,"Subject truncated in B, A drops negation and invents condition; 'should not rely' kept as should with negated action (no should_not modality)."
+224,ecfr/12CFR3/§3.122/(g)/(2)/(ii)/(A),2,E,B invents condition 'Under § 3.122(g)(2)(ii)'; A object is the title only.
+225,ecfr/12CFR3/§3.143/(a),2,B,Action 'use' with object per guide; A object is a truncated fragment.
+226,ecfr/12CFR3/§3.211/(b),2,B,B keeps leading purpose clause as condition; A drops it.
+227,ecfr/12CFR3/§3.701/(f)/(1)/(v),2,E,R7: lead-in 'must also:' gives action 'provide'; inner 'shall' is in the that-clause; B wrong action and threshold.
+228,ecfr/12CFR324/§324.1/(f)/(1)/(ii)/(B),2,E,R6: 'calculate' and 'substitute' have different objects so two obligations; period is a deadline.
+229,ecfr/12CFR324/§324.10/(a)/(1)/(iii),2,E,"Comparator rule: minimum ratio is >= 8; A uses ==, B invents deadline text."
+230,ecfr/12CFR324/§324.122/(g)/(2),2,E,"Second sentence is a bare lead-in; A has junk deadline 'must', B spurious threshold."
+231,ecfr/12CFR324/§324.134/(f)/(2)/(ii),2,E,R5/R7: lead-in 'qualifies for' has no modal; the point is an alternative list item; 'must set HFX' belongs to the parent unit.
+232,ecfr/12CFR324/§324.145/(b)/(4),2,E,"Second sentence has no addressee (R1); 'subject to' is a cross-reference condition, not an exception; candidates misplace fields."
+233,ecfr/12CFR324/§324.201/(b)/(3),2,B,Condition holds the if-clause; A misplaces it in object.
+234,ecfr/12CFR324/§324.212/(d)/(8),2,B,R7 lead-in; B has point as object and lead-in condition and deadline.
+235,ecfr/12CFR324/§324.37/(c)/(4)/(iii),2,E,"Text has its own must; lead-in approval is a governing condition; B spurious threshold, A wrong deadline."
+236,ecfr/12CFR324/§324.63/(b)/(4),2,E,"R7: point content belongs in object and 'each quarter' is the deadline; B swaps them, A omits deadline."
+237,ecfr/17CFR240/§240.15c3-1/(a)/(10)/(i)/(B),2,E,Neither 'will publish' (no modal trigger) nor lead-in party acts in the point; no obligation (R7/R1).
+238,ecfr/17CFR240/§240.15c3-3/(b)/(1),2,E,R6: one obligation 'obtain and maintain'; 'promptly' is deadline; B misplaces object tail as condition.
+239,ecfr/17CFR240/§240.17a-4/(b)/(10),2,E,"Retention period is deadline, not condition or threshold (time limits never thresholds); both set condition."
+240,ecfr/17CFR275/§275.0-4/(a)/(2),2,E,R3: 'deemed to have been filed' / 'considered timely filed' are deeming rules.
+241,ecfr/17CFR275/§275.0-4/(c)/(3),2,E,"R6: 'contain' and 'be filed' are different actions so two obligations; A merges, B drops one."
+242,ecfr/17CFR275/§275.204-2/(e)/(3)/(i),2,E,R1: passive 'shall be maintained' with no agent in the sentence; no named addressee.
+243,ecfr/17CFR275/§275.204-2/(k),2,E,B drops object tail and has spurious threshold; A puts 'in accordance with this section' as deadline.
+244,ecfr/17CFR275/§275.204A-1/(b)/(1)/(ii),2,E,Point has its own must; 'each' is not a deadline (B) and A object imports heading text.
+245,ecfr/17CFR275/§275.206(4)-2/(a)/(4)/(ii),2,E,Ex. 40/R6: lead-in 'The written agreement must require the accountant to' puts duty on the agreement; candidates make accountant the subject.
+246,eurlex/CRD/Art111/1/p2,2,E,A invents object 'the parent undertaking'; B action fine but subject shortened and object empty; object should be supervision.
+247,eurlex/CRD/Art111/1/p3,2,E,"A invents object, A has literal null deadline, B has 'no deadline specified' junk."
+248,eurlex/CRD/Art112/p1,2,B,"Cleanly separates action, object and condition."
+249,eurlex/CRD/Art116/9,2,E,R6: 'inform' and 'communicate' have different objects so two obligations; 'in emergency situations' is not a deadline.
+250,eurlex/CRD/Art153/3,2,E,"Second sentence is passive with no agent (R1) so one obligation; neither candidate formats the first correctly (purpose clause, deadline)."
+251,eurlex/CRD/Art20/5,2,B,"Action notify, object per guide ex. 25 style; A truncates object."
+252,eurlex/CRD/Art27j/5,2,E,Third sentence has no addressee-obligation (proportionate) so 3 obligations; candidates misplace object/condition/deadline.
+253,eurlex/CRD/Art88/1,2,E,Ensure-type duty (R6/ex. 39): that-clause in object; B splits it into condition and adds junk deadline.
+254,eurlex/CRD/Art89/1/b,2,E,"R7: point 'turnover' belongs in object; B drops it, A misplaces start date."
+255,eurlex/CRR/Art106/6,2,E,R1: 'requirements shall be calculated' is a calculation rule with no addressee.
+256,eurlex/CRR/Art126/p8,2,E,'where appropriate' is a condition and recipients belong in object; both split fields differently.
+257,eurlex/CRR/Art147/6,2,E,R1: passive classification rule with no addressee.
+258,eurlex/CRR/Art153/7,2,E,First sentence grants a may (purchaser/beneficiary) both candidates miss; second sentence cross-reference belongs in object not condition.
+259,eurlex/CRR/Art166/p3,2,E,Ensure-type duty (R6): single obligation 'ensure'; B has spurious threshold and invented deadline.
+260,eurlex/CRR/Art291/5/f,2,E,R7: lead-in party gives subject; condition from lead-in AND point; binding LGD 100 % equality in threshold.
+261,eurlex/MiFID2/Art12/p4,2,E,R3: ESMA submitting draft RTS is enabling/delegation procedure.
+262,eurlex/MiFID2/Art13/5,2,E,"'Notwithstanding' is neither deadline nor exception (A, B wrong); manner belongs in object."
+263,eurlex/MiFID2/Art27/4,2,E,"Two sentences give two obligations; B stuffs sentence 2 into condition, A duplicates object into action."
+264,eurlex/MiFID2/Art29a/1,2,E,R3: 'shall not apply' is scope text.
+265,eurlex/MiFID2/Art32/3,2,E,R3: ESMA shall develop draft ITS is enabling.
+266,eurlex/MiFID2/Art45/2/a/p2/ii,2,E,'Unless representing' is an exception; 'at the same time' is deadline-type; both mix fields.
+267,eurlex/MiFID2/Art79/2,2,B,B correct; A deadline is garbled junk.
+268,eurlex/MiFID2/Art79/p3,2,B,"B separates action, object and purpose condition correctly."

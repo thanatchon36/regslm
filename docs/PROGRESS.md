@@ -1,6 +1,7 @@
 # Progress
 
 ## Waiting on owner
+- **Gold (optional spot-check).** Gold adjudication was delegated to Claude and is done (D-048, `data/gold/gold.jsonl`). Optional: review ~30 random rows of `data/gold/adjudicate_claude.csv` (reasons in `adjudication_rationale.csv`) and mark disagreements; the agreement rate goes into the paper.
 - **WSL restart pending.** `.wslconfig` now has `memory=24GB` and `swap=16GB` (backup `.wslconfig.bak`). Run `wsl --shutdown` in PowerShell only after the GPU queue has finished (`tmux ls` shows no `queue`), then `free -g` and `make doctor`. Needed before full-FT 1.7B.
 - **Windows sleep.** Set Windows power plan to never sleep while long jobs run (cannot be controlled from WSL).
 - **FCA Handbook access route.** Text is OGL v3.0 (permissive) but FCA terms cl. 35.3 forbid scraping without consent. Either request FCA consent / API access, or download the SYSC, COBS and SUP sourcebook PDFs manually into `data/local/manual/fca/` (see docs/sources/NEEDED.md). FCA SYSC is the planned held-out rulebook (D-012).
@@ -22,7 +23,7 @@
 ### Next
 1. Pre-registration **frozen and tagged `prereg-v1`** (2026-10-15). Any change → Amendments section.
 2. When `silver-eval-all-label` is DONE: `regslm eval-sets --labels results/runs/silver-eval-all-label/labels.jsonl` (CPU).
-3. When gold passes are DONE: `regslm gold build` → owner adjudicates `data/gold/to_adjudicate.jsonl`.
+3. When gold passes are DONE: `regslm gold build` → adjudication (delegated to Claude, D-048) → `regslm gold finalize` → `data/gold/gold.jsonl` (done 2026-10-15).
 4. When the teacher queue is finished: `make experiments BLOCK=zero_shot` then run its queue; then block 2 (sft_ladder_10k + placebo). After the first N=10k seed-0 run of each size: `experiments/throughput.py` → re-project → commit decision → next block (RESEARCH_QUESTIONS §7).
 5. After the teacher queue: `wsl --shutdown` window for the owner's .wslconfig (before full-FT 1.7B in block 3).
 ### How to resume
