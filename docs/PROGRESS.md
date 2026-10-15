@@ -15,12 +15,14 @@
 - Teacher: Qwen3-14B-AWQ fits (D-015); `regslm label` runner with SQLite content-hash cache; prompts v1 (label / rationale / gold_a / gold_b).
 - Rewards module (100 % coverage); annotation guide v1 (36 examples); licence policy (tiers P/L/X); literature review (35 verified sources + gap table); pre-registration **draft** (`docs/RESEARCH_QUESTIONS.md`, not yet tagged).
 ### Running / in flight
-- **`silver-eval-en-label`** (tmux, started 2026-10-15): teacher labels for test+dev+silver_val+heldout (8,457 units, ≈2.2 GPU-h). Poll `results/runs/silver-eval-en-label/metrics.json`; done when `DONE` exists. Resumable: re-launch the same make command — cached units are skipped.
-- Subagent: Thai adapter (output so far in `data/local/units/thai*.jsonl`; not yet in the snapshot).
+- **GPU queue** (tmux `queue`, `scripts/run_queue.sh config/queue_phase1.txt`, log `results/queue.log`), teacher prompt **v5**: silver-eval-all-label (9,203 units) → gold-pass-a (14B) → gold-pass-b (8B-AWQ) → silver-train-label (23,782) → silver-train-rationale (10k). ≈ 9.6 teacher GPU-h; ~1.3 used so far (pilots + stopped v3/v4 runs, D-036/D-038). If interrupted: restart the same tmux command; DONE runs are skipped and finished units are cached.
+### Shipped since last update
+- `make quick` passes end-to-end in 174 s (Unsloth train → merge → vLLM predict → evaluate).
+- Guide v2.1 + prompt v5 after expert review; pre-registration v2 after methodology review (not yet tagged).
+- Modules: eval (metrics/stats/agreement), gold build/finalize, train (SFT/predict/evaluate), GRPO, quant export (llmcompressor in `.venv-quant`), bench (llama.cpp b11630 CPU build + prebuilt CUDA 12.8 binaries), grid + budget projector (blocks 1–7 ≈ 101.5 GPU-h on assumed throughput).
 ### Next
-1. When eval labelling is done: `make label RUN=silver-train-en-label ARGS="--units data/local/jobs/train_trig_en.jsonl --variant label"` (19,918 units ≈ 5 h), then rationale variant on a 10k subset (D-027).
-2. Thai into snapshot → gold sample (`corpus.sample.stratified_gold`) → re-run `regslm split` (gold excluded) → gold pass A (14B, prompt gold_a) + pass B (Qwen3-8B-AWQ, gold_b; downloaded) → `data/gold/to_adjudicate.jsonl`.
-3. `regslm perturb-test` on test labels; inter-pass agreement metrics.
-4. Finalise + tag `prereg-v1`; `make quick`; training stack (`.venv-train`).
+1. When gold passes finish: `regslm gold build` → `data/gold/to_adjudicate.jsonl` → owner.
+2. Measure real training throughput (first N=10k seed-0 run per size) → `results/throughput.json` → re-project budget → commit → tag `prereg-v1` before block 1.
+3. Training data builder on silver labels; zero-shot block (inference only) can start right after labelling.
 ### How to resume
 `Read MISSION.md, docs/PROGRESS.md, docs/DECISIONS.md and continue`. Jobs: `tmux ls`; completion = `results/runs/<id>/DONE`; failure = `exit.json` with non-zero code.
