@@ -137,6 +137,9 @@ def evaluate(
     if not files:
         raise FileNotFoundError(f"no predictions under {run_dir / 'predictions'}")
     res: dict[str, Any] = {"run_id": run_id, "sets": {}}
+    meta_p = run_dir / "predict_meta.json"
+    if meta_p.exists():
+        res["pending_sets"] = json.loads(meta_p.read_text()).get("pending_sets", [])
     raw: dict[str, list[dict[str, Any]]] = {}
     for f in files:
         rows = [json.loads(ln) for ln in f.read_text(encoding="utf-8").splitlines() if ln.strip()]

@@ -236,6 +236,11 @@ def predict(
     out_dir = run_dir / "predictions"
     out_dir.mkdir(exist_ok=True)
     names = order_sets(sets)
+    pending: list[str] = []
+    if "gold" in names and not Path("data/gold/gold.jsonl").exists():
+        # Gold awaits owner adjudication: record as pending, predict it later (D-044).
+        names = [n for n in names if n != "gold"]
+        pending.append("gold")
     todo = {n: load_set(n, cfg, refs or [REF_GLOB], limit) for n in names}
     llm_box: list[Any] = []
 
@@ -286,7 +291,7 @@ def predict(
             )
         return rows
 
-    meta: dict[str, Any] = {"sets": {}}
+    meta: dict[str, Any] = {"sets": {}, "pending_sets": pending}
     done_rows: dict[str, dict[str, dict[str, Any]]] = {}
     for name in names:
         items = todo[name]
