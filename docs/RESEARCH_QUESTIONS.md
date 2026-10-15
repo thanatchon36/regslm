@@ -6,12 +6,15 @@ original text is never edited.
 
 ## 0. Common definitions
 
-**Test sets.** `test` (in-distribution units, tier-P sources), `test-perturbed` (same units
-after `perturb_numbers`, seed 0; labels updated through the change map), `heldout` (FCA SYSC,
-fallback HKMA SPM — never in train/dev), `postcutoff` (units with `last_amended` after the
-base model's documented training cutoff; N reported, may be small), `gold` (300 units, pending
-owner adjudication; until then numbers on `gold` are reported as *pending*), `silver-val`
-(2,000 teacher-labelled units held out from training, used while gold is pending).
+**Test sets.** `test` (4,407 units, in-distribution, tier-P sources, en + th), `test-perturbed`
+(the same units after `perturb_numbers`, seed 0, labels remapped through the change map; the 440
+units containing numbers differ, the rest are identical — D-034), `mr_pool` (all 1,129 numeric
+units of test ∪ dev ∪ silver_val ∪ heldout, perturbed; used only for the memorisation rate),
+`heldout` (EUR-Lex AMLD4, 641 units, never in train/dev — D-023; FCA SYSC added if obtained),
+`postcutoff` (units with `last_amended` ≥ 2025-05-01, D-025; N reported), `gold` (300 units,
+pending owner adjudication; until then numbers on `gold` are reported as *pending*),
+`silver_val` (2,000 teacher-labelled units held out from training, used for checkpoint selection
+and as the interim reference while gold is pending). Thai test = `test` ∩ language th (581).
 
 **Primary metric — Obligation F1 (OF1).** Predictions and references matched by the
 Hungarian assignment on citation-span IoU ≥ 0.5 with equal modality
@@ -23,14 +26,15 @@ deadline, exceptions) on matched pairs after guide §4 normalisation; Exact-obli
 (all fields equal); Numeric-exact (threshold and deadline); JSON validity; hallucination rate
 (FP / predicted); latency, throughput, peak VRAM.
 
-**Memorisation rate (MR).** On `test-perturbed`, among reference obligations with a perturbed
-numeric value, the fraction where the model outputs the *original* (pre-perturbation) value.
+**Memorisation rate (MR).** On `mr_pool`, among reference obligations whose threshold value was
+perturbed, the fraction where the model outputs the *original* (pre-perturbation) value.
 Reported for every model × method × quantization cell.
 
 **Headline rule.** Any claim about extraction ability uses OF1 on `test-perturbed`
 ("perturbation-corrected"). Unperturbed `test` is reported alongside, never alone.
 
-**Statistics.** 3 seeds per cell (fewer only under the budget rule in §7). Unit-level
+**Statistics.** Seeds per cell as fixed in `config/grid.yaml` at the tag (3 for 0.6B/1.7B; 2 for
+4B/8B and Thai cells after the §7 rule was applied to the projection, D-035). Unit-level
 bootstrap (10,000 resamples) for 95 % CIs within a seed; across seeds, report mean ± 95 % CI
 of the seed means (t-interval) and the pooled bootstrap. Paired comparisons use the paired
 bootstrap over units on the same test set, averaged over seeds. Multiple comparisons across
@@ -120,6 +124,12 @@ inside ±2.0 are reported as "equivalent within SESOI", not as wins.
   is suspect and the RQ1–RQ3 results are flagged.
 - Sanity tests on every headline number (MISSION §0): exact 0/1/100 %, field F1 > 0.98, or
   quant > bf16 beyond CI → build fails until explained in docs/ANOMALIES.md.
+
+## 6. Training protocol (fixed)
+
+docs/specs/train.md defaults (D-029) with D-035 epochs: 1 epoch for N ≥ 10k, 3 epochs for
+N ≤ 2k, at least 300 optimizer steps; checkpoint = end of training (no early stopping on any
+evaluation set). Grid: `config/grid.yaml` as tagged.
 
 ## 7. Budget rule (pre-committed)
 
