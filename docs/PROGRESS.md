@@ -15,7 +15,7 @@
 - Teacher: Qwen3-14B-AWQ fits (D-015); `regslm label` runner with SQLite content-hash cache; prompts v1 (label / rationale / gold_a / gold_b).
 - Rewards module (100 % coverage); annotation guide v1 (36 examples); licence policy (tiers P/L/X); literature review (35 verified sources + gap table); pre-registration **draft** (`docs/RESEARCH_QUESTIONS.md`, not yet tagged).
 ### Running / in flight
-- **GPU queue** (tmux `queue`, `scripts/run_queue.sh config/queue_phase1.txt`, log `results/queue.log`), teacher prompt **v5**: silver-eval-all-label (9,203 units) → gold-pass-a (14B) → gold-pass-b (8B-AWQ) → silver-train-label (23,782) → silver-train-rationale (10k). ≈ 9.6 teacher GPU-h; ~1.3 used so far (pilots + stopped v3/v4 runs, D-036/D-038). If interrupted: restart the same tmux command; DONE runs are skipped and finished units are cached.
+- **GPU queue** (2026-10-15 14:00: relaunched after a WSL restart behind `scripts/wait_gpu_idle.sh` — waits for 10 min of GPU idle while another project's ollama bench uses the GPU) (tmux `queue`, `scripts/run_queue.sh config/queue_phase1.txt`, log `results/queue.log`), teacher prompt **v5**: silver-eval-all-label (9,203 units) → gold-pass-a (14B) → gold-pass-b (8B-AWQ) → silver-train-label (23,782) → silver-train-rationale (10k). ≈ 9.6 teacher GPU-h; ~1.3 used so far (pilots + stopped v3/v4 runs, D-036/D-038). If interrupted: restart the same tmux command; DONE runs are skipped and finished units are cached.
 ### Shipped since last update
 - `make quick` passes end-to-end in 174 s (Unsloth train → merge → vLLM predict → evaluate).
 - Guide v2.1 + prompt v5 after expert review; pre-registration v2 after methodology review (not yet tagged).
