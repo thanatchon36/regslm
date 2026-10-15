@@ -363,5 +363,42 @@ def bench(
     typer.echo(json.dumps({k: r.get(k) for k in ("throughput", "single_stream", "memory")}))
 
 
+@app.command()
+def extract(
+    file: Annotated[Path, typer.Argument(help=".pdf .html .htm .txt .md")],
+    model: Annotated[str, typer.Option(help="HF id or local path (GGUF file for llamacpp)")],
+    backend: Annotated[
+        str | None, typer.Option(help="vllm | llamacpp (default from format)")
+    ] = None,
+    format_: Annotated[str | None, typer.Option("--format", help="bf16 | awq | gguf")] = None,
+    out: Annotated[Path | None, typer.Option("-o", "--out", help="JSONL (default stdout)")] = None,
+    language: Annotated[str, typer.Option(help="auto | en | th")] = "auto",
+    guided: Annotated[bool, typer.Option(help="vLLM schema-constrained decoding")] = False,
+    gpu: Annotated[bool, typer.Option(help="llama.cpp: offload all layers to the GPU")] = False,
+    threads: Annotated[int, typer.Option(help="llama.cpp CPU threads")] = 6,
+) -> None:
+    """Extract obligations from a document -> JSONL (one line per obligation + a summary line)."""
+    import sys
+
+    from regslm.serve import extract as ex
+    from regslm.serve.segment import segment_file
+
+    if language not in ("auto", "en", "th"):
+        raise typer.BadParameter("auto | en | th", param_hint="--language")
+    try:
+        be, _ = ex.choose_backend(backend, format_, model)
+        units = segment_file(file, language)
+    except (ValueError, FileNotFoundError) as e:
+        raise typer.BadParameter(str(e)) from e
+    with ex.open_backend(model, be, guided=guided, gpu=gpu, threads=threads) as b:
+        rows, summary = ex.extract_units(units, b)
+    if out is None:
+        ex.write_jsonl(rows, summary, sys.stdout)
+    else:
+        with out.open("w", encoding="utf-8") as f:
+            ex.write_jsonl(rows, summary, f)
+    typer.echo(ex.summary_line(summary), err=True)
+
+
 if __name__ == "__main__":
     app()
