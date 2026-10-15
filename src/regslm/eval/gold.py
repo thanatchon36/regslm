@@ -19,7 +19,7 @@ from regslm.eval.agreement import inter_pass_agreement
 from regslm.eval.metrics import FIELDS, _field_equal
 from regslm.rewards.normalize import hungarian, match_obligations, normalize_text, thresholds_equal
 from regslm.schema.generation import resolve_span
-from regslm.schema.obligation import Extraction, Modality, Obligation, Span, Threshold
+from regslm.schema.obligation import Comparator, Extraction, Modality, Obligation, Span, Threshold
 
 GOLD_DIR = Path("data/gold")
 INSTRUCTION = (
@@ -393,7 +393,9 @@ def parse_obligation_line(line: str) -> dict[str, Any]:
         if not m:
             raise ValueError(f"cannot parse threshold {thr!r} (use e.g. '<= 5 %')")
         threshold = Threshold(
-            value=float(m[2].replace(",", "")), unit=m[3].strip(), comparator=_CMP.get(m[1], m[1])
+            value=float(m[2].replace(",", "")),
+            unit=m[3].strip(),
+            comparator=Comparator(_CMP.get(m[1], m[1])),
         ).model_dump(mode="json")
     return {
         "subject": subject,
@@ -430,8 +432,8 @@ def export_csv(out_dir: Path = GOLD_DIR) -> dict[str, Any]:
         w.writerows(table)
     xlsx = None
     try:
-        import openpyxl
-        from openpyxl.styles import Alignment
+        import openpyxl  # type: ignore[import-untyped]
+        from openpyxl.styles import Alignment  # type: ignore[import-untyped]
     except ImportError:
         pass
     else:
@@ -455,10 +457,7 @@ def export_csv(out_dir: Path = GOLD_DIR) -> dict[str, Any]:
 def _edited_gold(row: Mapping[str, Any], note: str) -> dict[str, Any]:
     text = row["text"]
     cands = [
-        o
-        for c in (row.get("candidate_a"), row.get("candidate_b"))
-        if c
-        for o in c["obligations"]
+        o for c in (row.get("candidate_a"), row.get("candidate_b")) if c for o in c["obligations"]
     ]
     lines = [ln.strip() for ln in note.splitlines() if ln.strip()]
     obs: list[dict[str, Any]] = []
