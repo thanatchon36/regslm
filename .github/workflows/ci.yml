@@ -1,0 +1,22 @@
+name: ci
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+        with:
+          version: "0.13.1"
+          enable-cache: true
+      # Core + dev group + th/pdf only. serve/train/quant are GPU stacks and are never installed in CI.
+      - run: uv sync --extra th --extra pdf
+      - run: uv run ruff check src tests
+      - run: uv run mypy
+      - run: uv run pytest -q -m "not network and not gpu"
