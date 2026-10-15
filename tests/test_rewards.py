@@ -268,3 +268,11 @@ def test_matching_and_hungarian() -> None:
     assert match_obligations([_o(0, 10), _o(0, 10)], [_o(0, 10)]) == [(0, 0)]
     assert hungarian([]) == []
     assert sorted(hungarian([[4, 1], [2, 0], [3, 3]])) == [(0, 1), (1, 0)]
+
+
+def test_extract_numbers_eu_formats() -> None:
+    from regslm.rewards.normalize import extract_numbers
+
+    assert 4.5 in extract_numbers("ratio of 4,5 %")
+    assert 5_000_000.0 in extract_numbers("EUR 5 000 000")
+    assert 1000.0 in extract_numbers("1,000 days")

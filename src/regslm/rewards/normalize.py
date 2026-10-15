@@ -87,9 +87,10 @@ def normalize_unit(unit: str) -> str:
 
 
 def digits_to_ascii(s: str) -> str:
-    """NFKC, Thai digits to ASCII, and thousands separators removed (``1,000`` -> ``1000``)."""
+    """NFKC, Thai digits to ASCII, thousands separators removed, EU decimal comma to point."""
     t = unicodedata.normalize("NFKC", s).translate(_THAI_DIGITS)
-    return re.sub(r"(?<=\d),(?=\d{3}(?!\d))", "", t)
+    t = re.sub(r"(?<=\d)[,\u00a0 ](?=\d{3}(?!\d))", "", t)  # 1,000 / 5 000 000
+    return re.sub(r"(?<=\d),(?=\d{1,2}(?!\d))", ".", t)  # EU decimal comma: 4,5 -> 4.5
 
 
 def extract_numbers(text: str) -> list[float]:

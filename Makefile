@@ -25,7 +25,7 @@ fetch:            ## SOURCES="ecfr eurlex"
 	$(UV) regslm fetch $(SOURCES)
 teacher-smoke:    ## load Qwen3-14B-AWQ in vLLM and label 8 units; measures VRAM headroom
 	$(JOB) teacher-smoke $(UV) python scripts/teacher_smoke.py
-label:            ## RUN=label-<variant>
-	$(JOB) $(RUN) $(UV) regslm label --run-id $(RUN)
+label:            ## RUN=label-<variant> ARGS="--units X.jsonl --variant label [--limit N]"
+	$(JOB) $(RUN) $(UV) regslm label --run-id $(RUN) $(ARGS)
 train:            ## RUN=<id> (config in results/runs/<id>/config.yaml)
 	$(JOB) $(RUN) env UV_PROJECT_ENVIRONMENT=.venv-train uv run --no-sync regslm train --run-id $(RUN)

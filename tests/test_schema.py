@@ -95,3 +95,24 @@ def test_perturb_deterministic_and_seeded() -> None:
 def test_perturb_thai_digits_stay_thai() -> None:
     _out, ch = perturb_numbers("ภายใน ๓๐ วัน", seed=0)
     assert all(c in "๐๑๒๓๔๕๖๗๘๙" for c in ch[0].perturbed)
+
+
+@pytest.mark.parametrize(
+    ("text", "original"),
+    [
+        ("a Common Equity Tier 1 capital ratio of 4,5 %;", "4,5"),
+        ("exceeds EUR 5 000 000 in total", "5 000 000"),
+        ("at least 1,250.50 USD", "1,250.50"),
+    ],
+)
+def test_perturb_eu_number_formats(text: str, original: str) -> None:
+    _out, changes = perturb_numbers(text, seed=2)
+    assert [c.original for c in changes] == [original]
+    p = changes[0].perturbed
+    assert p != original
+    # same decimal separator and number of decimals
+    dec = "," if original == "4,5" else "."
+    if original != "5 000 000":
+        assert len(p.rsplit(dec, 1)[1]) == len(original.rsplit(dec, 1)[1])
+    else:
+        assert " " in p

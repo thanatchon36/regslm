@@ -88,8 +88,10 @@ class Extraction(_Strict):
     """All obligations from one unit; the unit of model output."""
 
     unit_id: str
-    obligations: list[Obligation] = Field(default_factory=list)
+    # Before ``obligations`` on purpose: guided decoding emits fields in schema order, so the
+    # rationale is generated first and conditions the labels (D-016).
     rationale: str | None = None
+    obligations: list[Obligation] = Field(default_factory=list)
 
 
 def json_schema(model: type[BaseModel] = Extraction) -> str:

@@ -176,13 +176,6 @@
       "title": "Unit Id",
       "type": "string"
     },
-    "obligations": {
-      "items": {
-        "$ref": "#/$defs/Obligation"
-      },
-      "title": "Obligations",
-      "type": "array"
-    },
     "rationale": {
       "anyOf": [
         {
@@ -194,6 +187,13 @@
       ],
       "default": null,
       "title": "Rationale"
+    },
+    "obligations": {
+      "items": {
+        "$ref": "#/$defs/Obligation"
+      },
+      "title": "Obligations",
+      "type": "array"
     }
   },
   "required": [

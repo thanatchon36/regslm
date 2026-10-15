@@ -27,10 +27,17 @@ _THAI = "๐๑๒๓๔๕๖๗๘๙"
 _TO_ASCII = str.maketrans(_THAI, "0123456789")
 _TO_THAI = str.maketrans("0123456789", _THAI)
 
-_NUM = r"[0-9๐-๙]{1,3}(?:,[0-9๐-๙]{3})+(?:\.[0-9๐-๙]+)?|[0-9๐-๙]+(?:\.[0-9๐-๙]+)?"
+# EU texts use decimal commas ("4,5 %") and space-grouped thousands ("EUR 5 000 000").
+_D = "[0-9๐-๙]"
+_NUM = (
+    rf"{_D}{{1,3}}(?:[,\u00a0 ]{_D}{{3}})+(?:[.,]{_D}+)?(?!{_D})"  # 1,000 / 5 000 000
+    rf"|{_D}+[.,]{_D}{{1,2}}(?!{_D})"  # 4.5 / 4,5
+    rf"|{_D}+(?:\.{_D}+)?"
+)
 _UNIT = (
     r"(?:\s?(?:%|per\s?cent|percent|basis points|bps|times|"
     r"(?:business |calendar |working )?(?:days?|months?|years?|weeks?|hours?)|"
+    r"(?:(?:million|billion|thousand) )?(?:USD|EUR|GBP|THB|HKD|SGD|euros?|dollars|baht)|"
     r"วัน|เดือน|ปี|บาท|ล้านบาท|เท่า))"
 )
 _CURR = r"(?:USD|EUR|GBP|THB|HKD|SGD|\$|€|£|฿)\s?"
@@ -57,11 +64,32 @@ class Change:
     perturbed: str
 
 
+def _parse(num: str) -> tuple[float, int, str, str]:
+    """-> (value, decimals, thousands_sep, decimal_sep) for 1,000.5 / 1 000,5 / 4,5 / 4.5."""
+    raw = num.translate(_TO_ASCII)
+    m = re.fullmatch(r"(\d{1,3}(?:([,\u00a0 ])\d{3})+)(?:([.,])(\d+))?", raw)
+    if m:
+        tsep, dsep = m.group(2), m.group(3) or ("," if m.group(2) != "," else ".")
+        intpart, frac = m.group(1).replace(tsep, ""), m.group(4) or ""
+    elif re.fullmatch(r"\d+,\d{1,2}", raw):
+        tsep, dsep = "", ","
+        intpart, frac = raw.split(",")
+    else:
+        tsep, dsep = "", "."
+        intpart, _, frac = raw.partition(".")
+    return float(f"{intpart}.{frac or 0}"), len(frac), tsep, dsep
+
+
+def _format(val: float, decimals: int, tsep: str, dsep: str) -> str:
+    out = f"{val:,.{decimals}f}"  # 1,234.50
+    out = out.replace(",", "\0").replace(".", dsep).replace("\0", tsep)
+    return out
+
+
 def _scale(num: str, rng: random.Random) -> str:
     thai = any(c in _THAI for c in num)
-    raw = num.translate(_TO_ASCII).replace(",", "")
-    decimals = len(raw.split(".")[1]) if "." in raw else 0
-    val = float(raw)
+    val, decimals, tsep, dsep = _parse(num)
+    new = val
     for _ in range(20):
         f = rng.uniform(0.55, 0.85) if rng.random() < 0.5 else rng.uniform(1.2, 1.8)
         new = round(val * f, decimals) if val else float(rng.randint(1, 9))
@@ -69,7 +97,7 @@ def _scale(num: str, rng: random.Random) -> str:
             new = float(max(1, round(new)))
         if new != val:
             break
-    out = f"{new:,.{decimals}f}" if "," in num else f"{new:.{decimals}f}"
+    out = _format(new, decimals, tsep, dsep)
     return out.translate(_TO_THAI) if thai else out
 
 
