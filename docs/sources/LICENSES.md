@@ -18,8 +18,8 @@ Tiers:
 | Thai third-party (law-firm) translations | L | no | eval only | no | credit preparer |
 | BIS Basel Framework | L | no | eval only | no | "Source: BIS, Basel Framework" |
 | HKMA SPM | L | no | eval only | no | "Source: HKMA" |
-| PRA Rulebook | X | no | no (until owner) | no | — |
-| MAS Notices & Guidelines | X | no | no (until owner) | no | — |
+| PRA Rulebook | X (owner decision 2026-10-15: excluded) | no | no | no | — |
+| MAS Notices & Guidelines | X (owner decision 2026-10-15: excluded) | no | no | no | — |
 
 Consequences:
 - **One model variant**, not two: since every L/X source is excluded from training, all trained weights are releasable. L sources are used only as additional out-of-distribution *evaluation* sets (held locally, numbers reported, text not published). (D-011)
