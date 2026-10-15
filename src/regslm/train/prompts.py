@@ -39,10 +39,14 @@ def zero_shot_messages(unit: Unit) -> list[dict[str, str]]:
     schema = json.dumps(GenExtraction.model_json_schema(), separators=(",", ":"))
     system = (
         system_prompt("label")
-        + "\n\nReturn ONLY a JSON object (no prose, no code fence) valid against this JSON Schema:\n"
+        + "\n\nReturn ONLY a JSON object (no prose, no code fence) valid against this "
+        + "JSON Schema:\n"
         + schema
     )
     return [
         {"role": "system", "content": system},
-        {"role": "user", "content": user_prompt(unit.source, unit.unit_id, unit.heading, unit.text)},
+        {
+            "role": "user",
+            "content": user_prompt(unit.source, unit.unit_id, unit.heading, unit.text),
+        },
     ]

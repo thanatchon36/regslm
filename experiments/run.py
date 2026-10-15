@@ -95,7 +95,9 @@ def write_config(cell: G.Cell, runs: Path = RUNS, parent: str | None = None) -> 
         # Student prompt for every base, incl. the 14B teacher model (D-0xx): no checkpoint.
         TrainConfig(run_id=rid, base=cell.hf, revision=cell.revision, n_labels=0).save(runs)
         (runs / rid / "zero_shot.yaml").write_text(
-            yaml.safe_dump({"model": cell.hf, "revision": cell.revision, "prompt": "teacher_v5_with_schema"})
+            yaml.safe_dump(
+                {"model": cell.hf, "revision": cell.revision, "prompt": "teacher_v5_with_schema"}
+            )
         )
     elif cell.method == "quant":
         return  # operates on the parent's merged checkpoint
