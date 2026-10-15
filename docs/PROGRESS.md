@@ -20,8 +20,10 @@
 - Guide v2.1 + prompt v5 after expert review; pre-registration v2 after methodology review (not yet tagged).
 - Modules: eval (metrics/stats/agreement), gold build/finalize, train (SFT/predict/evaluate), GRPO, quant export (llmcompressor in `.venv-quant`), bench (llama.cpp b11630 CPU build + prebuilt CUDA 12.8 binaries), grid + budget projector (blocks 1–7 ≈ 101.5 GPU-h on assumed throughput).
 ### Next
-1. When gold passes finish: `regslm gold build` → `data/gold/to_adjudicate.jsonl` → owner.
-2. Measure real training throughput (first N=10k seed-0 run per size) → `results/throughput.json` → re-project budget → commit → tag `prereg-v1` before block 1.
-3. Training data builder on silver labels; zero-shot block (inference only) can start right after labelling.
+1. Pre-registration **frozen and tagged `prereg-v1`** (2026-10-15). Any change → Amendments section.
+2. When `silver-eval-all-label` is DONE: `regslm eval-sets --labels results/runs/silver-eval-all-label/labels.jsonl` (CPU).
+3. When gold passes are DONE: `regslm gold build` → owner adjudicates `data/gold/to_adjudicate.jsonl`.
+4. When the teacher queue is finished: `make experiments BLOCK=zero_shot` then run its queue; then block 2 (sft_ladder_10k + placebo). After the first N=10k seed-0 run of each size: `experiments/throughput.py` → re-project → commit decision → next block (RESEARCH_QUESTIONS §7).
+5. After the teacher queue: `wsl --shutdown` window for the owner's .wslconfig (before full-FT 1.7B in block 3).
 ### How to resume
 `Read MISSION.md, docs/PROGRESS.md, docs/DECISIONS.md and continue`. Jobs: `tmux ls`; completion = `results/runs/<id>/DONE`; failure = `exit.json` with non-zero code.
