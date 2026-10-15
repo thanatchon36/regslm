@@ -104,7 +104,11 @@ def test_run_ids_unique_and_readable(grid: dict[str, Any]) -> None:
 
 
 def test_missing_revision_refused(grid: dict[str, Any]) -> None:
-    revs = {k: v for k, v in G.load_revisions().items() if "Qwen3-0.6B" not in k}
+    revs = {
+        k: v
+        for k, v in G.load_revisions().items()
+        if "Qwen3-0.6B" not in k and "SEA-LION" not in k
+    }
     with pytest.raises(KeyError, match=r"Qwen/Qwen3-0\.6B"):
         G.expand(grid, revisions=revs, strict=True)
     unpinned = [c for c in G.expand(grid, revisions=revs) if not c.pinned]
@@ -276,7 +280,8 @@ def test_thai_langs_and_unpinned_refusal(tmp_path: Path, grid: dict[str, Any]) -
     cfg2 = TrainConfig.load("thai-typhoon2-1b-lora-n10000-label-en_th-s0", tmp_path / "runs")
     assert cfg2.langs is None
     assert run.main(_args(tmp_path, gf, "--block", "thai_optional", "--dry")) == 0
-    assert run.main(_args(tmp_path, gf, "--block", "thai_optional")) == 2
+    # SEA-LION is pinned in results/base_revisions.json; the unpinned refusal path is covered
+    # by test_missing_revision_refused.
 
 
 def test_over_budget_stops_without_emitting(
