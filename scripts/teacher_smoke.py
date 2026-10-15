@@ -36,10 +36,12 @@ def main() -> None:
     llm = LLM(
         model="Qwen/Qwen3-14B-AWQ",
         max_model_len=4096,
-        gpu_memory_utilization=0.86,
+        gpu_memory_utilization=0.87,
+        max_num_batched_tokens=1024,
         kv_cache_dtype="fp8",
+        attention_backend="TRITON_ATTN",  # FlashInfer JIT needs nvcc (absent on WSL host)
         enforce_eager=True,
-        max_num_seqs=16,
+        max_num_seqs=8,
     )
     load_s = time.time() - t0
     schema = Extraction.model_json_schema()

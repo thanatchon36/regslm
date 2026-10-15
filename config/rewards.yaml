@@ -1,0 +1,8 @@
+# Default reward weights (docs/specs/rewards.md, paper §4.4).
+schema: 1.0   # multiplicative gate weight
+cite: 1.0
+ground: 1.0
+num: 1.0
+dl: 0.5
+hall: 1.0
+rec: 1.5

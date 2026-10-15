@@ -1,0 +1,10 @@
+{
+  "load_s": 41.0,
+  "gen_s": 9.32,
+  "n": 8,
+  "valid": 8,
+  "gen_tokens": 794,
+  "tok_per_s": 85.2,
+  "num_gpu_blocks": 353,
+  "block_size": 16
+}
