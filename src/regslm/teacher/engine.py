@@ -7,7 +7,7 @@ from typing import Any
 
 from pydantic import BaseModel
 
-from regslm.schema import Extraction
+from regslm.schema.generation import GenExtraction
 
 DEFAULT_MODEL = "Qwen/Qwen3-14B-AWQ"
 
@@ -16,12 +16,15 @@ class EngineConfig(BaseModel):
     model: str = DEFAULT_MODEL
     revision: str | None = None
     max_model_len: int = 3072
-    gpu_memory_utilization: float = 0.87
+    # 0.89 x 12,282 MiB = 10.9 GB, inside the 11 GB cap (D-014); needs the compositor < 1.3 GB.
+    gpu_memory_utilization: float = 0.89
     max_num_batched_tokens: int = 1024
-    max_num_seqs: int = 8
+    max_num_seqs: int = 24  # prefix-cached system prompt → ~400 unique KV tokens per seq
     kv_cache_dtype: str = "fp8"
     attention_backend: str = "TRITON_ATTN"
-    enforce_eager: bool = False
+    enforce_eager: bool = True  # CUDA graphs + torch.compile leave no KV room (D-015)
+    # Few graph sizes: each captured size costs VRAM we do not have (D-015).
+    cudagraph_capture_sizes: list[int] = [1, 2, 4, 8]
     enable_prefix_caching: bool = True
     temperature: float = 0.0
     max_tokens: int = 1024
@@ -55,22 +58,24 @@ def build_llm(cfg: EngineConfig) -> Any:
         "max_num_seqs": cfg.max_num_seqs,
         "seed": cfg.seed,
     }
+    if not cfg.enforce_eager:
+        kwargs["compilation_config"] = {"cudagraph_capture_sizes": cfg.cudagraph_capture_sizes}
     if cfg.revision:
         kwargs["revision"] = cfg.revision
     return LLM(**kwargs)
 
 
 def build_sampling(cfg: EngineConfig) -> Any:
-    """SamplingParams with schema-constrained decoding from ``Extraction``."""
+    """SamplingParams with schema-constrained decoding from ``GenExtraction``."""
     from vllm import SamplingParams
 
-    schema = Extraction.model_json_schema()
+    schema = GenExtraction.model_json_schema()
     try:
         from vllm.sampling_params import StructuredOutputsParams
 
-        extra = {"structured_outputs": StructuredOutputsParams(json=schema)}
+        extra: dict[str, Any] = {"structured_outputs": StructuredOutputsParams(json=schema)}
     except ImportError:  # older vLLM
-        from vllm.sampling_params import GuidedDecodingParams
+        from vllm.sampling_params import GuidedDecodingParams  # type: ignore[attr-defined]
 
         extra = {"guided_decoding": GuidedDecodingParams(json=schema)}
     return SamplingParams(

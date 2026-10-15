@@ -41,8 +41,8 @@ inside ±2.0 are reported as "equivalent within SESOI", not as wins.
 
 ## RQ1 — Crossover and label efficiency
 
-- **H1a.** Fine-tuned OF1 increases monotonically with N ∈ {500, 2k, 10k, 50k} for every
-  size, with diminishing returns (gain 10k→50k < gain 2k→10k).
+- **H1a.** Fine-tuned OF1 increases monotonically with N ∈ {500, 2k, 10k, 20k} (50k infeasible: < 30k train units exist, D-027) for every
+  size, with diminishing returns (gain 10k→20k per doubling < gain 2k→10k per doubling).
 - **H1b.** A LoRA-SFT Qwen3-1.7B reaches the OF1 of Qwen3-8B zero-shot at N ≤ 2k, and of the
   14B teacher at N ≤ 10k (all on `test-perturbed`).
 - **Refutation.** H1b is refuted for a comparison if, at all N, the CI of (student − baseline)

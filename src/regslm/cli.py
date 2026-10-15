@@ -109,5 +109,40 @@ def snapshot() -> None:
     )
 
 
+@app.command()
+def split(config: Path = Path("config/splits.yaml"), out: Path = Path("data/splits")) -> None:
+    """Build data/splits/{assignments.parquet,SPLITS.md} (grouped, held-out, post-cutoff)."""
+    from regslm.data.splits import build_splits, load_config
+
+    a = build_splits(load_config(config), out=out)
+    typer.echo(f"{a.height} units -> {out}")
+
+
+@app.command("perturb-test")
+def perturb_test(
+    labels: Annotated[Path, typer.Option(help="Teacher labels.jsonl")],
+    out: Path = Path("data/local/test_perturbed.jsonl"),
+    splits: Path = Path("data/splits/assignments.parquet"),
+    config: Path = Path("config/splits.yaml"),
+    seed: int = 0,
+) -> None:
+    """Perturb numbers in split=test units that have a valid label; write test_perturbed.jsonl."""
+    import polars as pl
+
+    from regslm.corpus.base import Unit
+    from regslm.data.perturb_set import build_perturbed_test, read_labels
+
+    test_ids = set(pl.read_parquet(splits).filter(pl.col("split") == "test")["unit_id"].to_list())
+    frames = [pl.read_parquet("data/corpus/units.parquet")]
+    local = Path("data/local/corpus/units_local.parquet")
+    if local.exists():
+        frames.append(pl.read_parquet(local))
+    rows = pl.concat(frames).filter(pl.col("unit_id").is_in(sorted(test_ids)))
+    fields = list(Unit.model_fields)
+    units = [Unit.model_validate(r) for r in rows.select(fields).iter_rows(named=True)]
+    n = build_perturbed_test(units, read_labels(labels), out, seed)
+    typer.echo(f"{n} perturbed test units -> {out}")
+
+
 if __name__ == "__main__":
     app()

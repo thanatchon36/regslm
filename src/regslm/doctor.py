@@ -24,16 +24,26 @@ def _run(cmd: list[str]) -> str:
 
 def _gpu() -> dict[str, Any]:
     try:
-        out = _run([
-            "nvidia-smi",
-            "--query-gpu=name,memory.total,memory.used,driver_version,compute_cap",
-            "--format=csv,noheader,nounits",
-        ]).strip().splitlines()[0]
+        out = (
+            _run(
+                [
+                    "nvidia-smi",
+                    "--query-gpu=name,memory.total,memory.used,driver_version,compute_cap",
+                    "--format=csv,noheader,nounits",
+                ]
+            )
+            .strip()
+            .splitlines()[0]
+        )
         name, total, used, driver, cc = (s.strip() for s in out.split(","))
         free = int(total) - int(used)
         return {
-            "name": name, "vram_total_mib": int(total), "vram_used_idle_mib": int(used),
-            "vram_free_mib": free, "driver": driver, "compute_capability": cc,
+            "name": name,
+            "vram_total_mib": int(total),
+            "vram_used_idle_mib": int(used),
+            "vram_free_mib": free,
+            "driver": driver,
+            "compute_capability": cc,
             "fp8_hardware": float(cc) >= 8.9,
             "vram_cap_mib": VRAM_CAP_MIB,
             "note": "idle usage = Windows compositor; effective budget = min(cap, free)",
@@ -50,7 +60,8 @@ def _mem() -> dict[str, Any]:
     mem_gb = round(info["MemTotal"] / 1024**2, 1)
     swap_gb = round(info["SwapTotal"] / 1024**2, 1)
     return {
-        "mem_total_gb": mem_gb, "swap_total_gb": swap_gb,
+        "mem_total_gb": mem_gb,
+        "swap_total_gb": swap_gb,
         "meets_target": mem_gb >= WSL_MEM_TARGET_GB - 1 and swap_gb >= WSL_SWAP_TARGET_GB - 1,
         "target": f"memory={WSL_MEM_TARGET_GB}GB swap={WSL_SWAP_TARGET_GB}GB in .wslconfig",
     }
@@ -59,22 +70,42 @@ def _mem() -> dict[str, Any]:
 def _disk(path: Path) -> dict[str, Any]:
     u = shutil.disk_usage(path)
     resolved = str(path.resolve())
-    return {"path": resolved, "free_gb": round(u.free / 1e9, 1),
-            "on_windows_fs": resolved.startswith("/mnt/")}
+    return {
+        "path": resolved,
+        "free_gb": round(u.free / 1e9, 1),
+        "on_windows_fs": resolved.startswith("/mnt/"),
+    }
 
 
 def _cpu() -> dict[str, Any]:
-    model = next((ln.split(":", 1)[1].strip() for ln in Path("/proc/cpuinfo").read_text()
-                  .splitlines() if ln.startswith("model name")), "unknown")
+    model = next(
+        (
+            ln.split(":", 1)[1].strip()
+            for ln in Path("/proc/cpuinfo").read_text().splitlines()
+            if ln.startswith("model name")
+        ),
+        "unknown",
+    )
     import os
+
     return {"model": model, "logical_cpus": os.cpu_count()}
 
 
 def _python_pkgs() -> dict[str, Any]:
     import importlib.metadata as md
+
     out: dict[str, Any] = {}
-    for pkg in ["torch", "vllm", "transformers", "trl", "peft", "unsloth", "bitsandbytes",
-                "llama_cpp_python", "pythainlp"]:
+    for pkg in [
+        "torch",
+        "vllm",
+        "transformers",
+        "trl",
+        "peft",
+        "unsloth",
+        "bitsandbytes",
+        "llama_cpp_python",
+        "pythainlp",
+    ]:
         try:
             out[pkg] = md.version(pkg.replace("_", "-"))
         except md.PackageNotFoundError:
@@ -87,6 +118,7 @@ def _vllm_fp8() -> dict[str, Any]:
     try:
         import vllm  # noqa: F401
         from vllm.platforms import current_platform
+
         cap = current_platform.get_device_capability()
         cc = cap.to_int() if cap is not None else 0
         return {"vllm_supports_fp8_on_this_gpu": cc >= 89, "capability": cc}

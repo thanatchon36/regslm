@@ -22,6 +22,7 @@ from regslm.rewards.normalize import (
     number_in_text,
     thresholds_equal,
 )
+from regslm.schema.generation import GenExtraction, Resolved, resolve
 from regslm.schema.obligation import Extraction, Obligation
 
 GROUND_OVERLAP = 0.8
@@ -34,38 +35,44 @@ Component = Callable[[str, Unit, Extraction | None], float]
 
 
 @lru_cache(maxsize=4096)
-def parse(completion: str) -> Extraction | None:
-    """Parse a completion into an Extraction (memoised); None on any failure. No repair."""
+def parse(completion: str) -> GenExtraction | None:
+    """Parse a completion into a GenExtraction (memoised); None on any failure. No repair."""
     s = completion.strip()
     m = _FENCE_RE.match(s)
     if m:
         s = m.group(1).strip()
     try:
-        return Extraction.model_validate_json(s)
+        return GenExtraction.model_validate_json(s)
     except ValidationError:
         return None
+
+
+@lru_cache(maxsize=4096)
+def _resolve(
+    completion: str, unit_id: str, source: str, text: str, heading: str
+) -> Resolved | None:
+    gen = parse(completion)
+    return None if gen is None else resolve(gen, unit_id, source, text, heading)
+
+
+def resolved(completion: str, unit: Unit) -> Resolved | None:
+    """``parse`` + ``resolve`` against the unit (memoised per (completion, unit_id))."""
+    return _resolve(completion, unit.unit_id, unit.source, unit.text, unit.heading)
 
 
 def schema_valid(completion: str, unit: Unit, reference: Extraction | None) -> float:
     return 1.0 if parse(completion) is not None else 0.0
 
 
-def _citation_ok(o: Obligation, unit: Unit) -> bool:
-    c = o.citation
-    return (
-        c.unit_id == unit.unit_id
-        and c.source == unit.source
-        and 0 <= c.span.start < c.span.end <= len(unit.text)
-    )
-
-
 def citation_resolves(completion: str, unit: Unit, reference: Extraction | None) -> float:
-    ext = parse(completion)
-    if ext is None:
+    """Resolved obligations / generated obligations; wrong-unit citations do not count."""
+    r = resolved(completion, unit)
+    if r is None:
         return 0.0
-    if not ext.obligations:
+    n_gen = len(r.extraction.obligations) + len(r.unresolved)
+    if n_gen == 0:
         return 1.0
-    return sum(_citation_ok(o, unit) for o in ext.obligations) / len(ext.obligations)
+    return max(0, len(r.extraction.obligations) - r.wrong_unit) / n_gen
 
 
 def _tokens(s: str) -> list[str]:
@@ -103,13 +110,14 @@ def _obligation_grounded(o: Obligation, unit: Unit, text_n: str, heading_n: str)
 
 
 def span_grounded(completion: str, unit: Unit, reference: Extraction | None) -> float:
-    ext = parse(completion)
-    if ext is None:
+    r = resolved(completion, unit)
+    if r is None:
         return 0.0
+    ext = r.extraction
     if reference is not None and len(completion) > LENGTH_FACTOR * len(reference.model_dump_json()):
         return 0.0  # length guard: no dumping the unit into fields
     if not ext.obligations:
-        return 1.0
+        return 0.0 if r.unresolved else 1.0
     text_n = normalize_text(unit.text)
     heading_n = normalize_text(unit.heading)
     scores = [_obligation_grounded(o, unit, text_n, heading_n) for o in ext.obligations]
@@ -117,9 +125,10 @@ def span_grounded(completion: str, unit: Unit, reference: Extraction | None) -> 
 
 
 def numeric_exact(completion: str, unit: Unit, reference: Extraction | None) -> float:
-    ext = parse(completion)
-    if ext is None or reference is None:
+    r = resolved(completion, unit)
+    if r is None or reference is None:
         return 0.0
+    ext = r.extraction
     pairs = match_obligations(ext.obligations, reference.obligations)
     if not pairs:
         return 0.0 if any(g.threshold for g in reference.obligations) else 1.0
@@ -134,9 +143,10 @@ def numeric_exact(completion: str, unit: Unit, reference: Extraction | None) -> 
 
 
 def deadline_exact(completion: str, unit: Unit, reference: Extraction | None) -> float:
-    ext = parse(completion)
-    if ext is None or reference is None:
+    r = resolved(completion, unit)
+    if r is None or reference is None:
         return 0.0
+    ext = r.extraction
     pairs = match_obligations(ext.obligations, reference.obligations)
     if not pairs:
         return 0.0 if any(g.deadline.strip() for g in reference.obligations) else 1.0
@@ -148,11 +158,12 @@ def deadline_exact(completion: str, unit: Unit, reference: Extraction | None) ->
 
 
 def no_hallucinated_obligation(completion: str, unit: Unit, reference: Extraction | None) -> float:
-    ext = parse(completion)
-    if ext is None or reference is None:
+    r = resolved(completion, unit)
+    if r is None or reference is None:
         return 0.0
-    n_pred = len(ext.obligations)
-    fp = n_pred - len(match_obligations(ext.obligations, reference.obligations))
+    obs = r.extraction.obligations
+    n_pred = len(obs) + len(r.unresolved)
+    fp = len(obs) - len(match_obligations(obs, reference.obligations)) + len(r.unresolved)
     return 1.0 - fp / max(1, n_pred)
 
 

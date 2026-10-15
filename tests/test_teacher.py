@@ -7,6 +7,8 @@ from pathlib import Path
 from types import SimpleNamespace
 from typing import Any
 
+import pytest
+
 from regslm.corpus.base import Unit
 from regslm.teacher.cache import TeacherCache, cache_key
 from regslm.teacher.engine import EngineConfig
@@ -32,8 +34,16 @@ def mk(i: int) -> Unit:
     )
 
 
-def good(uid: str) -> str:
-    return json.dumps({"unit_id": uid, "obligations": []})
+def good(uid: str, n: int = 0) -> str:
+    cites = [
+        {"source": "s", "unit_id": uid, "quote": f"Firms shall do thing {n}."},
+        {"source": "s", "unit_id": uid, "quote": "never in the text at all"},
+        {"source": "s", "unit_id": "other", "quote": f"Firms shall do thing {n}."},
+    ]
+    obs = [
+        {"subject": "Firms", "modality": "must", "action": "do thing", "citation": c} for c in cites
+    ]
+    return json.dumps({"unit_id": uid, "obligations": obs})
 
 
 class FakeLLM:
@@ -52,7 +62,7 @@ class FakeLLM:
             self.seen.append(user)
             uid = user.split("unit_id: ")[1].split("\n")[0]
             n = int(uid.rsplit("/", 1)[1])
-            text = "{not json" if n in self.bad else good("WRONG" if self.wrong_id else uid)
+            text = "{not json" if n in self.bad else good("WRONG" if self.wrong_id else uid, n)
             out.append(
                 SimpleNamespace(
                     prompt_token_ids=[1] * 10,
@@ -78,6 +88,12 @@ def test_cache_miss_then_hit(tmp_path: Path) -> None:
     assert llm.calls == 5  # all hits
     lines = (tmp_path / "run/labels.jsonl").read_text().splitlines()
     assert len(lines) == 5 and json.loads(lines[0])["extraction"]["unit_id"] == "s/d/0"
+    row = json.loads(lines[0])
+    assert row["n_unresolved"] == 1 and row["wrong_unit"] == 1
+    assert len(row["extraction"]["obligations"]) == 2
+    assert row["extraction"]["obligations"][0]["citation"]["span"] == {"start": 0, "end": 23}
+    assert m["obligations_total"] == 15 and m["unresolved_rate"] == pytest.approx(1 / 3)
+    assert m["wrong_unit_rate"] == pytest.approx(1 / 3) and m["empty_rate"] == 0.0
 
 
 def test_resume_after_partial(tmp_path: Path) -> None:
@@ -124,6 +140,10 @@ def test_metrics_shape(tmp_path: Path) -> None:
         "projected_hours_for_30000",
         "projected_hours_for_50000",
         "elapsed_s",
+        "obligations_total",
+        "unresolved_rate",
+        "wrong_unit_rate",
+        "empty_rate",
     ):
         assert k in m
     assert m["gen_tokens"] == 10 and m["prompt_tokens"] == 20

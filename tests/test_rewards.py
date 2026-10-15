@@ -19,6 +19,7 @@ from regslm.rewards import (
     normalize_text,
     numeric_exact,
     parse,
+    resolved,
     reward,
     schema_valid,
     span_grounded,
@@ -33,6 +34,7 @@ from regslm.rewards.normalize import (
     span_iou,
     thresholds_equal,
 )
+from regslm.schema.generation import GenExtraction, resolve
 from regslm.schema.obligation import Extraction, Obligation, Span, Threshold
 
 SENT1 = "Banks must hold capital of at least 8 percent of risk-weighted assets within 30 days."
@@ -61,7 +63,7 @@ def ob(**kw: Any) -> dict[str, Any]:
         "citation": {
             "source": "us",
             "unit_id": UNIT.unit_id,
-            "span": {"start": 0, "end": len(SENT1)},
+            "quote": SENT1,
         },
     }
     base.update(kw)
@@ -77,7 +79,8 @@ def js(d: dict[str, Any]) -> str:
 
 
 def ref(*obs: dict[str, Any]) -> Extraction:
-    return Extraction.model_validate(ext(*obs))
+    gen = GenExtraction.model_validate(ext(*obs))
+    return resolve(gen, UNIT.unit_id, UNIT.source, UNIT.text).extraction
 
 
 GOLD = ref(ob())
@@ -94,12 +97,12 @@ HALLUC = js(
             object="",
             threshold=None,
             deadline="",
-            citation={"source": "us", "unit_id": UNIT.unit_id, "span": {"start": 50, "end": 80}},
+            citation={"source": "us", "unit_id": UNIT.unit_id, "quote": SENT2},
         ),
     )
 )
 WRONG_SPAN = js(
-    ext(ob(citation={"source": "us", "unit_id": UNIT.unit_id, "span": {"start": 0, "end": 9999}}))
+    ext(ob(citation={"source": "us", "unit_id": UNIT.unit_id, "quote": "Nothing like this."}))
 )
 PARAPHRASE = js(
     ext(ob(subject="Lenders", action="keep reserves", object="safe holdings", deadline="soon"))
@@ -112,6 +115,7 @@ def test_parse_and_fence() -> None:
     assert parse(f"```json\n{PERFECT}\n```") == parse(PERFECT)
     assert parse(INVALID) is None
     assert parse(js({"unit_id": "x", "bogus": 1})) is None
+    assert isinstance(parse(PERFECT), GenExtraction)
 
 
 def test_schema_valid() -> None:
@@ -126,10 +130,12 @@ def test_citation_resolves() -> None:
     assert citation_resolves(EMPTY, UNIT, None) == 1.0
     assert citation_resolves(WRONG_SPAN, UNIT, None) == 0.0
     assert citation_resolves(HALLUC, UNIT, None) == 1.0
-    other = js(
-        ext(ob(citation={"source": "eu", "unit_id": UNIT.unit_id, "span": {"start": 0, "end": 5}}))
-    )
+    other = js(ext(ob(citation={"source": "eu", "unit_id": UNIT.unit_id, "quote": SENT1})))
     assert citation_resolves(other, UNIT, None) == 0.0
+    mixed = js(ext(ob(), ob(citation={"source": "us", "unit_id": "x", "quote": "zzz qqq"})))
+    assert citation_resolves(mixed, UNIT, None) == 0.5
+    assert resolved(mixed, UNIT) is resolved(mixed, UNIT)
+    assert resolved(INVALID, UNIT) is None
 
 
 def test_span_grounded() -> None:
@@ -143,8 +149,8 @@ def test_span_grounded() -> None:
     # token overlap with cited sentence tolerates reordering
     reorder = js(ext(ob(action="capital hold")))
     assert span_grounded(reorder, UNIT, None) == 1.0
-    # wrong span: out-of-range citation gives no sentence for overlap
-    assert span_grounded(WRONG_SPAN.replace("hold capital", "keep reserves"), UNIT, None) < 1.0
+    # only unresolved obligations: not rewarded as an empty extraction
+    assert span_grounded(WRONG_SPAN, UNIT, None) == 0.0
     # article stripped for subject
     assert span_grounded(js(ext(ob(subject="The banks"))), UNIT, None) == 1.0
 
@@ -189,6 +195,10 @@ def test_no_hallucinated() -> None:
     assert no_hallucinated_obligation(HALLUC, UNIT, GOLD) == 0.5
     assert no_hallucinated_obligation(EMPTY, UNIT, ref()) == 1.0
     assert no_hallucinated_obligation(WRONG_SPAN, UNIT, GOLD) == 0.0
+    # unresolved counts as FP and in n_pred
+    mixed = js(ext(ob(), ob(citation={"source": "us", "unit_id": UNIT.unit_id, "quote": "zzz"})))
+    assert no_hallucinated_obligation(mixed, UNIT, GOLD) == 0.5
+    assert reward(WRONG_SPAN, UNIT, GOLD).empty is False
 
 
 def test_composite_empty_vs_correct() -> None:

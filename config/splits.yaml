@@ -1,0 +1,7 @@
+seed: 0
+heldout_docs: [eurlex/AMLD4]   # source/doc_id; D-023
+test_frac: 0.10
+dev_frac: 0.05
+silver_val_n: 2000             # drawn from the train side; never trained on
+postcutoff_from: "2025-05-01"  # D-025
+group_levels: 2                # D-024: group by first N path levels within a doc

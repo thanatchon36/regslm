@@ -120,13 +120,22 @@ def resolve_span(text: str, quote: str) -> Span | None:
     return None
 
 
-def resolve(gen: GenExtraction, unit_id: str, source: str, text: str) -> Resolved:
-    """Turn a generated extraction into an ``Extraction`` with resolved character spans."""
+def resolve(
+    gen: GenExtraction, unit_id: str, source: str, text: str, heading: str = ""
+) -> Resolved:
+    """Turn a generated extraction into an ``Extraction`` with resolved character spans.
+
+    A quote that is not in ``text`` but is in the lead-in ``heading`` (guide R7: list points
+    inherit subject and modality from the lead-in) resolves to the whole unit text, since the
+    unit is the point the lead-in applies to.
+    """
     obligations: list[Obligation] = []
     unresolved: list[GenObligation] = []
     wrong_unit = 0
     for g in gen.obligations:
         span = resolve_span(text, g.citation.quote)
+        if span is None and text and heading and resolve_span(heading, g.citation.quote):
+            span = Span(start=0, end=len(text))
         if span is None:
             unresolved.append(g)
             continue

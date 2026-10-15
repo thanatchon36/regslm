@@ -7,6 +7,7 @@ from regslm.rewards.components import (
     no_hallucinated_obligation,
     numeric_exact,
     parse,
+    resolved,
     schema_valid,
     span_grounded,
 )
@@ -32,6 +33,7 @@ __all__ = [
     "normalize_text",
     "numeric_exact",
     "parse",
+    "resolved",
     "reward",
     "schema_valid",
     "span_grounded",

@@ -10,7 +10,7 @@ from pathlib import Path
 from typing import Any
 
 from regslm.corpus.base import Unit
-from regslm.schema import Extraction
+from regslm.schema.generation import GenExtraction, resolve
 from regslm.teacher.cache import CacheRow, TeacherCache, cache_key
 from regslm.teacher.engine import (
     CHAT_TEMPLATE_KWARGS,
@@ -36,14 +36,19 @@ def build_messages(unit: Unit, variant: Variant) -> list[dict[str, str]]:
 def validate_output(text: str, unit_id: str) -> tuple[str, bool]:
     """Return (stored output, valid). Valid outputs get ``unit_id`` forced to the input's."""
     try:
-        ex = Extraction.model_validate_json(text)
+        ex = GenExtraction.model_validate_json(text)
     except ValueError:
         return text, False
     return ex.model_copy(update={"unit_id": unit_id}).model_dump_json(), True
 
 
 def _metrics(
-    n_done: int, n_valid: int, new_units: int, gen: int, prompt: int, elapsed: float
+    n_done: int,
+    n_valid: int,
+    new_units: int,
+    gen: int,
+    prompt: int,
+    elapsed: float,
 ) -> dict[str, Any]:
     uph = new_units / elapsed * 3600 if elapsed > 0 and new_units else 0.0
     return {
@@ -131,16 +136,42 @@ def label_units(
             f"tok/s={metrics['tok_per_s']:.0f} u/h={metrics['units_per_hour']:.0f}",
             flush=True,
         )
-    (run_dir / "metrics.json").write_text(json.dumps(metrics, indent=2))
-    with (run_dir / "labels.jsonl").open("w", encoding="utf-8") as f:
-        for (u, _), k in zip(keyed, keys, strict=True):
-            r = cache.get(k)
-            assert r is not None
-            row = {
+    n_obl = n_unres = n_wrong = n_empty = 0
+    rows_out: list[dict[str, Any]] = []
+    for (u, _), k in zip(keyed, keys, strict=True):
+        r = cache.get(k)
+        assert r is not None
+        extraction: dict[str, Any] | None = None
+        n_u = wrong = 0
+        if r.valid:
+            res = resolve(
+                GenExtraction.model_validate_json(r.output), u.unit_id, u.source, u.text, u.heading
+            )
+            extraction = res.extraction.model_dump(mode="json")
+            n_u, wrong = len(res.unresolved), res.wrong_unit
+            n_obl += len(res.extraction.obligations) + n_u
+            n_unres += n_u
+            n_wrong += wrong
+            n_empty += not res.extraction.obligations and not n_u
+        rows_out.append(
+            {
                 "unit_id": u.unit_id,
                 "variant": variant,
-                "extraction": json.loads(r.output) if r.valid else None,
                 "valid": r.valid,
+                "extraction": extraction,
+                "n_unresolved": n_u,
+                "wrong_unit": wrong,
             }
+        )
+    metrics = {
+        **metrics,
+        "obligations_total": n_obl,
+        "unresolved_rate": n_unres / n_obl if n_obl else 0.0,
+        "wrong_unit_rate": n_wrong / n_obl if n_obl else 0.0,
+        "empty_rate": n_empty / n_valid if n_valid else 0.0,
+    }
+    (run_dir / "metrics.json").write_text(json.dumps(metrics, indent=2))
+    with (run_dir / "labels.jsonl").open("w", encoding="utf-8") as f:
+        for row in rows_out:
             f.write(json.dumps(row, ensure_ascii=False) + "\n")
     return metrics

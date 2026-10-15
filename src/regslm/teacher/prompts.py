@@ -17,7 +17,7 @@ from __future__ import annotations
 
 from typing import Literal
 
-PROMPT_VERSION = "v2"  # v2: citation.quote instead of character offsets (D-020)
+PROMPT_VERSION = "v3"  # v2: citation.quote (D-020); v3: quote from TEXT, not HEADING
 
 Variant = Literal["label", "rationale", "gold_a", "gold_b"]
 
@@ -48,7 +48,8 @@ or the authority itself) to do, not do, or be permitted to do something.
 - deadline = time limit or frequency, copied ("within 30 days", "annually", "at all times").
 - citation: source and unit_id exactly as given; quote = the sentence or clause of TEXT that
   contains the trigger word, copied character for character (do not shorten words, do not
-  fix typos). If TEXT is a single short item, quote all of it.
+  fix typos). If TEXT is a single short item, quote all of it. Always quote from TEXT,
+  never from HEADING — for a list point, quote the point itself.
 - confidence: your probability (0–1) that the obligation is correct.
 Use only numbers that appear in TEXT. Never use values you remember from other versions of
 this rule."""

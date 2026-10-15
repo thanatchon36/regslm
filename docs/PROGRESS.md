@@ -16,12 +16,12 @@
 - Teacher: Qwen3-14B-AWQ fits (D-015); `regslm label` runner with SQLite content-hash cache; prompts v1 (label / rationale / gold_a / gold_b).
 - Rewards module (100 % coverage); annotation guide v1 (36 examples); licence policy (tiers P/L/X); literature review (35 verified sources + gap table); pre-registration **draft** (`docs/RESEARCH_QUESTIONS.md`, not yet tagged).
 ### Running / in flight
-- `teacher-bench-label` (tmux): 200 EUR-Lex units, label variant → throughput for the 12 GPU-h budget plan. Check `results/runs/teacher-bench-label/metrics.json`.
-- Subagents: Thai adapter (HF `pythainlp/thailaw` + BoT), corpus snapshot CLI.
+- **`silver-eval-en-label`** (tmux, started 2026-10-15): teacher labels for test+dev+silver_val+heldout (8,457 units, ≈2.2 GPU-h). Poll `results/runs/silver-eval-en-label/metrics.json`; done when `DONE` exists. Resumable: re-launch the same make command — cached units are skipped.
+- Subagent: Thai adapter (output so far in `data/local/units/thai*.jsonl`; not yet in the snapshot).
 ### Next
-1. Teacher throughput → decide silver N (D-015 plan); label silver (label variant) in tmux.
-2. Snapshot → stratified gold sample (300) → gold pass A (14B) + pass B (Qwen3-8B, different prompt) → `data/gold/to_adjudicate.jsonl`.
-3. BIS / HKMA adapters (tier L, eval only); splits incl. held-out + perturbed + post-cutoff.
-4. Finalise and tag `prereg-v1`; then `make quick`.
+1. When eval labelling is done: `make label RUN=silver-train-en-label ARGS="--units data/local/jobs/train_trig_en.jsonl --variant label"` (19,918 units ≈ 5 h), then rationale variant on a 10k subset (D-027).
+2. Thai into snapshot → gold sample (`corpus.sample.stratified_gold`) → re-run `regslm split` (gold excluded) → gold pass A (14B, prompt gold_a) + pass B (Qwen3-8B-AWQ, gold_b; downloaded) → `data/gold/to_adjudicate.jsonl`.
+3. `regslm perturb-test` on test labels; inter-pass agreement metrics.
+4. Finalise + tag `prereg-v1`; `make quick`; training stack (`.venv-train`).
 ### How to resume
 `Read MISSION.md, docs/PROGRESS.md, docs/DECISIONS.md and continue`. Jobs: `tmux ls`; completion = `results/runs/<id>/DONE`; failure = `exit.json` with non-zero code.

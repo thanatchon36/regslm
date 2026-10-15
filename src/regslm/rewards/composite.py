@@ -10,7 +10,7 @@ from typing import Any
 import yaml
 
 from regslm.corpus.base import Unit
-from regslm.rewards.components import COMPONENTS, parse
+from regslm.rewards.components import COMPONENTS, resolved
 from regslm.rewards.normalize import match_obligations
 from regslm.schema.obligation import Extraction
 
@@ -67,10 +67,10 @@ def reward(
     wsum = sum(w[k] for k in names)
     inner = sum(w[k] * comps[k] for k in names) / wsum if wsum else 0.0
     total = w["schema"] * comps["schema"] * inner
-    ext = parse(completion)
+    r = resolved(completion, unit)
     recall = 0.0
-    if ext is not None and reference is not None:
-        matched = len(match_obligations(ext.obligations, reference.obligations))
+    if r is not None and reference is not None:
+        matched = len(match_obligations(r.extraction.obligations, reference.obligations))
         recall = matched / max(1, len(reference.obligations))
     recall_term = w["rec"] * recall
     return RewardBreakdown(
@@ -78,7 +78,7 @@ def reward(
         components=comps,
         recall=recall,
         recall_term=recall_term,
-        empty=ext is not None and not ext.obligations,
+        empty=r is not None and not r.extraction.obligations and not r.unresolved,
     )
 
 

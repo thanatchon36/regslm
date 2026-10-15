@@ -1,6 +1,6 @@
 # Annotation guide — obligations
 
-Version 1 (2026-10-15). Applies to gold adjudication, teacher prompts and evaluation.
+Version 1.1 (2026-10-15; 1.1: citations by quote, D-020). Applies to gold adjudication, teacher prompts and evaluation.
 Schema: `src/regslm/schema/obligation.py` (`Extraction` → `Obligation[]`). Ambiguities found
 during annotation go to `docs/INTERPRETATIONS.md` and, once resolved, into this guide with a
 version bump.
@@ -58,7 +58,7 @@ Rules:
 | `threshold` | The binding numeric quantity: `value` as a number (4.5 for "4.5 %"), `unit` ("%", "USD", "EUR", "days", "times", "basis points", "THB"), `comparator` (≥ for "at least", "not less than"; ≤ for "not exceed", "no more than"; == for "equal to"; > / < for "more/less than"). Thresholds that are part of the *condition* (an applicability trigger) stay in `condition` text and are **not** put in `threshold` unless they are the only number in the unit and the obligation is to comply with it. |
 | `deadline` | Time limit for performing the action, copied ("within 30 days after the end of each quarter", "by 31 March each year", "without undue delay"). Frequency ("annually") counts as a deadline. |
 | `exceptions` | Each "unless", "except", "other than", "provided that … does not", "notwithstanding" carve-out as its own string. |
-| `citation` | `source`, `unit_id`, `span` = char offsets `[start, end)` of the sentence containing the trigger, in the unit text exactly as stored. |
+| `citation` | `source`, `unit_id`, and the trigger sentence. Annotators and models write a verbatim `quote` of the sentence/clause containing the trigger; `span` = its character offsets `[start, end)` in the stored unit text, computed by `schema.generation.resolve` (D-020). A quote that does not resolve makes the obligation ungrounded. |
 | `confidence` | Teacher/model self-estimate; gold uses 1.0. Not evaluated except for calibration plots. |
 
 Cross-references ("in accordance with Article 26", "as defined in § 217.2") are kept verbatim
