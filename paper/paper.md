@@ -81,16 +81,22 @@ delegation clauses, and Thai triggers.
 *Silver:* the teacher labels all evaluation units and every training unit containing a deontic
 trigger; training units without one receive a rule-based empty label. *Gold:* 300 stratified
 units (240 en, 60 th, 40 without a trigger) annotated by two local passes with different prompts
-and models (14B, 8B), disagreements adjudicated by the author. Gold is never used for training
-or prompt tuning.
+and models (14B, 8B). The passes agreed on only 32 units under a tolerant match (span F1 0.55,
+has-any-obligation κ 0.17; the 8B pass over-extracts). The remaining 268 were adjudicated by
+Claude (Opus 5.5) under the annotation guide, with the author's authorisation and before any
+model was evaluated on gold, with a one-line rationale per decision (A 101, B 22, corrected
+145); the adjudicator belongs to a different model family from both passes and from every
+student. The final gold set has 160 obligations; 169 of the 300 units contain none. Gold is
+never used for training or prompt tuning.
 
 ## 3.4 Splits and contamination controls
 
 Splits are grouped by article/section so sibling paragraphs never straddle train and test
 (train 34,542; dev 2,155; silver-val 2,000; test 4,407; held-out 641; gold 300). The held-out
 rulebook is the EU Anti-Money-Laundering Directive (AMLD4). The perturbed test set rescales
-every number in the 440 numeric test units (and shifts dates) while keeping their format; the
-memorisation pool contains all 1,129 numeric non-training units under two perturbation seeds.
+every number in the 621 test units whose text or lead-in contains one (and shifts dates) while
+keeping their format; the memorisation pool contains all 1,451 numeric non-training units
+(gold included) under two perturbation seeds.
 The post-cutoff slice contains {{postcutoff.n_test}} test units amended on or after 2025-05-01.
 
 # 4. Methods (DRAFT)
@@ -122,7 +128,9 @@ gold); Holm correction within declared families.
 ## Threats to validity (pre-listed, DRAFT)
 
 - Silver labels: most scores measure agreement with the teacher, not correctness; gold (N = 300)
-  is small and adjudicated by one person.
+  is small and was adjudicated by an LLM (Claude), not by a human expert; an LLM adjudicator
+  may share systematic misreadings with the models it judges, although it is from a different
+  family than the teacher and students.
 - One main model family (Qwen3); Gemma 3 was dropped; SEA-LION enters only if budget allows.
 - English-heavy corpus; Thai and English test units come from different instruments.
 - Jurisdiction coverage: UK and Singapore rulebooks are excluded for licence reasons.
