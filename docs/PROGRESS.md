@@ -28,6 +28,7 @@
 5. After the teacher queue: `wsl --shutdown` window for the owner's .wslconfig (before full-FT 1.7B in block 3).
 ### Phase 4 — blocks 1–2 done (2026-10-16 16:29)
 - 46 runs OK. **8B prediction failed** (zs-qwen3-8b and both sft_ladder 8B seeds): vLLM 0.31 has no bitsandbytes support and the 8B merged checkpoint is still bnb-4bit; training succeeded, adapters kept. Fix in progress (D-050): merge into bf16 Qwen/Qwen3-8B, serve FP8.
+- Disk (2026-10-16, owner-approved, done by another session): `checkpoints/merged` deleted for quick, placebo 0.6B/1.7B, sft_ladder 0.6B s0-s2 and 4B s0/s1; adapters kept, rebuild with `regslm remerge --run-id <run>` (.venv-train) if needed (e.g. 4B for RQ4/GRPO).
 - Re-projection committed in 2fab961 (D-049): full plan 114.3 GPU-h → all seven §7 cuts → 96.4 projected (logged 15.8). Block 3 launched after this commit.
 
 ### How to resume
