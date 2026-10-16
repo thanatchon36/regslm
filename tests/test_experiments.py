@@ -21,7 +21,9 @@ from regslm.train.config import TrainConfig
 
 @pytest.fixture(scope="module")
 def grid() -> dict[str, Any]:
-    return G.load_grid()
+    g = G.load_grid()
+    g.pop("applied_cuts", None)  # tests reason about the uncut pre-registered grid
+    return g
 
 
 def legacy_projection(g: dict[str, Any]) -> dict[str, tuple[int, float]]:
@@ -126,6 +128,13 @@ def test_cuts_follow_registered_order(grid: dict[str, Any]) -> None:
     assert len(base) - len(cut) == 1 + 3
     assert all(c.priority != 8 for c in cut)
     assert next(k for k, _ in G.CUT_ORDER) == "drop_block8"
+
+
+def test_committed_cuts_from_grid(grid: dict[str, Any]) -> None:
+    g = {**grid, "applied_cuts": ["drop_block8", "thai_1seed"]}
+    assert G.expand(g) == G.expand(grid, cuts={"drop_block8", "thai_1seed"})
+    with pytest.raises(ValueError, match="prefix"):
+        G.expand({**grid, "applied_cuts": ["thai_1seed"]})  # skips cut (1): out of §7 order
 
 
 def test_nested_subsets_identical_across_bases() -> None:

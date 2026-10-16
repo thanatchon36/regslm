@@ -166,6 +166,9 @@ def main(argv: Sequence[str] | None = None) -> int:
     parents: dict[str, str | None] = {}
     for blk in names:
         bc = [c for c in cells if c.block == blk]
+        if not bc:  # every cell removed by a committed §7 cut; rows stay "not run" in tables
+            print(f"\n[-] {blk}: all cells cut (applied_cuts in config/grid.yaml)")
+            continue
         cum += sum(c.hours for c in bc)
         if a.block and blk != a.block:
             continue

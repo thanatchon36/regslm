@@ -138,6 +138,7 @@ def expand(
     ``revision == ""`` (projectable, but the runner refuses to emit them)."""
     rates = Rates(g, meas or {})
     revs = load_revisions() if revisions is None else revisions
+    cuts = set(cuts) | committed_cuts(g)
     hf_of = {k: v["hf"] for k, v in g["bases"].items()} | TEACHER_BASES
     cells: list[Cell] = []
 
@@ -212,6 +213,15 @@ def _quant_cells(
                       eval_sets=["test"], extra={"format": f, "backend": be, "from": c.get("from"),
                                                  "eval_units": units}))  # fmt: skip
     return out
+
+
+def committed_cuts(g: dict[str, Any]) -> set[str]:
+    """Cuts committed in grid.yaml ``applied_cuts``; must be a prefix of CUT_ORDER (§7 order)."""
+    applied = list(g.get("applied_cuts") or [])
+    keys = [k for k, _ in CUT_ORDER]
+    if applied != keys[: len(applied)]:
+        raise ValueError(f"applied_cuts {applied} must be a prefix of the §7 order {keys}")
+    return set(applied)
 
 
 def apply_cuts(cells: list[Cell], cuts: set[str]) -> list[Cell]:

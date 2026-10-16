@@ -4,6 +4,10 @@
 # (docs/RESEARCH_QUESTIONS.md §7) BEFORE launching a priority block.
 
 budget_gpu_hours: 100
+# §7 cuts committed after the block-2 re-projection (D-049): all seven are needed for the full plan
+# (114.3 -> 95.2 GPU-h projected with measured throughput). Must stay a prefix of CUT_ORDER.
+applied_cuts: [drop_block8, thai_1seed, drop_gptq, drop_4b_cpu, n20k_4b_1seed, 8b_labeleff_1seed,
+               method_variants_1seed]
 teacher_gpu_hours: 12          # tracked separately (labelling), not part of the 100
 seeds: [0, 1, 2]
 n_labels: [500, 2000, 10000, 20000]
