@@ -26,5 +26,9 @@
 3. When gold passes are DONE: `regslm gold build` → adjudication (delegated to Claude, D-048) → `regslm gold finalize` → `data/gold/gold.jsonl` (done 2026-10-15).
 4. When the teacher queue is finished: `make experiments BLOCK=zero_shot` then run its queue; then block 2 (sft_ladder_10k + placebo). After the first N=10k seed-0 run of each size: `experiments/throughput.py` → re-project → commit decision → next block (RESEARCH_QUESTIONS §7).
 5. After the teacher queue: `wsl --shutdown` window for the owner's .wslconfig (before full-FT 1.7B in block 3).
+### Phase 4 — blocks 1–2 done (2026-10-16 16:29)
+- 46 runs OK. **8B prediction failed** (zs-qwen3-8b and both sft_ladder 8B seeds): vLLM 0.31 has no bitsandbytes support and the 8B merged checkpoint is still bnb-4bit; training succeeded, adapters kept. Fix in progress (D-050): merge into bf16 Qwen/Qwen3-8B, serve FP8.
+- Re-projection committed in 2fab961 (D-049): full plan 114.3 GPU-h → all seven §7 cuts → 96.4 projected (logged 15.8). Block 3 launched after this commit.
+
 ### How to resume
 `Read MISSION.md, docs/PROGRESS.md, docs/DECISIONS.md and continue`. Jobs: `tmux ls`; completion = `results/runs/<id>/DONE`; failure = `exit.json` with non-zero code.
