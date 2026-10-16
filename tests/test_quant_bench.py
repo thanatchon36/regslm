@@ -281,3 +281,17 @@ def test_gguf_commands() -> None:
     q = Q.quantize_cmd(Path("f.gguf"), Path("o.gguf"), Q.GGUF_TYPES["gguf-q4km"])
     assert q[-1] == "Q4_K_M" and q[0].endswith("llama-quantize")
     assert Q.GGUF_TYPES["gguf-q8"] == "Q8_0"
+
+
+def test_merged_dir_prefers_bf16_when_merged_is_fp8_copy(tmp_path: Path) -> None:
+    from regslm.quant.export import merged_dir
+    from regslm.train.config import TrainConfig
+
+    cfg = TrainConfig(run_id="r8")
+    ck = cfg.run_dir(tmp_path) / "checkpoints"
+    (ck / "merged").mkdir(parents=True)
+    (ck / "merged" / "config.json").write_text("{}")
+    assert merged_dir(cfg, tmp_path) == ck / "merged"
+    (ck / "merged_bf16").mkdir()
+    (ck / "merged_bf16" / "config.json").write_text("{}")
+    assert merged_dir(cfg, tmp_path) == ck / "merged_bf16"

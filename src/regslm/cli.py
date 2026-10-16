@@ -349,6 +349,36 @@ def grpo(
 
 
 @app.command()
+def remerge(
+    run_id: Annotated[str, typer.Option(help="Trained LoRA/QLoRA run with checkpoints/adapter")],
+    runs_dir: Path = Path("results/runs"),
+) -> None:
+    """Redo the adapter merge (D-050: bnb base -> bf16 original, FP8 serving copy). .venv-train"""
+    import shutil
+
+    from regslm.train.config import TrainConfig
+    from regslm.train.sft import merge_adapter
+
+    cfg = TrainConfig.load(run_id, runs_dir)
+    ck = cfg.run_dir(runs_dir) / "checkpoints"
+    for d in ("merged", "merged_bf16"):
+        shutil.rmtree(ck / d, ignore_errors=True)
+    merge_adapter(cfg, ck / "adapter", ck / "merged")
+    typer.echo(f"{run_id}: merged -> {ck / 'merged'}")
+
+
+@app.command()
+def fp8(
+    src: Annotated[Path, typer.Option(help="bf16 checkpoint directory")],
+    out: Annotated[Path, typer.Option(help="Output directory (compressed-tensors FP8)")],
+) -> None:
+    """FP8-dynamic copy of a checkpoint for vLLM serving (.venv-quant; D-050)."""
+    from regslm.quant.export import export_llmcompressor
+
+    typer.echo(json.dumps(export_llmcompressor("fp8", src, out, [])))
+
+
+@app.command()
 def quantize(
     run_id: Annotated[str, typer.Option(help="Trained run with checkpoints/merged")],
     formats: Annotated[str, typer.Option(help="fp8,awq,gptq,gguf-q8,gguf-q4km")] = (

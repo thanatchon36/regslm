@@ -296,3 +296,18 @@ def test_zero_shot_prompt_is_teacher_prompt_plus_schema() -> None:
     msgs = zero_shot_messages(u)
     assert msgs[0]["content"].startswith(system_prompt("label"))
     assert '"quote"' in msgs[0]["content"] and "unit_id: s/d/1" in msgs[1]["content"]
+
+
+def test_merge_source_maps_bnb_base_to_bf16_original(tmp_path: Path) -> None:
+    from regslm.train.sft import SERVE_FP8, merge_source
+
+    revs = tmp_path / "revs.json"
+    revs.write_text(json.dumps({"Qwen/Qwen3-8B": "abc"}))
+    bnb = TrainConfig(run_id="r", base="unsloth/Qwen3-8B-unsloth-bnb-4bit", method="qlora")
+    assert merge_source(bnb, revs) == ("Qwen/Qwen3-8B", "abc")
+    assert bnb.base in SERVE_FP8
+    plain = TrainConfig(run_id="r", base="Qwen/Qwen3-4B", revision="r4")
+    assert merge_source(plain, revs) == ("Qwen/Qwen3-4B", "r4") and plain.base not in SERVE_FP8
+    revs.write_text("{}")
+    with pytest.raises(ValueError, match="no pinned revision"):
+        merge_source(bnb, revs)

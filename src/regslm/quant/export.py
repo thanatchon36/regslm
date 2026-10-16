@@ -36,7 +36,9 @@ def parse_formats(s: str) -> list[str]:
 
 
 def merged_dir(cfg: TrainConfig, runs: Path = RUNS_DIR) -> Path:
-    d = cfg.run_dir(runs) / "checkpoints" / "merged"
+    """bf16 merged checkpoint; ``merged_bf16`` when ``merged`` is an FP8 serving copy (D-050)."""
+    ck = cfg.run_dir(runs) / "checkpoints"
+    d = ck / "merged_bf16" if (ck / "merged_bf16" / "config.json").exists() else ck / "merged"
     if not (d / "config.json").exists():
         raise FileNotFoundError(f"no merged checkpoint at {d}; train first")
     return d

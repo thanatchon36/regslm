@@ -7,5 +7,6 @@
   "unsloth/Qwen3-8B-unsloth-bnb-4bit": "62efd7f9d748e394734a7adae2adf96e13a2abc8",
   "scb10x/llama3.2-typhoon2-1b-instruct": "7513a054da229b9dde7c8cd1a7da57baa36ac59b",
   "scb10x/llama3.2-typhoon2-3b-instruct": "f19347e6b877710c92550ad0a81689a5c9f337b4",
-  "aisingapore/Llama-SEA-LION-v3-8B-IT": "8c47429ff91723eb72dc2845e6d6f47ef6d49e18"
+  "aisingapore/Llama-SEA-LION-v3-8B-IT": "8c47429ff91723eb72dc2845e6d6f47ef6d49e18",
+  "Qwen/Qwen3-8B": "b968826d9c46dd6066d109eabc6255188de91218"
 }

@@ -117,18 +117,59 @@ def _load_model(cfg: TrainConfig) -> tuple[Any, Any, str]:
     return model, tok, "plain"
 
 
+# D-050: vLLM 0.31 cannot load bitsandbytes checkpoints, and an 8B model does not fit 12 GB in
+# bf16. Adapters trained on a pre-quantised bnb base are merged into its bf16 original; bases in
+# SERVE_FP8 keep the bf16 merge in ``merged_bf16`` (input for RQ4 quantization) and are served from
+# an FP8-dynamic copy in ``merged``.
+MERGE_BASES = {"unsloth/Qwen3-8B-unsloth-bnb-4bit": "Qwen/Qwen3-8B"}
+SERVE_FP8 = {
+    "unsloth/Qwen3-8B-unsloth-bnb-4bit",
+    "Qwen/Qwen3-8B",
+    "aisingapore/Llama-SEA-LION-v3-8B-IT",
+}
+REVISIONS_PATH = Path("results/base_revisions.json")
+
+
+def merge_source(cfg: TrainConfig, revisions: Path = REVISIONS_PATH) -> tuple[str, str | None]:
+    """(model id, revision) to merge the adapter into: the bf16 original of a bnb base."""
+    src = MERGE_BASES.get(cfg.base)
+    if src is None:
+        return cfg.base, cfg.revision
+    rev = json.loads(revisions.read_text()).get(src) if revisions.exists() else None
+    if not rev:
+        raise ValueError(f"merge base {src} has no pinned revision in {revisions}")
+    return src, rev
+
+
+def fp8_convert(src: Path, out: Path) -> None:
+    """FP8-dynamic copy of a bf16 checkpoint (llmcompressor lives in .venv-quant)."""
+    import subprocess
+
+    env = {**os.environ, "UV_PROJECT_ENVIRONMENT": ".venv-quant"}
+    cmd = ["uv", "run", "--no-sync", "regslm", "fp8", "--src", str(src), "--out", str(out)]
+    subprocess.run(cmd, env=env, check=True)
+
+
 def merge_adapter(cfg: TrainConfig, adapter_dir: Path, out_dir: Path) -> None:
-    """Merge a LoRA adapter into the bf16 base on CPU (also for QLoRA) and save."""
+    """Merge a LoRA adapter into the bf16 base on CPU (also for QLoRA) and save; FP8 copy for
+    SERVE_FP8 bases (D-050)."""
+    import gc
+
     import torch
     from peft import PeftModel
     from transformers import AutoModelForCausalLM, AutoTokenizer
 
-    base = AutoModelForCausalLM.from_pretrained(
-        cfg.base, revision=cfg.revision, dtype=torch.bfloat16
-    )
+    src, rev = merge_source(cfg)
+    fp8 = cfg.base in SERVE_FP8
+    dest = out_dir.parent / "merged_bf16" if fp8 else out_dir
+    base = AutoModelForCausalLM.from_pretrained(src, revision=rev, dtype=torch.bfloat16)
     merged = PeftModel.from_pretrained(base, str(adapter_dir)).merge_and_unload()
-    merged.save_pretrained(out_dir, safe_serialization=True)
-    AutoTokenizer.from_pretrained(cfg.base, revision=cfg.revision).save_pretrained(out_dir)
+    merged.save_pretrained(dest, safe_serialization=True)
+    AutoTokenizer.from_pretrained(src, revision=rev).save_pretrained(dest)
+    del base, merged
+    gc.collect()
+    if fp8:
+        fp8_convert(dest, out_dir)
 
 
 def _train(cfg: TrainConfig, run_dir: Path) -> dict[str, Any]:
