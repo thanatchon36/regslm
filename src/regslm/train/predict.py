@@ -292,6 +292,15 @@ def predict(
         return rows
 
     meta: dict[str, Any] = {"sets": {}, "pending_sets": pending}
+    meta_p = run_dir / "predict_meta.json"
+    if meta_p.exists():  # adding a set later (e.g. gold, D-044) keeps the earlier sets' records
+        old = json.loads(meta_p.read_text())
+        meta["sets"] = {k: v for k, v in old.get("sets", {}).items() if k not in names}
+        meta["pending_sets"] = sorted(
+            (set(old.get("pending_sets", [])) - set(names)) | set(pending)
+        )
+        if "model" in old:
+            meta["model"] = old["model"]
     done_rows: dict[str, dict[str, dict[str, Any]]] = {}
     for name in names:
         items = todo[name]
@@ -319,5 +328,5 @@ def predict(
         }  # fmt: skip
     if llm_box:
         meta["model"] = llm_box[0][1]
-    (run_dir / "predict_meta.json").write_text(json.dumps(meta, indent=2))
+    meta_p.write_text(json.dumps(meta, indent=2))
     return meta
